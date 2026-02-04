@@ -132,6 +132,16 @@ class RepairOrder(models.Model):
         blank=True,
         verbose_name='Tuzaldi sana'
     )
+    remind_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name='Eslatma vaqti'
+    )
+    reminder_fired_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name='Eslatma berilgan vaqt'
+    )
     notes = models.TextField(
         blank=True,
         verbose_name='Qo\'shimcha eslatmalar'

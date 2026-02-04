@@ -133,6 +133,49 @@ def autocomplete(request):
     return JsonResponse({'results': results})
 
 
+def reminders_due(request):
+    """Eslatmalar: vaqt keldi (shop bo'yicha)."""
+    shop = getattr(request, 'shop', None)
+    if not shop:
+        return JsonResponse({'results': []})
+    now = timezone.now()
+    qs = RepairOrder.objects.filter(
+        shop=shop,
+        remind_at__isnull=False,
+        remind_at__lte=now,
+        reminder_fired_at__isnull=True,
+    ).order_by('remind_at')[:20]
+    results = []
+    for o in qs:
+        results.append({
+            'id': o.pk,
+            'phone_model': o.phone_model,
+            'required_parts': o.required_parts or '',
+            'client_name': o.client_name or '',
+            'client_phone': o.client_phone or '',
+            'remind_at': o.remind_at.isoformat() if o.remind_at else None,
+        })
+    return JsonResponse({'results': results})
+
+
+def reminders_ack(request):
+    """Eslatma berildi deb belgilash (qayta-qayta chiqmasin)."""
+    if request.method != 'POST':
+        return JsonResponse({'ok': False}, status=405)
+    shop = getattr(request, 'shop', None)
+    if not shop:
+        return JsonResponse({'ok': False}, status=403)
+    try:
+        rid = int(request.POST.get('id', '0'))
+    except (ValueError, TypeError):
+        rid = 0
+    if not rid:
+        return JsonResponse({'ok': False}, status=400)
+    now = timezone.now()
+    updated = RepairOrder.objects.filter(shop=shop, pk=rid, reminder_fired_at__isnull=True).update(reminder_fired_at=now)
+    return JsonResponse({'ok': bool(updated)})
+
+
 def order_list(request):
     """Ta'mirlanayotgan buyurtmalar ro'yxati"""
     q = (request.GET.get('q') or '').strip()

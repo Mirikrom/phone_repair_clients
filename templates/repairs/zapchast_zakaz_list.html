@@ -205,7 +205,7 @@ document.getElementById('btn-rasm').addEventListener('click', function() {
         ids.push(cb.dataset.id);
     });
     if (ids.length) {
-        var url = '{% url "repairs:zapchast_image" %}?ids=' + ids.join(',') + '&auto=1';
+        var url = '{% url "repairs:zapchast_image" %}?ids=' + ids.join(',');
         window.open(url, 'zapchast_rasm', 'width=500,height=600');
     }
 });

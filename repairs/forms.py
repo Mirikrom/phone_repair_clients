@@ -35,7 +35,8 @@ class RepairOrderForm(forms.ModelForm):
             'laminat',
             'ready_deadline',
             'ready_deadline_uncertain',
-            'notes'
+            'notes',
+            'remind_at'
         ]
         widgets = {
             'phone_model': forms.TextInput(attrs={'class': 'form-control', 'autocomplete': 'off'}),
@@ -56,6 +57,7 @@ class RepairOrderForm(forms.ModelForm):
             }),
             'ready_deadline_uncertain': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'remind_at': forms.DateTimeInput(attrs={'type': 'datetime-local', 'class': 'form-control'}),
         }
         labels = {
             'phone_model': 'Telefon modeli *',
@@ -70,4 +72,5 @@ class RepairOrderForm(forms.ModelForm):
             'ready_deadline': 'Tayyor bo\'lish muddati',
             'ready_deadline_uncertain': 'Hali tuzattirishi aniq emas',
             'notes': 'Qo\'shimcha eslatmalar',
+            'remind_at': 'Eslatish (sana/vaqt)',
         }
