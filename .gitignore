@@ -7,6 +7,7 @@ __pycache__/
 db.sqlite3
 media/
 staticfiles/
+phone_shop/settings.py
 
 # Virtual env
 venv/
