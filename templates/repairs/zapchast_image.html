@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZAPCHASTLAR</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background: #f1f5f9;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .toolbar {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            z-index: 1000;
+            display: flex;
+            gap: 10px;
+        }
+        .toolbar button {
+            padding: 10px 18px;
+            font-size: 15px;
+            cursor: pointer;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-save {
+            background: #2563eb;
+            color: #fff;
+        }
+        .btn-save:hover { background: #1d4ed8; }
+        .btn-print {
+            background: #10b981;
+            color: #fff;
+        }
+        .btn-print:hover { background: #059669; }
+        #zapchast-card {
+            max-width: 600px;
+            margin: 60px auto 30px;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+            padding: 24px;
+        }
+        .card-title {
+            text-align: center;
+            font-size: 22px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+        .card-subtitle {
+            text-align: center;
+            font-size: 14px;
+            color: #64748b;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 16px;
+        }
+        th, td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: #475569;
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+        td { color: #1e293b; }
+        tr:last-child td { border-bottom: none; }
+        .checkbox-cell {
+            width: 50px;
+            text-align: center;
+        }
+        .checkbox-box {
+            display: inline-flex;
+            width: 28px;
+            height: 28px;
+            border: 2px solid #334155;
+            border-radius: 6px;
+            margin: 0 auto;
+        }
+        .model-cell { font-weight: 600; color: #334155; }
+        .name-cell { font-size: 17px; font-weight: 500; }
+        .qty-cell { text-align: center; font-weight: 600; }
+        @media (max-width: 767px) {
+            body { padding: 10px; }
+            #zapchast-card {
+                max-width: 100%;
+                margin: 50px auto 20px;
+                padding: 12px;
+            }
+            .card-title { font-size: 16px; margin-bottom: 4px; }
+            .card-subtitle { font-size: 12px; margin-bottom: 12px; }
+            table { font-size: 12px; }
+            th, td { padding: 6px 8px; }
+            th { font-size: 11px; }
+            .model-cell { font-size: 11px; word-break: break-word; }
+            .name-cell { font-size: 13px; }
+            .checkbox-cell { width: 32px; }
+            .checkbox-box { width: 18px; height: 18px; }
+            .toolbar { top: 8px; right: 8px; gap: 6px; }
+            .toolbar button { padding: 8px 12px; font-size: 13px; }
+        }
+        .empty-msg {
+            text-align: center;
+            padding: 40px 20px;
+            color: #64748b;
+            font-size: 16px;
+        }
+        @media print {
+            body { background: #fff; padding: 0; }
+            .toolbar { display: none !important; }
+            #zapchast-card { margin: 0; box-shadow: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="toolbar">
+        <button type="button" class="btn-save" onclick="saveAsImage()">
+            <svg width="18" height="18" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z"/></svg>
+            Rasmni saqlab olish
+        </button>
+        <button type="button" class="btn-print" onclick="window.print()">
+            <svg width="18" height="18" fill="currentColor" viewBox="0 0 16 16"><path d="M2.5 8a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1z"/><path d="M5 1a2 2 0 0 0-2 2v2H2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V3a2 2 0 0 0-2-2H5zM4 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2H4V3zm1 5a2 2 0 0 0-2 2v1H2a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v-1a2 2 0 0 0-2-2H5zm7 2v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1z"/></svg>
+            Pechat
+        </button>
+    </div>
+
+    <div id="zapchast-card">
+        <div class="card-title">ZAPCHASTLAR</div>
+        <div class="card-subtitle">{{ items|length }} ta</div>
+
+        {% if items %}
+        <table>
+            <thead>
+                <tr>
+                    <th class="checkbox-cell"></th>
+                    <th>Model</th>
+                    <th>Zapchast</th>
+                    <th class="qty-cell" style="width: 70px;">Soni</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr>
+                    <td class="checkbox-cell"><div class="checkbox-box"></div></td>
+                    <td class="model-cell">{% if item.phone_model %}{{ item.phone_model }}{% elif item.repair_order %}{{ item.repair_order.phone_model }}{% else %}—{% endif %}</td>
+                    <td class="name-cell">{{ item.name }}</td>
+                    <td class="qty-cell">{{ item.quantity }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-msg">Zapchast tanlanmagan</div>
+        {% endif %}
+    </div>
+
+    <script>
+    if (window.location.search.includes('auto=1')) {
+        window.onload = function() {
+            window.print();
+            window.addEventListener('afterprint', function() { window.close(); }, { once: true });
+            setTimeout(function() { window.close(); }, 3000);
+        };
+    }
+    function saveAsImage() {
+        var card = document.getElementById('zapchast-card');
+        html2canvas(card, {
+            scale: 2,
+            useCORS: true,
+            backgroundColor: '#ffffff',
+            logging: false
+        }).then(function(canvas) {
+            var link = document.createElement('a');
+            var now = new Date();
+            var fname = 'zapchast_' + now.getFullYear() + '-' + (now.getMonth()+1) + '-' + now.getDate() + '_' + now.getHours() + '-' + now.getMinutes() + '.png';
+            link.download = fname;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        });
+    }
+    </script>
+</body>
+</html>

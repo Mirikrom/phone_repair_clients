@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>{% block title %}Telefon Ustaxonasi{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --accent: #f59e0b;
+        }
+        body {
+            min-height: 100vh;
+            background: linear-gradient(160deg, #f8fafc 0%, #e2e8f0 50%, #f1f5f9 100%);
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+        .navbar {
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+        }
+        .card {
+            border: none;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            border: none;
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+        }
+        .nav-menu-item {
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 10px;
+            padding: 0.4rem 1rem !important;
+            margin: 0 0.25rem;
+            transition: all 0.2s;
+        }
+        .nav-menu-item:hover {
+            background: rgba(255,255,255,0.15) !important;
+            border-color: rgba(255,255,255,0.5);
+        }
+        .nav-menu-item.active {
+            background: rgba(255,255,255,0.2) !important;
+            border-color: rgba(255,255,255,0.6);
+        }
+        .nav-menu-text { display: inline; }
+        @media (min-width: 992px) {
+            .nav-menu-text {
+                max-width: 0;
+                overflow: hidden;
+                opacity: 0;
+                white-space: nowrap;
+                transition: max-width 0.25s ease, opacity 0.2s;
+                display: inline-block;
+                vertical-align: middle;
+                margin-left: 0;
+            }
+            .nav-menu-item:hover .nav-menu-text,
+            .nav-menu-item.active .nav-menu-text {
+                max-width: 18em;
+                opacity: 1;
+                margin-left: 0.35rem;
+            }
+            .nav-menu-item { padding: 0.5rem 0.65rem !important; }
+            .nav-menu-item .me-1 { margin-right: 0 !important; }
+        }
+        .btn-yangi-buyurtma {
+            background: #fff !important;
+            color: #1d4ed8 !important;
+            border: 2px solid #fff !important;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        .btn-yangi-buyurtma:hover {
+            background: #f8fafc !important;
+            color: #1e40af !important;
+            border-color: #fff !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        /* Mobil optimizatsiya */
+        @media (max-width: 991px) {
+            body { padding-bottom: env(safe-area-inset-bottom, 0); }
+            .navbar .container { padding-left: 0.75rem; padding-right: 0.75rem; }
+            .navbar-brand { font-size: 1rem; }
+            .nav-menu-item {
+                padding: 0.6rem 1rem !important;
+                margin: 0.2rem 0;
+                min-height: 44px;
+                display: flex;
+                align-items: center;
+            }
+            .nav-menu-item .badge { font-size: 0.7rem; }
+            .btn-yangi-buyurtma { min-height: 44px; padding: 0.5rem 1rem !important; }
+        }
+        @media (max-width: 767px) {
+            main.container { padding-left: 0.5rem !important; padding-right: 0.5rem !important; padding-top: 1rem !important; }
+            .card { border-radius: 12px; }
+            .card-header { padding: 0.75rem 1rem !important; font-size: 0.95rem; }
+            .table { font-size: 0.875rem; }
+            .table th, .table td { padding: 0.5rem 0.4rem !important; }
+            .table-responsive { -webkit-overflow-scrolling: touch; margin: 0 -0.5rem; padding: 0 0.5rem; }
+            .btn { min-height: 44px; padding: 0.5rem 1rem; }
+            .btn-sm { min-height: 38px; padding: 0.35rem 0.75rem; }
+            .form-control, .form-select { font-size: 16px !important; min-height: 44px; }
+            .form-check-input { width: 22px; height: 22px; }
+            .form-check-label { min-height: 22px; display: flex; align-items: center; }
+            h2 { font-size: 1.35rem; }
+            .d-flex.gap-2 .btn { flex: 1 1 auto; min-width: 0; }
+        }
+        @media (max-width: 575px) {
+            .navbar-brand { font-size: 0.95rem; }
+            .navbar-brand i { margin-right: 0.25rem; }
+            .nav-menu-item { font-size: 0.9rem; }
+            .history-tab { padding: 0.5rem 0.75rem !important; font-size: 0.9rem; }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="{% url 'repairs:order_list' %}">
+                <i class="bi bi-phone"></i> Telefon Ustaxonasi
+            </a>
+            {% if user_has_shop %}
+            <button type="button" class="btn btn-sm btn-light ms-2 ms-md-3" data-bs-toggle="modal" data-bs-target="#vizitkaModal" title="Vizitkani chop etish">
+                <i class="bi bi-printer"></i> Vizitkani chop etish
+            </button>
+            {% endif %}
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center gap-1">
+                    {% if user_has_shop %}
+                    <li class="nav-item">
+                        <a class="nav-link nav-menu-item {% if request.resolver_match.url_name in 'order_list,order_detail,order_edit' %}active{% endif %}" href="{% url 'repairs:order_list' %}" title="Buyurtmalar">
+                            <i class="bi bi-list-ul me-1"></i><span class="nav-menu-text"> Buyurtmalar</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-menu-item {% if request.resolver_match.url_name in 'ready_phones_list,order_complete_confirm' %}active{% endif %}" href="{% url 'repairs:ready_phones_list' %}" title="Tayyor bo'lgan telefonlar">
+                            <i class="bi bi-check-circle me-1"></i><span class="nav-menu-text"> Tayyor bo'lgan telefonlar</span>
+                            {% if ready_phones_count %}
+                            <span class="badge bg-danger ms-1">{{ ready_phones_count }}</span>
+                            {% endif %}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-menu-item {% if request.resolver_match.url_name in 'zapchast_zakaz_list,zapchast_edit,zapchast_add' %}active{% endif %}" href="{% url 'repairs:zapchast_zakaz_list' %}" title="ZAPCHASTLAR">
+                            <i class="bi bi-box-seam me-1"></i><span class="nav-menu-text"> ZAPCHASTLAR</span>
+                            {% if zapchast_count %}
+                            <span class="badge bg-warning text-dark ms-1">{{ zapchast_count }}</span>
+                            {% endif %}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-menu-item {% if request.resolver_match.url_name == 'order_history' %}active{% endif %}" href="{% url 'repairs:order_history' %}" title="Istoriya">
+                            <i class="bi bi-clock-history me-1"></i><span class="nav-menu-text"> Istoriya</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-menu-item {% if request.resolver_match.url_name == 'debtors_list' %}active{% endif %}" href="{% url 'repairs:debtors_list' %}" title="Qarzdorlar ro'yxati">
+                            <i class="bi bi-wallet2 me-1"></i><span class="nav-menu-text"> Qarzdorlar ro'yxati</span>
+                            {% if debt_reminder_count %}
+                            <span class="badge bg-danger ms-1" title="Muddati kelgan qarzdorlar">{{ debt_reminder_count }}</span>
+                            {% endif %}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-menu-item btn btn-yangi-buyurtma btn-sm px-3 {% if request.resolver_match.url_name == 'order_create' %}active{% endif %}" href="{% url 'repairs:order_create' %}" title="Yangi buyurtma">
+                            <i class="bi bi-plus-lg me-1"></i><span class="nav-menu-text"> Yangi buyurtma</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-menu-item text-white-50" href="{% url 'repairs:logout' %}" title="Chiqish">
+                            <i class="bi bi-box-arrow-right me-1"></i><span class="nav-menu-text"> Chiqish</span>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link nav-menu-item" href="{% url 'repairs:login' %}" title="Kirish">
+                            <i class="bi bi-box-arrow-in-right me-1"></i><span class="nav-menu-text"> Kirish</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-menu-item" href="{% url 'repairs:register' %}" title="Ro'yxatdan o'tish">
+                            <i class="bi bi-person-plus me-1"></i><span class="nav-menu-text"> Ro'yxatdan o'tish</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container py-4 px-2 px-md-3">
+        {% if debt_reminder_count %}
+        <div class="alert alert-warning alert-dismissible fade show d-flex align-items-center" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2 fs-4"></i>
+            <div>
+                <strong>Eslatma!</strong> {{ debt_reminder_count }} ta qarzdorning to'lash muddati kelgan.
+                <a href="{% url 'repairs:debtors_list' %}" class="alert-link">Qarzdorlar ro'yxatini ko'ring</a>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endif %}
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+        {% block content %}{% endblock %}
+    </main>
+
+    {% if user_has_shop %}
+    <div class="modal fade" id="vizitkaModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-printer me-2"></i>Nimani chop etmoqchisiz?</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="d-grid gap-2">
+                        <button type="button" class="btn btn-primary btn-vizitka-print" data-url="{% url 'repairs:vizitka_print' %}">
+                            <i class="bi bi-person-vcard me-2"></i> Vizitkani chop etish
+                        </button>
+                        <button type="button" class="btn btn-success btn-carta-print" data-url="{% url 'repairs:carta_nomer_print' %}">
+                            <i class="bi bi-credit-card me-2"></i> Carta nomerini chop etish
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    {% if user_has_shop %}
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var modal = document.getElementById('vizitkaModal');
+        if (modal) {
+            modal.querySelectorAll('.btn-vizitka-print, .btn-carta-print').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    var url = this.getAttribute('data-url');
+                    if (url) {
+                        var sep = url.indexOf('?') >= 0 ? '&' : '?';
+                        var printUrl = (url.startsWith('http') ? '' : window.location.origin) + url + sep + 'auto=1';
+                        window.open(printUrl, 'vizitka_print', 'width=450,height=600');
+                        var m = bootstrap.Modal.getInstance(modal);
+                        if (m) m.hide();
+                    }
+                });
+            });
+        }
+    });
+    </script>
+    {% endif %}
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

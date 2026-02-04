@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chop etish</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body { padding: 40px 20px; background: #f1f5f9; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .card { max-width: 400px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        .btn-choice { padding: 16px 24px; font-size: 16px; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="card-body p-4">
+            <h5 class="card-title mb-4"><i class="bi bi-printer me-2"></i>Nimani chop etmoqchisiz?</h5>
+            <div class="d-grid gap-3">
+                <a href="{% url 'repairs:vizitka_print' %}" target="_blank" class="btn btn-primary btn-choice">
+                    <i class="bi bi-person-vcard me-2"></i> Vizitkani chop etish
+                </a>
+                <a href="{% url 'repairs:carta_nomer_print' %}" target="_blank" class="btn btn-success btn-choice">
+                    <i class="bi bi-credit-card me-2"></i> Carta nomerini chop etish
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

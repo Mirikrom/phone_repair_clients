@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% load repair_filters %}
+
+{% block title %}Qarzdorlar ro'yxati - Telefon Ustaxonasi{% endblock %}
+
+{% block extra_css %}
+<style>
+.debtor-row:hover { background-color: #fef3c7 !important; }
+@media (max-width: 767px) {
+    .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .table { min-width: 500px; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+    <div>
+        <h2 class="mb-1 fw-bold" style="color: #1e293b;"><i class="bi bi-wallet2 text-warning me-2"></i>Qarzdorlar ro'yxati</h2>
+        <p class="text-muted mb-0 small">Olib ketilgan va qarz qoldirgan mijozlar — {{ debtors|length }} ta</p>
+    </div>
+    <a href="{% url 'repairs:order_list' %}" class="btn btn-outline-primary px-4 py-2">
+        <i class="bi bi-arrow-left me-2"></i> Buyurtmalar
+    </a>
+</div>
+
+<div class="card border-0">
+    <div class="card-header py-3" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 16px 16px 0 0;">
+        <h6 class="mb-0 fw-bold" style="color: #92400e;"><i class="bi bi-wallet2 me-2"></i>Qarzdor mijozlar</h6>
+    </div>
+    <div class="card-body p-0">
+        {% if debtors %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+                <thead style="background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);">
+                    <tr class="border-bottom">
+                        <th class="py-3 px-3 text-uppercase small fw-semibold text-secondary">#</th>
+                        <th class="py-3 px-3 text-uppercase small fw-semibold text-secondary">Model</th>
+                        <th class="py-3 px-3 text-uppercase small fw-semibold text-secondary">Nomer</th>
+                        <th class="py-3 px-3 text-uppercase small fw-semibold text-secondary">Qarz</th>
+                        <th class="py-3 px-3 text-uppercase small fw-semibold text-secondary">Muddat</th>
+                        <th class="py-3 px-3 text-uppercase small fw-semibold text-secondary">Narxi</th>
+                        <th class="py-3 px-3 text-uppercase small fw-semibold text-secondary">Zaklad</th>
+                        <th class="py-3 px-3 text-uppercase small fw-semibold text-secondary">Sana</th>
+                        <th class="py-3 px-3 text-uppercase small fw-semibold text-secondary text-end">Amallar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in debtors %}
+                    <tr class="debtor-row border-bottom" data-href="{% url 'repairs:order_detail' order.pk %}" style="cursor: pointer;">
+                        <td class="py-3 px-3 text-muted">{{ forloop.counter }}</td>
+                        <td class="py-3 px-3"><strong class="text-dark">{{ order.phone_model }}</strong></td>
+                        <td class="py-3 px-3">{{ order.client_phone|phone_without_prefix }}</td>
+                        <td class="py-3 px-3"><span class="text-warning fw-medium">{% if order.handover_notes %}{{ order.handover_notes }}{% else %}Qarz{% endif %}</span></td>
+                        <td class="py-3 px-3">{% if order.debt_deadline %}{{ order.debt_deadline|date:"d.m.Y" }}{% if order.debt_deadline <= today %} <span class="badge bg-danger">Muddat o'tdi</span>{% endif %}{% else %}—{% endif %}</td>
+                        <td class="py-3 px-3">{% if order.repair_cost %}{{ order.repair_cost|intcomma_uz }}{% else %}—{% endif %}</td>
+                        <td class="py-3 px-3">{% if order.deposit_amount %}{{ order.deposit_amount|intcomma_uz }}{% else %}—{% endif %}</td>
+                        <td class="py-3 px-3">{% if order.completed_at %}{{ order.completed_at|date:"d.m.Y H:i" }}{% else %}{{ order.created_at|date:"d.m.Y H:i" }}{% endif %}</td>
+                        <td class="no-row-click py-3 px-3 text-end" onclick="event.stopPropagation();">
+                            <a href="{% url 'repairs:order_detail' order.pk %}" class="btn btn-sm btn-outline-primary rounded-pill px-3" title="Ko'rish">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <a href="{% url 'repairs:order_delete' order.pk %}?next=repairs:debtors_list" class="btn btn-sm btn-outline-danger rounded-pill px-3" title="O'chirish">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5 px-4">
+            <i class="bi bi-wallet2 display-4 text-muted opacity-50"></i>
+            <p class="text-muted mt-3 mb-0">Qarzdorlar ro'yxati bo'sh</p>
+            <p class="text-muted small">Olib ketildi oynasida "Qarz" belgilab yuborganlar shu yerga qo'shiladi</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+document.querySelectorAll('.debtor-row').forEach(row => {
+    row.addEventListener('click', function(e) {
+        if (!e.target.closest('.no-row-click')) {
+            window.location.href = this.dataset.href;
+        }
+    });
+});
+</script>
+{% endblock %}

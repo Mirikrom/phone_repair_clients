@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% load repair_filters %}
+
+{% block title %}Buyurtmalar - Telefon Ustaxonasi{% endblock %}
+
+{% block extra_css %}
+<style>
+.order-row:hover { background-color: #f1f5f9 !important; }
+.ready-row:hover { background-color: #ecfdf5 !important; }
+.date-separator td { border-bottom: 2px solid #cbd5e1 !important; }
+@media (max-width: 767px) {
+    .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .table { min-width: 800px; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+    <div>
+        <h2 class="mb-1 fw-bold" style="color: #1e293b;"><i class="bi bi-clipboard2-pulse text-primary me-2"></i>Buyurtmalar ro'yxati</h2>
+        <p class="text-muted mb-0 small">Barcha ta'mirlash buyurtmalari</p>
+    </div>
+    <a href="{% url 'repairs:order_create' %}" class="btn btn-primary px-4 py-2 shadow-sm">
+        <i class="bi bi-plus-lg me-2"></i> Yangi buyurtma
+    </a>
+</div>
+
+<div class="card border-0">
+    <div class="card-header py-3" style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border-radius: 16px 16px 0 0;">
+        <h6 class="mb-0 fw-bold text-secondary"><i class="bi bi-wrench me-2"></i>Ta'mirlanayotgan</h6>
+    </div>
+    <div class="card-body p-0">
+        {% if orders %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+                <thead style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);">
+                    <tr class="border-bottom">
+                        <th class="py-3 px-3 text-uppercase small fw-semibold text-secondary">#</th>
+                        <th class="py-3 px-3 text-uppercase small fw-semibold text-secondary">Model</th>
+                        <th class="py-3 px-3 text-uppercase small fw-semibold text-secondary">Nomer</th>
+                        <th class="py-3 px-3 text-uppercase small fw-semibold text-secondary">Zapchast</th>
+                        <th class="py-3 px-3 text-uppercase small fw-semibold text-secondary">Narxi</th>
+                        <th class="py-3 px-3 text-uppercase small fw-semibold text-secondary">Zaklad</th>
+                        <th class="py-3 px-3 text-uppercase small fw-semibold text-secondary">Ekran</th>
+                        <th class="py-3 px-3 text-uppercase small fw-semibold text-secondary">Laminat</th>
+                        <th class="py-3 px-3 text-uppercase small fw-semibold text-secondary">Srok</th>
+                        <th class="py-3 px-3 text-uppercase small fw-semibold text-secondary">Data</th>
+                        <th class="py-3 px-3 text-uppercase small fw-semibold text-secondary text-end" style="min-width: 140px;">Amallar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    {% ifchanged order.created_at.date %}
+                    <tr class="date-separator">
+                        <td colspan="11" class="py-2 px-3 fw-semibold" style="background: linear-gradient(135deg, #e2e8f0 0%, #f1f5f9 100%); color: #475569; font-size: 0.9rem;">
+                            <i class="bi bi-calendar3 me-2"></i>
+                            {% if order.created_at.date == today %}
+                                Bugun
+                            {% elif order.created_at.date == yesterday %}
+                                Kecha
+                            {% else %}
+                                {{ order.created_at|date:"d.m.Y" }}
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endifchanged %}
+                    <tr class="order-row border-bottom" data-href="{% url 'repairs:order_detail' order.pk %}" style="cursor: pointer; transition: background 0.2s;">
+                        <td class="py-3 px-3 text-muted">{{ forloop.counter }}</td>
+                        <td class="py-3 px-3"><strong class="text-dark">{{ order.phone_model }}</strong></td>
+                        <td class="py-3 px-3">{{ order.client_phone|phone_without_prefix }}</td>
+                        <td class="py-3 px-3">{% if order.required_parts %}{{ order.required_parts }}{% else %}<span class="text-muted">—</span>{% endif %}</td>
+                        <td class="py-3 px-3">{% if order.repair_cost %}{{ order.repair_cost|intcomma_uz }}{% else %}<span class="text-muted">—</span>{% endif %}</td>
+                        <td class="py-3 px-3">{% if order.deposit_amount %}{{ order.deposit_amount|intcomma_uz }}{% else %}<span class="text-muted">—</span>{% endif %}</td>
+                        <td class="py-3 px-3">{% if order.screen_type %}{{ order.get_screen_type_display }}{% else %}<span class="text-muted">—</span>{% endif %}</td>
+                        <td class="py-3 px-3">{% if order.laminat %}{{ order.get_laminat_display }}{% else %}<span class="text-muted">—</span>{% endif %}</td>
+                        <td class="py-3 px-3">{% if order.ready_deadline %}{{ order.get_ready_deadline_display }}{% else %}<span class="text-muted">—</span>{% endif %}</td>
+                        <td class="py-3 px-3">{{ order.created_at|date:"d.m.Y H:i" }}</td>
+                        <td class="no-row-click py-3 px-3 text-end" onclick="event.stopPropagation();">
+                            <div class="d-flex flex-wrap gap-1 justify-content-end">
+                                <a href="{% url 'repairs:order_mark_ready' order.pk %}" class="btn btn-sm btn-success rounded-pill px-3" title="Tuzaldiga">
+                                    <i class="bi bi-check-lg me-1"></i> Tuzaldi
+                                </a>
+                                <a href="{% url 'repairs:order_delete' order.pk %}" class="btn btn-sm btn-outline-danger rounded-pill px-3" title="O'chirish">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5 px-4">
+            <i class="bi bi-inbox display-4 text-muted opacity-50"></i>
+            <p class="text-muted mt-3 mb-4">Ta'mirlanayotgan buyurtmalar yo'q</p>
+            <a href="{% url 'repairs:order_create' %}" class="btn btn-primary px-4 py-2 shadow-sm">
+                <i class="bi bi-plus-lg me-2"></i> Yangi buyurtma qo'shing
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+document.querySelectorAll('.order-row').forEach(row => {
+    row.addEventListener('click', function(e) {
+        if (!e.target.closest('.no-row-click')) {
+            window.location.href = this.dataset.href;
+        }
+    });
+});
+</script>
+{% endblock %}

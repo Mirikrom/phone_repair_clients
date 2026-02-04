@@ -1,0 +1,177 @@
+{% extends 'base.html' %}
+{% load repair_filters %}
+
+{% block title %}{{ order.phone_model }} - Telefon Ustaxonasi{% endblock %}
+
+{% block extra_css %}
+<style>
+.notes-highlight {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border-left: 4px solid #f59e0b;
+    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.2);
+    animation: notesPulse 2s ease-in-out infinite;
+}
+@keyframes notesPulse {
+    0%, 100% { box-shadow: 0 4px 15px rgba(245, 158, 11, 0.2); }
+    50% { box-shadow: 0 6px 20px rgba(245, 158, 11, 0.35); }
+}
+.detail-card { border-radius: 16px; overflow: hidden; }
+.detail-item {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 0.5rem 1rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f1f5f9;
+    align-items: start;
+}
+.detail-item:last-child { border-bottom: none; }
+.detail-item .label { color: #64748b; font-size: 0.875rem; }
+.detail-item .value { font-weight: 500; }
+.detail-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0; }
+@media (max-width: 768px) {
+    .detail-grid { grid-template-columns: 1fr; }
+    .detail-item { grid-template-columns: 90px 1fr; gap: 0.5rem; padding: 0.6rem 0; }
+    .detail-item .label { font-size: 0.8rem; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+    <div>
+        <h2 class="mb-1 fw-bold" style="color: #1e293b;"><i class="bi bi-phone text-primary me-2"></i>Buyurtma tafsilotlari</h2>
+        <p class="text-muted mb-0 small">{{ order.phone_model }}</p>
+    </div>
+    <div class="d-flex gap-2 flex-wrap" style="gap: 0.5rem !important;">
+        {% if order.status == 'in_progress' %}
+        <a href="{% url 'repairs:order_mark_ready' order.pk %}" class="btn btn-success px-4 shadow-sm">
+            <i class="bi bi-check-lg me-2"></i> Tugatish
+        </a>
+        {% elif order.status == 'ready' %}
+        <a href="{% url 'repairs:order_mark_completed' order.pk %}" class="btn btn-success px-4 shadow-sm">
+            <i class="bi bi-check-circle me-2"></i> Olib ketildi
+        </a>
+        {% endif %}
+        <a href="{% url 'repairs:order_print' order.pk %}" target="_blank" class="btn btn-outline-secondary px-4 shadow-sm">
+            <i class="bi bi-printer me-2"></i> Pechat
+        </a>
+        <a href="{% url 'repairs:order_edit' order.pk %}" class="btn btn-primary px-4 shadow-sm">
+            <i class="bi bi-pencil me-2"></i> Tahrirlash
+        </a>
+        <a href="{% url 'repairs:order_delete' order.pk %}" class="btn btn-outline-danger px-4">
+            <i class="bi bi-trash me-2"></i> O'chirish
+        </a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-{% if order.notes %}7{% else %}12{% endif %}">
+        <div class="card detail-card">
+            <div class="card-body p-4">
+                <h6 class="text-uppercase small fw-semibold text-secondary mb-3">Asosiy ma'lumotlar</h6>
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <span class="label">Model</span>
+                        <span class="value">{{ order.phone_model }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Raqam</span>
+                        <span class="value">{% if order.client_phone %}{{ order.client_phone|phone_without_prefix }}{% else %}<span class="text-muted">—</span>{% endif %}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Zapchast</span>
+                        <span class="value">
+                            {% if order.zapchast_items.exists %}
+                                {% for z in order.zapchast_items.all %}{{ z.name }}{% if z.quantity > 1 %} x {{ z.quantity }}{% endif %}{% if not forloop.last %}, {% endif %}{% endfor %}
+                            {% elif order.required_parts %}
+                                {{ order.required_parts }}
+                            {% else %}
+                                <span class="text-muted">—</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Narxi</span>
+                        <span class="value">{% if order.repair_cost %}{{ order.repair_cost|intcomma_uz }} so'm{% else %}<span class="text-muted">—</span>{% endif %}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Zaklad</span>
+                        <span class="value">{% if order.deposit_amount %}{{ order.deposit_amount|intcomma_uz }} so'm{% else %}<span class="text-muted">—</span>{% endif %}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Ekran</span>
+                        <span class="value">{% if order.screen_type %}{{ order.get_screen_type_display }}{% else %}<span class="text-muted">—</span>{% endif %}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Laminat</span>
+                        <span class="value">{% if order.laminat %}{{ order.get_laminat_display }}{% else %}<span class="text-muted">—</span>{% endif %}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Srok</span>
+                        <span class="value">
+                            {% if order.ready_deadline_uncertain %}
+                                <span class="text-warning">Aniq emas</span>{% if order.ready_deadline %} ({{ order.get_ready_deadline_display }}){% endif %}
+                            {% elif order.ready_deadline %}
+                                {{ order.get_ready_deadline_display }}
+                            {% else %}
+                                <span class="text-muted">—</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Olib qolingan</span>
+                        <span class="value">{{ order.created_at|date:"d.m.Y H:i" }}</span>
+                    </div>
+                    {% if order.ready_at %}
+                    <div class="detail-item">
+                        <span class="label">Tuzaldi</span>
+                        <span class="value">{{ order.ready_at|date:"d.m.Y H:i" }}</span>
+                    </div>
+                    {% endif %}
+                    {% if order.completed_at %}
+                    <div class="detail-item">
+                        <span class="label">Olib ketilgan</span>
+                        <span class="value">{{ order.completed_at|date:"d.m.Y H:i" }}</span>
+                    </div>
+                    {% endif %}
+                    <div class="detail-item">
+                        <span class="label">Status</span>
+                        <span class="value">
+                            {% if order.status == 'in_progress' %}<span class="badge bg-warning">Ta'mirlanmoqda</span>{% elif order.status == 'ready' %}<span class="badge bg-success">Tayyor</span>{% else %}<span class="badge bg-secondary">Olib ketilgan</span>{% endif %}
+                            {% if order.has_debt %}<span class="badge bg-warning text-dark ms-1">Qarzdor</span>{% endif %}
+                        </span>
+                    </div>
+                    {% if order.handover_notes %}
+                    <div class="detail-item" style="grid-column: 1 / -1;">
+                        <span class="label">Olib ketilganda (qarz)</span>
+                        <span class="value">{{ order.handover_notes }}</span>
+                    </div>
+                    {% endif %}
+                    {% if order.debt_deadline %}
+                    <div class="detail-item">
+                        <span class="label">Qarz to'lash muddati</span>
+                        <span class="value">{{ order.debt_deadline|date:"d.m.Y" }}{% if order.debt_deadline <= today %} <span class="badge bg-danger">Muddat o'tdi</span>{% endif %}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% if order.notes %}
+    <div class="col-lg-5">
+        <div class="card detail-card notes-highlight h-100">
+            <div class="card-body p-4">
+                <h6 class="fw-bold mb-3" style="color: #b45309;">
+                    <i class="bi bi-sticky-fill me-2"></i>Qo'shimcha eslatmalar
+                </h6>
+                <p class="mb-0 fs-6 lh-lg" style="color: #78350f;">{{ order.notes }}</p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<a href="{% url 'repairs:order_list' %}" class="btn btn-outline-primary mt-4">
+    <i class="bi bi-arrow-left me-2"></i> Orqaga
+</a>
+{% endblock %}

@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+{% load repair_filters %}
+
+{% block title %}Tayyor bo'lgan telefonlar - Telefon Ustaxonasi{% endblock %}
+
+{% block extra_css %}
+<style>
+.ready-row:hover { background-color: #ecfdf5 !important; }
+@media (max-width: 767px) {
+    .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .table { min-width: 600px; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+    <div>
+        <h2 class="mb-1 fw-bold" style="color: #1e293b;"><i class="bi bi-check-circle-fill text-success me-2"></i>Tayyor bo'lgan telefonlar</h2>
+        <p class="text-muted mb-0 small">Olib ketish kutilayotgan telefonlar — {{ ready_orders|length }} ta</p>
+    </div>
+    <a href="{% url 'repairs:order_list' %}" class="btn btn-outline-primary px-4 py-2">
+        <i class="bi bi-arrow-left me-2"></i> Buyurtmalar
+    </a>
+</div>
+
+<div class="card border-0">
+    <div class="card-header py-3" style="background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); border-radius: 16px 16px 0 0;">
+        <h6 class="mb-0 fw-bold" style="color: #065f46;"><i class="bi bi-phone me-2"></i>Olib ketish kutilmoqda</h6>
+    </div>
+    <div class="card-body p-0">
+        {% if ready_orders %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+                <thead style="background: #f0fdf4;">
+                    <tr class="border-bottom">
+                        <th class="py-3 px-3">#</th>
+                        <th class="py-3 px-3">Model</th>
+                        <th class="py-3 px-3">Nomer</th>
+                        <th class="py-3 px-3">Narxi</th>
+                        <th class="py-3 px-3">Zaklad</th>
+                        <th class="py-3 px-3">Mijozdan olish kerak</th>
+                        <th class="py-3 px-3">Olib qolingan</th>
+                        <th class="py-3 px-3">Tuzaldi</th>
+                        <th class="py-3 px-3 text-end">Amallar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in ready_orders %}
+                    <tr class="ready-row border-bottom" data-href="{% url 'repairs:order_detail' order.pk %}" style="cursor: pointer;">
+                        <td class="py-3 px-3 text-muted">{{ forloop.counter }}</td>
+                        <td class="py-3 px-3"><strong>{{ order.phone_model }}</strong></td>
+                        <td class="py-3 px-3">{{ order.client_phone|phone_without_prefix }}</td>
+                        <td class="py-3 px-3">{% if order.repair_cost %}{{ order.repair_cost|intcomma_uz }} so'm{% else %}—{% endif %}</td>
+                        <td class="py-3 px-3">{% if order.deposit_amount %}{{ order.deposit_amount|intcomma_uz }} so'm{% else %}—{% endif %}</td>
+                        <td class="py-3 px-3">
+                            {% if order.remaining_to_pay is not None %}
+                            <span class="fw-bold" style="color: #b45309;">{{ order.remaining_to_pay|intcomma_uz }} so'm</span>
+                            {% else %}—{% endif %}
+                        </td>
+                        <td class="py-3 px-3 small">{{ order.created_at|date:"d.m.Y H:i" }}</td>
+                        <td class="py-3 px-3 small">{% if order.ready_at %}{{ order.ready_at|date:"d.m.Y H:i" }}{% else %}—{% endif %}</td>
+                        <td class="no-row-click py-3 px-3 text-end" onclick="event.stopPropagation();">
+                            <button type="button" class="btn btn-sm btn-success rounded-pill px-3 me-1" data-bs-toggle="modal" data-bs-target="#completeModal{{ order.pk }}" title="Olib ketildi">
+                                <i class="bi bi-check-lg me-1"></i> Olib ketildi
+                            </button>
+                            <a href="{% url 'repairs:order_delete' order.pk %}?next=repairs:ready_phones_list" class="btn btn-sm btn-outline-danger rounded-pill px-3" title="O'chirish">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5 px-4">
+            <i class="bi bi-check-circle display-4 text-success opacity-50"></i>
+            <p class="text-muted mt-3 mb-0">Tayyor telefonlar yo'q</p>
+            <p class="text-muted small">Ta'mirni tugatgach, telefonlar shu yerga qo'shiladi</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% for order in ready_orders %}
+<div class="modal fade" id="completeModal{{ order.pk }}" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title"><i class="bi bi-check-circle me-2"></i>Olib ketildi</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-3"><strong>{{ order.phone_model }}</strong> — {{ order.client_phone|phone_without_prefix }}</p>
+                <form method="post" action="{% url 'repairs:order_mark_completed' order.pk %}" class="complete-form">
+                    {% csrf_token %}
+                    <div class="form-check mb-2">
+                        <input type="checkbox" name="has_debt" id="has_debt{{ order.pk }}" class="form-check-input debt-checkbox">
+                        <label class="form-check-label" for="has_debt{{ order.pk }}">Qarz</label>
+                    </div>
+                    <div id="debt_fields{{ order.pk }}" class="debt-fields mb-3" style="display: none;">
+                        <div class="mb-2">
+                            <label class="form-label">Qarz to'lanish muddati</label>
+                            <input type="date" name="debt_deadline" class="form-control debt-date">
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Qarz haqida eslatma</label>
+                            <textarea name="handover_notes" class="form-control" rows="2" placeholder="Qarz haqida eslatma..."></textarea>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100">
+                        <i class="bi bi-check-lg me-2"></i> Olib ketildi
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<script>
+document.querySelectorAll('.ready-row').forEach(row => {
+    row.addEventListener('click', function(e) {
+        if (!e.target.closest('.no-row-click')) {
+            window.location.href = this.dataset.href;
+        }
+    });
+});
+document.querySelectorAll('.complete-form').forEach(function(form) {
+    form.addEventListener('submit', function(e) {
+        var cb = form.querySelector('.debt-checkbox');
+        if (cb && cb.checked) {
+            var dateInput = form.querySelector('.debt-date');
+            if (dateInput && !dateInput.value) {
+                e.preventDefault();
+                alert('Qarz tanlanganida to\'lash muddatini kiriting!');
+                dateInput.focus();
+                return false;
+            }
+        }
+    });
+});
+document.querySelectorAll('.debt-checkbox').forEach(function(cb) {
+    cb.addEventListener('change', function() {
+        var id = this.id.replace('has_debt', '');
+        var fields = document.getElementById('debt_fields' + id);
+        if (fields) {
+            fields.style.display = this.checked ? 'block' : 'none';
+            if (this.checked) {
+                var dateInput = fields.querySelector('.debt-date');
+                if (dateInput && !dateInput.value) {
+                    var today = new Date().toISOString().split('T')[0];
+                    dateInput.setAttribute('min', today);
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

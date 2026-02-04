@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}Zapchast o'chirish - Telefon Ustaxonasi{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h4 class="mb-0"><i class="bi bi-exclamation-triangle"></i> O'chirishni tasdiqlang</h4>
+            </div>
+            <div class="card-body">
+                <p>Quyidagi zapchastni o'chirmoqchimisiz?</p>
+                <p class="mb-0"><strong>{{ item.name }}</strong></p>
+                <form method="post" class="mt-4">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash"></i> Ha, o'chirish
+                    </button>
+                    <a href="{% url 'repairs:zapchast_zakaz_list' %}" class="btn btn-outline-secondary ms-2">Bekor qilish</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,236 @@
+{% extends 'base.html' %}
+
+{% block title %}ZAPCHASTLAR - Telefon Ustaxonasi{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mx-0">
+    <div class="col-12 col-lg-10 px-0 px-md-2">
+        <div class="card">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center flex-wrap gap-2 py-2 py-md-3">
+                <h4 class="mb-0 fs-5 fs-md-4"><i class="bi bi-box-seam"></i> ZAPCHASTLAR</h4>
+                <div class="d-flex align-items-center flex-wrap gap-1">
+                    <button type="button" id="btn-olindi" class="btn btn-success btn-sm" disabled>
+                        <i class="bi bi-check2-square"></i> Olindi
+                    </button>
+                    <button type="button" id="btn-rasm" class="btn btn-info btn-sm" disabled title="ZAPCHASTLAR rasmni saqlab olish">
+                        <i class="bi bi-image"></i> Rasm
+                    </button>
+                    <button type="button" id="btn-print" class="btn btn-light btn-sm" disabled>
+                        <i class="bi bi-printer"></i> Pechat
+                    </button>
+                    <form method="post" action="{% url 'repairs:zapchast_tugatish' %}" class="d-inline" id="form-tugatish">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-warning btn-sm" {% if not has_done %}disabled{% endif %} title="Olindilarni istoriyaga yuborish">
+                            <i class="bi bi-archive"></i> Tugatish
+                        </button>
+                    </form>
+                    <span class="badge bg-light text-dark">{{ items|length }} ta</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <form method="post" action="{% url 'repairs:zapchast_add' %}" class="mb-4">
+                    {% csrf_token %}
+                    <div class="row g-2 align-items-end">
+                        <div class="col-12 col-md-3">
+                            <label class="form-label small mb-0">Telefon modeli</label>
+                            <input type="text" name="phone_model" class="form-control" maxlength="200">
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <label class="form-label small mb-0">Zapchast nomi</label>
+                            <input type="text" name="name" class="form-control" maxlength="300">
+                        </div>
+                        <div class="col-6 col-md-2">
+                            <label class="form-label small mb-0">Soni</label>
+                            <input type="number" name="quantity" class="form-control" value="1" min="1" max="999">
+                        </div>
+                        <div class="col-6 col-md-auto">
+                            <button type="submit" class="btn btn-primary w-100 w-md-auto">
+                                <i class="bi bi-plus-lg"></i> Qo'shish
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 55px;" class="text-center">
+                                    <input type="checkbox" id="select-all-print" class="form-check-input" style="width: 22px; height: 22px; cursor: pointer;" title="Hammasini tanlash">
+                                </th>
+                                <th style="width: 55px;" class="text-center">✓</th>
+                                <th>Telefon modeli</th>
+                                <th>Zapchast nomi</th>
+                                <th style="width: 70px;" class="text-center">Soni</th>
+                                <th style="width: 95px;">Sana</th>
+                                <th style="width: 260px;" class="text-end">Amallar</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if not_done_items %}
+                            <tr class="table-light border-bottom">
+                                <td colspan="7" class="py-2 px-3 fw-semibold text-secondary">
+                                    <i class="bi bi-cart-plus me-2"></i>Olinmagan tovarlar
+                                </td>
+                            </tr>
+                            {% endif %}
+                            {% for item in not_done_items %}
+                            <tr>
+                                <td class="text-center align-middle">
+                                    <input type="checkbox" class="form-check-input print-select" data-id="{{ item.pk }}" style="width: 22px; height: 22px; cursor: pointer;">
+                                </td>
+                                <td class="text-center align-middle">
+                                    <a href="{% url 'repairs:zapchast_toggle' item.pk %}" class="text-decoration-none d-inline-flex align-items-center justify-content-center" style="width: 28px; height: 28px; border: 2px solid #94a3b8; border-radius: 6px;" title="Olib kelingan">
+                                        <span style="width: 14px; height: 14px;"></span>
+                                    </a>
+                                </td>
+                                <td>
+                                    {% if item.repair_order %}
+                                    <a href="{% url 'repairs:order_detail' item.repair_order.pk %}" class="text-decoration-none">{% if item.phone_model %}{{ item.phone_model }}{% else %}{{ item.repair_order.phone_model }}{% endif %}</a>
+                                    {% else %}
+                                    {{ item.phone_model|default:"—" }}
+                                    {% endif %}
+                                </td>
+                                <td>{{ item.name }}</td>
+                                <td class="text-center">{{ item.quantity }}</td>
+                                <td class="small text-muted">{{ item.created_at|date:"d.m.Y H:i" }}</td>
+                                <td class="text-end">
+                                    <div class="d-flex flex-wrap gap-1 justify-content-end">
+                                        <a href="{% url 'repairs:zapchast_toggle' item.pk %}" class="btn btn-sm btn-outline-success" title="Olindi">
+                                            <i class="bi bi-check-lg"></i> Olindi
+                                        </a>
+                                        <a href="{% url 'repairs:zapchast_edit' item.pk %}" class="btn btn-sm btn-outline-primary" title="Tahrirlash">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a href="{% url 'repairs:zapchast_delete' item.pk %}" class="btn btn-sm btn-outline-danger" title="O'chirish">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            {% if done_items %}
+                            <tr class="table-info border-top border-2">
+                                <td colspan="7" class="py-2 px-3 fw-semibold text-secondary">
+                                    <i class="bi bi-check2-square me-2"></i>Olingan tovarlar
+                                </td>
+                            </tr>
+                            {% for item in done_items %}
+                            <tr class="table-secondary" style="text-decoration: line-through; opacity: 0.85;">
+                                <td class="text-center align-middle"></td>
+                                <td class="text-center align-middle">
+                                    <a href="{% url 'repairs:zapchast_toggle' item.pk %}" class="text-decoration-none d-inline-flex align-items-center justify-content-center bg-success text-white rounded" style="width: 28px; height: 28px;" title="Bekor qilish">
+                                        <i class="bi bi-check-lg"></i>
+                                    </a>
+                                </td>
+                                <td>
+                                    {% if item.repair_order %}
+                                    <a href="{% url 'repairs:order_detail' item.repair_order.pk %}" class="text-decoration-none text-muted">{% if item.phone_model %}{{ item.phone_model }}{% else %}{{ item.repair_order.phone_model }}{% endif %}</a>
+                                    {% else %}
+                                    <span class="text-muted">{{ item.phone_model|default:"—" }}</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-muted">{{ item.name }}</td>
+                                <td class="text-center text-muted">{{ item.quantity }}</td>
+                                <td class="small text-muted">{% if item.done_at %}{{ item.done_at|date:"d.m.Y H:i" }}{% else %}{{ item.created_at|date:"d.m.Y H:i" }}{% endif %}</td>
+                                <td class="text-end">
+                                    <div class="d-flex flex-wrap gap-1 justify-content-end">
+                                        <a href="{% url 'repairs:zapchast_toggle' item.pk %}" class="btn btn-sm btn-outline-secondary" title="Bekor qilish">
+                                            <i class="bi bi-x-lg"></i> Bekor
+                                        </a>
+                                        <a href="{% url 'repairs:zapchast_edit' item.pk %}" class="btn btn-sm btn-outline-primary" title="Tahrirlash">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a href="{% url 'repairs:zapchast_delete' item.pk %}" class="btn btn-sm btn-outline-danger" title="O'chirish">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                        <form method="post" action="{% url 'repairs:zapchast_tugatish' %}" class="d-inline">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="ids" value="{{ item.pk }}">
+                                            <button type="submit" class="btn btn-sm btn-warning" title="Istoriyaga yuborish">
+                                                <i class="bi bi-archive"></i> Tugatish
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            {% endif %}
+                            {% if not items %}
+                            <tr>
+                                <td colspan="7" class="text-center py-4 text-muted">
+                                    <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                                    Zapchast ro'yxati bo'sh. Qo'shish uchun yuqoridagi formadan foydalaning.
+                                </td>
+                            </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.querySelectorAll('.print-select').forEach(function(cb) {
+    cb.addEventListener('change', updatePrintBtn);
+});
+document.getElementById('select-all-print').addEventListener('change', function() {
+    document.querySelectorAll('.print-select').forEach(function(cb) {
+        cb.checked = this.checked;
+    }.bind(this));
+    updatePrintBtn();
+});
+function updatePrintBtn() {
+    var n = document.querySelectorAll('.print-select:checked').length;
+    document.getElementById('btn-print').disabled = n === 0;
+    document.getElementById('btn-rasm').disabled = n === 0;
+    document.getElementById('btn-olindi').disabled = n === 0;
+}
+document.getElementById('btn-rasm').addEventListener('click', function() {
+    var ids = [];
+    document.querySelectorAll('.print-select:checked').forEach(function(cb) {
+        ids.push(cb.dataset.id);
+    });
+    if (ids.length) {
+        var url = '{% url "repairs:zapchast_image" %}?ids=' + ids.join(',') + '&auto=1';
+        window.open(url, 'zapchast_rasm', 'width=500,height=600');
+    }
+});
+document.getElementById('btn-print').addEventListener('click', function() {
+    var ids = [];
+    document.querySelectorAll('.print-select:checked').forEach(function(cb) {
+        ids.push(cb.dataset.id);
+    });
+    if (ids.length) {
+        var url = '{% url "repairs:zapchast_print" %}?ids=' + ids.join(',') + '&auto=1';
+        window.open(url, 'zapchast_print', 'width=450,height=600');
+    }
+});
+
+document.getElementById('btn-olindi').addEventListener('click', function() {
+    var ids = [];
+    document.querySelectorAll('.print-select:checked').forEach(function(cb) {
+        ids.push(cb.dataset.id);
+    });
+    if (ids.length) {
+        var form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '{% url "repairs:zapchast_mark_done" %}';
+        var csrf = document.createElement('input');
+        csrf.type = 'hidden';
+        csrf.name = 'csrfmiddlewaretoken';
+        csrf.value = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        form.appendChild(csrf);
+        var input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'ids';
+        input.value = ids.join(',');
+        form.appendChild(input);
+        document.body.appendChild(form);
+        form.submit();
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% load repair_filters %}
+
+{% block title %}Olib ketildi - {{ order.phone_model }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mx-0">
+    <div class="col-12 col-md-6 px-2 px-md-3">
+        <div class="card border-success">
+            <div class="card-header bg-success text-white py-3">
+                <h5 class="mb-0"><i class="bi bi-check-circle me-2"></i>Olib ketildi</h5>
+            </div>
+            <div class="card-body p-4">
+                <p class="mb-3"><strong>{{ order.phone_model }}</strong> — {{ order.client_phone|phone_without_prefix }}</p>
+                <form method="post" id="completeForm">
+                    {% csrf_token %}
+                    <div class="form-check mb-2">
+                        <input type="checkbox" name="has_debt" id="has_debt" class="form-check-input debt-checkbox">
+                        <label class="form-check-label" for="has_debt">Qarz</label>
+                    </div>
+                    <div id="debt_fields" class="debt-fields mb-4" style="display: none;">
+                        <div class="mb-3">
+                            <label class="form-label">Qarz to'lanish muddati</label>
+                            <input type="date" name="debt_deadline" class="form-control debt-date">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Qarz haqida eslatma</label>
+                            <textarea name="handover_notes" class="form-control" rows="2" placeholder="Qarz haqida eslatma..."></textarea>
+                        </div>
+                    </div>
+                    <script>
+                    document.getElementById('completeForm').addEventListener('submit', function(e) {
+                        var cb = document.getElementById('has_debt');
+                        if (cb && cb.checked) {
+                            var dateInput = document.querySelector('.debt-date');
+                            if (dateInput && !dateInput.value) {
+                                e.preventDefault();
+                                alert('Qarz tanlanganida to\'lash muddatini kiriting!');
+                                dateInput.focus();
+                                return false;
+                            }
+                        }
+                    });
+                    document.getElementById('has_debt').addEventListener('change', function() {
+                        var fields = document.getElementById('debt_fields');
+                        fields.style.display = this.checked ? 'block' : 'none';
+                        if (this.checked) {
+                            var dateInput = fields.querySelector('.debt-date');
+                            if (dateInput && !dateInput.value) {
+                                dateInput.setAttribute('min', new Date().toISOString().split('T')[0]);
+                            }
+                        }
+                    });
+                    </script>
+                    <div class="d-flex gap-2 flex-column flex-sm-row">
+                        <button type="submit" class="btn btn-success px-4">
+                            <i class="bi bi-check-lg me-2"></i> Olib ketildi
+                        </button>
+                        <a href="{% url 'repairs:ready_phones_list' %}" class="btn btn-outline-secondary">Bekor qilish</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
