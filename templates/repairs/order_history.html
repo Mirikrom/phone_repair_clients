@@ -30,6 +30,18 @@
     </a>
 </div>
 
+<form method="get" class="mb-3 search-bar js-live-search">
+    <input type="hidden" name="tab" value="{{ tab }}">
+    <div class="input-group">
+        <span class="input-group-text"><i class="bi bi-search"></i></span>
+        <input type="text" name="q" value="{{ q|default:'' }}" class="form-control js-live-search-input" placeholder="Model yoki nomer bo'yicha qidirish">
+        <button class="btn btn-outline-primary d-none d-md-inline-flex" type="submit">Qidirish</button>
+        {% if q %}
+        <a class="btn btn-outline-secondary" href="{% url 'repairs:order_history' %}{% if tab == 'zapchast' %}?tab=zapchast{% endif %}">Tozalash</a>
+        {% endif %}
+    </div>
+</form>
+
 <div class="d-flex gap-2 mb-4">
     <a href="{% url 'repairs:order_history' %}" class="history-tab text-decoration-none {% if tab == 'phones' %}active{% else %}text-secondary border{% endif %}">
         <i class="bi bi-archive me-2"></i>Olib ketilgan telefonlar
@@ -83,7 +95,12 @@
                     {% endwith %}
                     <tr class="order-row border-bottom" data-href="{% url 'repairs:order_detail' order.pk %}" style="cursor: pointer; transition: background 0.2s;">
                         <td class="py-3 px-3 text-muted">{{ forloop.counter }}</td>
-                        <td class="py-3 px-3"><strong class="text-dark">{{ order.phone_model }}</strong></td>
+                        <td class="py-3 px-3">
+                            <strong class="text-dark">{{ order.phone_model }}</strong>
+                            {% if order.client_name %}
+                            <div class="small text-muted mt-1"><i class="bi bi-person me-1"></i>{{ order.client_name }}</div>
+                            {% endif %}
+                        </td>
                         <td class="py-3 px-3">{{ order.client_phone|phone_without_prefix }}</td>
                         <td class="py-3 px-3">{% if order.required_parts %}{{ order.required_parts }}{% else %}<span class="text-muted">—</span>{% endif %}</td>
                         <td class="py-3 px-3">{% if order.repair_cost %}{{ order.repair_cost|intcomma_uz }}{% else %}<span class="text-muted">—</span>{% endif %}</td>

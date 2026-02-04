@@ -88,6 +88,35 @@
             border-color: #fff !important;
             box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
+        /* Qidiruv (poisk) */
+        .search-bar .input-group {
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            background: #fff;
+        }
+        .search-bar .input-group-text {
+            background: #fff;
+            border: 0;
+            color: #64748b;
+            padding-left: 14px;
+            padding-right: 10px;
+        }
+        .search-bar .form-control {
+            border: 0;
+            box-shadow: none !important;
+            padding: 12px 12px;
+        }
+        .search-bar .form-control::placeholder { color: #94a3b8; }
+        .search-bar .btn {
+            border: 0;
+            border-left: 1px solid rgba(148,163,184,0.35);
+            font-weight: 600;
+        }
+        .search-bar .btn-outline-secondary {
+            color: #475569;
+            background: #f8fafc;
+        }
         /* Mobil optimizatsiya */
         @media (max-width: 991px) {
             body { padding-bottom: env(safe-area-inset-bottom, 0); }
@@ -117,6 +146,7 @@
             .form-check-label { min-height: 22px; display: flex; align-items: center; }
             h2 { font-size: 1.35rem; }
             .d-flex.gap-2 .btn { flex: 1 1 auto; min-width: 0; }
+            .search-bar .form-control { padding: 12px 10px; }
         }
         @media (max-width: 575px) {
             .navbar-brand { font-size: 0.95rem; }
@@ -251,6 +281,34 @@
     {% endif %}
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    // Live search (yozishi bilan qidirish) - GET formalarni debounce bilan submit qiladi
+    document.addEventListener('DOMContentLoaded', function() {
+        var forms = document.querySelectorAll('form.js-live-search');
+        forms.forEach(function(form) {
+            var input = form.querySelector('input.js-live-search-input');
+            if (!input) return;
+            var timer = null;
+            var composing = false;
+            var last = input.value;
+
+            input.addEventListener('compositionstart', function() { composing = true; });
+            input.addEventListener('compositionend', function() { composing = false; });
+
+            input.addEventListener('input', function() {
+                if (composing) return;
+                var val = input.value;
+                if (val === last) return;
+                last = val;
+                if (timer) clearTimeout(timer);
+                timer = setTimeout(function() {
+                    if (form.requestSubmit) form.requestSubmit();
+                    else form.submit();
+                }, 300);
+            });
+        });
+    });
+    </script>
     {% if user_has_shop %}
     <script>
     document.addEventListener('DOMContentLoaded', function() {

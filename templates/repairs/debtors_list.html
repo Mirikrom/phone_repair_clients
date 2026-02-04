@@ -24,6 +24,17 @@
     </a>
 </div>
 
+<form method="get" class="mb-3 search-bar js-live-search">
+    <div class="input-group">
+        <span class="input-group-text"><i class="bi bi-search"></i></span>
+        <input type="text" name="q" value="{{ q|default:'' }}" class="form-control js-live-search-input" placeholder="Model yoki nomer bo'yicha qidirish">
+        <button class="btn btn-outline-primary d-none d-md-inline-flex" type="submit">Qidirish</button>
+        {% if q %}
+        <a class="btn btn-outline-secondary" href="{% url 'repairs:debtors_list' %}">Tozalash</a>
+        {% endif %}
+    </div>
+</form>
+
 <div class="card border-0">
     <div class="card-header py-3" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 16px 16px 0 0;">
         <h6 class="mb-0 fw-bold" style="color: #92400e;"><i class="bi bi-wallet2 me-2"></i>Qarzdor mijozlar</h6>
@@ -49,7 +60,12 @@
                     {% for order in debtors %}
                     <tr class="debtor-row border-bottom" data-href="{% url 'repairs:order_detail' order.pk %}" style="cursor: pointer;">
                         <td class="py-3 px-3 text-muted">{{ forloop.counter }}</td>
-                        <td class="py-3 px-3"><strong class="text-dark">{{ order.phone_model }}</strong></td>
+                        <td class="py-3 px-3">
+                            <strong class="text-dark">{{ order.phone_model }}</strong>
+                            {% if order.client_name %}
+                            <div class="small text-muted mt-1"><i class="bi bi-person me-1"></i>{{ order.client_name }}</div>
+                            {% endif %}
+                        </td>
                         <td class="py-3 px-3">{{ order.client_phone|phone_without_prefix }}</td>
                         <td class="py-3 px-3"><span class="text-warning fw-medium">{% if order.handover_notes %}{{ order.handover_notes }}{% else %}Qarz{% endif %}</span></td>
                         <td class="py-3 px-3">{% if order.debt_deadline %}{{ order.debt_deadline|date:"d.m.Y" }}{% if order.debt_deadline <= today %} <span class="badge bg-danger">Muddat o'tdi</span>{% endif %}{% else %}—{% endif %}</td>

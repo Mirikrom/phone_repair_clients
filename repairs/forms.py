@@ -25,6 +25,7 @@ class RepairOrderForm(forms.ModelForm):
         model = RepairOrder
         fields = [
             'phone_model',
+            'client_name',
             'client_phone',
             'required_parts',
             'zapchast_olib_kelish_kerak',
@@ -38,6 +39,7 @@ class RepairOrderForm(forms.ModelForm):
         ]
         widgets = {
             'phone_model': forms.TextInput(attrs={'class': 'form-control', 'autocomplete': 'off'}),
+            'client_name': forms.TextInput(attrs={'class': 'form-control'}),
             'client_phone': forms.TextInput(attrs={'class': 'form-control'}),
             'required_parts': forms.TextInput(attrs={'class': 'form-control', 'autocomplete': 'off'}),
             'zapchast_olib_kelish_kerak': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
@@ -57,6 +59,7 @@ class RepairOrderForm(forms.ModelForm):
         }
         labels = {
             'phone_model': 'Telefon modeli *',
+            'client_name': 'Mijoz ismi',
             'client_phone': 'Klent telefon raqami',
             'required_parts': 'Qo\'yilish kerak bo\'lgan zapchast',
             'zapchast_olib_kelish_kerak': 'Zapchast olib kelish kerak',

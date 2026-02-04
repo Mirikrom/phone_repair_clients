@@ -3,6 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User
+from django.db.models import Q
 from django.http import JsonResponse
 from django.utils import timezone
 from datetime import timedelta
@@ -134,27 +135,52 @@ def autocomplete(request):
 
 def order_list(request):
     """Ta'mirlanayotgan buyurtmalar ro'yxati"""
-    in_progress_orders = RepairOrder.objects.filter(shop=request.shop, status='in_progress').order_by('-created_at')
+    q = (request.GET.get('q') or '').strip()
+    in_progress_orders = RepairOrder.objects.filter(shop=request.shop, status='in_progress')
+    if q:
+        digits = ''.join(ch for ch in q if ch.isdigit())
+        cond = Q(phone_model__icontains=q)
+        if digits:
+            cond |= Q(client_phone__icontains=digits)
+        in_progress_orders = in_progress_orders.filter(cond)
+    in_progress_orders = in_progress_orders.order_by('-created_at')
     today = timezone.now().date()
     yesterday = today - timedelta(days=1)
     return render(request, 'repairs/order_list.html', {
         'orders': in_progress_orders,
         'today': today,
         'yesterday': yesterday,
+        'q': q,
     })
 
 
 def ready_phones_list(request):
     """Tayyor bo'lgan telefonlar ro'yxati"""
-    ready_orders = RepairOrder.objects.filter(shop=request.shop, status='ready').order_by('-created_at')
-    return render(request, 'repairs/ready_phones_list.html', {'ready_orders': ready_orders})
+    q = (request.GET.get('q') or '').strip()
+    ready_orders = RepairOrder.objects.filter(shop=request.shop, status='ready')
+    if q:
+        digits = ''.join(ch for ch in q if ch.isdigit())
+        cond = Q(phone_model__icontains=q)
+        if digits:
+            cond |= Q(client_phone__icontains=digits)
+        ready_orders = ready_orders.filter(cond)
+    ready_orders = ready_orders.order_by('-created_at')
+    return render(request, 'repairs/ready_phones_list.html', {'ready_orders': ready_orders, 'q': q})
 
 
 def debtors_list(request):
     """Qarzdorlar ro'yxati - olib ketilgan va qarzdor belgilangan buyurtmalar"""
-    debtors = RepairOrder.objects.filter(shop=request.shop, status='completed', has_debt=True).order_by('-created_at')
+    q = (request.GET.get('q') or '').strip()
+    debtors = RepairOrder.objects.filter(shop=request.shop, status='completed', has_debt=True)
+    if q:
+        digits = ''.join(ch for ch in q if ch.isdigit())
+        cond = Q(phone_model__icontains=q)
+        if digits:
+            cond |= Q(client_phone__icontains=digits)
+        debtors = debtors.filter(cond)
+    debtors = debtors.order_by('-created_at')
     today = timezone.now().date()
-    return render(request, 'repairs/debtors_list.html', {'debtors': debtors, 'today': today})
+    return render(request, 'repairs/debtors_list.html', {'debtors': debtors, 'today': today, 'q': q})
 
 
 def order_history(request):
@@ -163,25 +189,42 @@ def order_history(request):
     tab = request.GET.get('tab', 'phones')
     if tab not in ('phones', 'zapchast'):
         tab = 'phones'
+    q = (request.GET.get('q') or '').strip()
     today = timezone.now().date()
     yesterday = today - timedelta(days=1)
     if tab == 'zapchast':
-        zapchast_items = ZapchastItem.objects.filter(shop=request.shop, archived=True).order_by('-done_at', '-created_at')
+        zapchast_items = ZapchastItem.objects.filter(shop=request.shop, archived=True)
+        if q:
+            zapchast_items = zapchast_items.filter(
+                Q(phone_model__icontains=q) |
+                Q(name__icontains=q) |
+                Q(repair_order__phone_model__icontains=q)
+            )
+        zapchast_items = zapchast_items.order_by('-done_at', '-created_at')
         return render(request, 'repairs/order_history.html', {
             'orders': [],
             'zapchast_history': zapchast_items,
             'tab': tab,
             'today': today,
             'yesterday': yesterday,
+            'q': q,
         })
     else:
-        completed_orders = RepairOrder.objects.filter(shop=request.shop, status='completed').order_by('-completed_at', '-created_at')
+        completed_orders = RepairOrder.objects.filter(shop=request.shop, status='completed')
+        if q:
+            digits = ''.join(ch for ch in q if ch.isdigit())
+            cond = Q(phone_model__icontains=q)
+            if digits:
+                cond |= Q(client_phone__icontains=digits)
+            completed_orders = completed_orders.filter(cond)
+        completed_orders = completed_orders.order_by('-completed_at', '-created_at')
         return render(request, 'repairs/order_history.html', {
             'orders': completed_orders,
             'zapchast_history': [],
             'tab': tab,
             'today': today,
             'yesterday': yesterday,
+            'q': q,
         })
 
 
@@ -310,7 +353,15 @@ def order_edit(request, pk):
 def zapchast_zakaz_list(request):
     """Zapchast zakaz ro'yxati - olinmaganlar yuqorida, olindi (chiziqli) pastda.
     Tugatish bosilganda olindilar istoriyaga yuboriladi."""
-    items = ZapchastItem.objects.filter(shop=request.shop, archived=False).order_by('is_done', '-done_at', '-created_at')
+    q = (request.GET.get('q') or '').strip()
+    items = ZapchastItem.objects.filter(shop=request.shop, archived=False)
+    if q:
+        items = items.filter(
+            Q(phone_model__icontains=q) |
+            Q(name__icontains=q) |
+            Q(repair_order__phone_model__icontains=q)
+        )
+    items = items.order_by('is_done', '-done_at', '-created_at')
     not_done_items = [i for i in items if not i.is_done]
     done_items = [i for i in items if i.is_done]
     return render(request, 'repairs/zapchast_zakaz_list.html', {
@@ -318,6 +369,7 @@ def zapchast_zakaz_list(request):
         'not_done_items': not_done_items,
         'done_items': done_items,
         'has_done': bool(done_items),
+        'q': q,
     })
 
 

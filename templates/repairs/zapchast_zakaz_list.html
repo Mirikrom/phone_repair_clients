@@ -28,6 +28,17 @@
                 </div>
             </div>
             <div class="card-body">
+                <form method="get" class="mb-3 search-bar js-live-search">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input type="text" name="q" value="{{ q|default:'' }}" class="form-control js-live-search-input" placeholder="Model yoki zapchast nomi bo'yicha qidirish">
+                        <button class="btn btn-outline-primary d-none d-md-inline-flex" type="submit">Qidirish</button>
+                        {% if q %}
+                        <a class="btn btn-outline-secondary" href="{% url 'repairs:zapchast_zakaz_list' %}">Tozalash</a>
+                        {% endif %}
+                    </div>
+                </form>
+
                 <form method="post" action="{% url 'repairs:zapchast_add' %}" class="mb-4">
                     {% csrf_token %}
                     <div class="row g-2 align-items-end">

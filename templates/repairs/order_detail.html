@@ -79,6 +79,10 @@
                         <span class="value">{% if order.client_phone %}{{ order.client_phone|phone_without_prefix }}{% else %}<span class="text-muted">—</span>{% endif %}</span>
                     </div>
                     <div class="detail-item">
+                        <span class="label">Mijoz ismi</span>
+                        <span class="value">{% if order.client_name %}{{ order.client_name }}{% else %}<span class="text-muted">—</span>{% endif %}</span>
+                    </div>
+                    <div class="detail-item">
                         <span class="label">Zapchast</span>
                         <span class="value">
                             {% if order.zapchast_items.exists %}

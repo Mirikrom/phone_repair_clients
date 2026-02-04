@@ -63,6 +63,9 @@
         <div class="line"></div>
 
         <div class="row"><span class="bold">Model:</span> {{ order.phone_model }}</div>
+        {% if order.client_name %}
+        <div class="row"><span class="bold">Mijoz:</span> {{ order.client_name }}</div>
+        {% endif %}
         {% if order.client_phone %}
         <div class="row"><span class="bold">Tel:</span> {{ order.client_phone }}</div>
         {% endif %}
