@@ -1,61 +1,152 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="uz">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=58mm">
-    <title>Vizitka - МИРКОМИЛ</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Courier New', monospace;
-            font-size: 18px;
-            font-weight: 600;
-            line-height: 1.4;
-            width: 58mm;
-            max-width: 58mm;
-            padding: 4mm;
-            background: #fff;
-        }
-        .vizitka {
-            border: 3px double #000;
-            padding: 6mm 4mm;
-            text-align: center;
-        }
-        .name { font-size: 24px; font-weight: 700; margin-bottom: 6px; }
-        .phone { font-size: 18px; letter-spacing: 0.5px; margin-left: -2mm; }
-        .no-print {
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            z-index: 9999;
-        }
-        @media print {
-            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            .no-print { display: none !important; }
-        }
-        @page { size: 58mm auto; margin: 2mm; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=80mm">
+  <title>Vizitka - МИРКОМИЛ</title>
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    @page { size: 80mm auto; margin: 0mm; }
+
+    body{
+      width: 80mm;
+      max-width: 80mm;
+      margin: 0;
+      padding: 0;
+      background: #fff;
+      font-weight: 600;
+      line-height: 1.2;
+    }
+
+    .wrap{
+      padding: 2mm;
+    }
+
+    .vizitka{
+      border: 8px double #000;
+      padding: 3mm 3mm 4mm 3mm;
+      text-align: center;
+    }
+
+    .name{
+      font-size: 30px;
+      font-weight: 800;
+      margin: 1mm 0;
+    }
+
+    .phone{
+      font-size: 28px;
+      letter-spacing: 0.5px;
+      margin-bottom: 2mm;
+    }
+
+    /* ===== LOGO + QR YONMA-YON ===== */
+    .brand-row{
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 2mm;
+      margin: 3mm 0;
+    }
+
+    .brand-row .logo img{
+      max-width: 30mm;          /* logo kichkina */
+      height: auto;
+      display: block;
+    }
+
+    .brand-row .qr img{
+      width: 32mm;              /* QR kichkina, lekin o‘qiladi */
+      height: 32mm;
+      display: block;
+      image-rendering: pixelated;
+    }
+
+    .tg-text{
+      font-size: 16px;
+      margin-top: 2mm;
+      line-height: 1.3;
+    }
+
+    .tg{
+      font-size: 20px;
+      font-weight: 800;
+      margin-top: 1mm;
+    }
+
+    /* browserdagi tugma */
+    .no-print{
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      z-index: 9999;
+    }
+
+    @media print{
+      .no-print{ display:none !important; }
+      body{
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      a{ color:#000; text-decoration:none; }
+    }
+  </style>
 </head>
+
 <body>
-    <div class="no-print">
-        <button onclick="window.print()" style="padding: 8px 16px; font-size: 14px; cursor: pointer; background: #2563eb; color: #fff; border: none; border-radius: 6px;">
-            🖨️ Pechat
-        </button>
-    </div>
 
+  <div class="no-print">
+    <button onclick="window.print()"
+      style="padding:8px 16px;font-size:14px;cursor:pointer;background:#2563eb;color:#fff;border:none;border-radius:6px;">
+      🖨️ Pechat
+    </button>
+  </div>
+
+  <div class="wrap">
     <div class="vizitka">
-        <div class="name">МИРКОМИЛ</div>
-        <div class="phone">90 328-33-13</div>
-    </div>
 
-    <script>
-        if (window.location.search.includes('auto=1')) {
-            window.onload = function() {
-                window.print();
-                window.addEventListener('afterprint', function() { window.close(); }, { once: true });
-                setTimeout(function() { window.close(); }, 3000);
-            };
-        }
-    </script>
+      <!-- ASOSIY MA'LUMOT -->
+      <div class="name">МИРКОМИЛ</div>
+      <div class="phone">90 328-33-13</div>
+
+      <!-- LOGO + QR YONMA-YON -->
+      <div class="brand-row">
+        <div class="logo">
+          <img src="{% static 'img/nfix_logo.png' %}" alt="NFIX logo">
+        </div>
+
+        <div class="qr">
+          <img src="{% static 'img/nfix_telegram_qr.png' %}" alt="Telegram QR">
+        </div>
+      </div>
+
+      <!-- TELEGRAM MATN -->
+      <div class="tg-text">
+        Bizning telegram kanalga obuna bo‘lishni unutmang!
+      </div>
+      <div class="tg">
+        @NFIX_SERVICE
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    if (window.location.search.includes('auto=1')) {
+      window.onload = function() {
+        window.print();
+        window.addEventListener('afterprint', function(){
+          window.close();
+        }, { once:true });
+        setTimeout(function(){
+          window.close();
+        }, 3000);
+      };
+    }
+  </script>
+
 </body>
 </html>
