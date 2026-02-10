@@ -8,7 +8,7 @@ class ShopMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        if request.path.startswith('/admin/') or request.path.startswith('/static/'):
+        if request.path.startswith('/admin/') or request.path.startswith('/static/') or request.path.startswith('/media/'):
             return self.get_response(request)
 
         if request.path in ('/', '/register/', '/logout/'):

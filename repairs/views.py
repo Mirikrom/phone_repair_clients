@@ -321,6 +321,33 @@ def order_mark_completed(request, pk):
     return render(request, 'repairs/order_complete_confirm.html', {'order': order})
 
 
+def order_return_to_progress(request, pk):
+    """Tayyor bo'lgan telefonlardan buyurtmalarga orqaga qaytarish (adashib Tuzaldi bosilganda)."""
+    order = get_object_or_404(RepairOrder, shop=request.shop, pk=pk)
+    if order.status != 'ready':
+        return redirect('repairs:ready_phones_list')
+    order.status = 'in_progress'
+    order.ready_at = None
+    order.save()
+    messages.success(request, 'Buyurtma yana ta\'mirlanmoqda ro\'yxatiga qaytarildi.')
+    return redirect('repairs:ready_phones_list')
+
+
+def order_return_to_ready(request, pk):
+    """Istoriyadan (olib ketilgan) tayyor bo'lgan telefonlar ro'yxatiga orqaga qaytarish."""
+    order = get_object_or_404(RepairOrder, shop=request.shop, pk=pk)
+    if order.status != 'completed':
+        return redirect('repairs:order_history')
+    order.status = 'ready'
+    order.completed_at = None
+    order.has_debt = False
+    order.debt_deadline = None
+    order.handover_notes = ''
+    order.save()
+    messages.success(request, 'Buyurtma tayyor bo\'lgan telefonlar ro\'yxatiga qaytarildi.')
+    return redirect('repairs:order_history')
+
+
 def order_create(request):
     """Yangi buyurtma qo'shish"""
     if request.method == 'POST':

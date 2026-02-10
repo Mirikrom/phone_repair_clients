@@ -77,12 +77,17 @@
                         <td class="py-3 px-3 small">{{ order.created_at|date:"d.m.Y H:i" }}</td>
                         <td class="py-3 px-3 small">{% if order.ready_at %}{{ order.ready_at|date:"d.m.Y H:i" }}{% else %}—{% endif %}</td>
                         <td class="no-row-click py-3 px-3 text-end" onclick="event.stopPropagation();">
-                            <button type="button" class="btn btn-sm btn-success rounded-pill px-3 me-1" data-bs-toggle="modal" data-bs-target="#completeModal{{ order.pk }}" title="Olib ketildi">
-                                <i class="bi bi-check-lg me-1"></i> Olib ketildi
-                            </button>
-                            <a href="{% url 'repairs:order_delete' order.pk %}?next=repairs:ready_phones_list" class="btn btn-sm btn-outline-danger rounded-pill px-3" title="O'chirish">
-                                <i class="bi bi-trash"></i>
-                            </a>
+                            <div class="d-flex align-items-center justify-content-end gap-1 flex-nowrap">
+                                <button type="button" class="btn btn-sm btn-success rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#completeModal{{ order.pk }}" title="Olib ketildi">
+                                    <i class="bi bi-check-lg me-1"></i> Olib ketildi
+                                </button>
+                                <a href="{% url 'repairs:order_return_to_progress' order.pk %}" class="btn btn-sm btn-outline-secondary d-flex align-items-center justify-content-center rounded-circle p-2" style="width: 2rem; height: 2rem;" title="Buyurtmalarga orqaga qaytarish" onclick="return confirm('Buyurtmani ta\'mirlanmoqda ro\'yxatiga qaytaramizmi?');">
+                                    <i class="bi bi-arrow-counterclockwise"></i>
+                                </a>
+                                <a href="{% url 'repairs:order_delete' order.pk %}?next=repairs:ready_phones_list" class="btn btn-sm btn-outline-danger d-flex align-items-center justify-content-center rounded-circle p-2" style="width: 2rem; height: 2rem;" title="O'chirish">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
                         </td>
                     </tr>
                     {% endfor %}

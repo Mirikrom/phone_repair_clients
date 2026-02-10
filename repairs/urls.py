@@ -35,4 +35,6 @@ urlpatterns = [
     path('<int:pk>/delete/', views.order_delete, name='order_delete'),
     path('<int:pk>/tugatish/', views.order_mark_ready, name='order_mark_ready'),
     path('<int:pk>/olib-ketildi/', views.order_mark_completed, name='order_mark_completed'),
+    path('<int:pk>/orqaga-tayyor/', views.order_return_to_progress, name='order_return_to_progress'),
+    path('<int:pk>/orqaga-ready/', views.order_return_to_ready, name='order_return_to_ready'),
 ]
