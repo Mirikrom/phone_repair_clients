@@ -27,6 +27,19 @@ def _parse_required_parts(required_parts_str):
     return result
 
 
+def _required_parts_with_screen_type(order):
+    """Zapchast olib kelish kerak va ekran turi tanlangan bo'lsa: qo'yilish kerak bo'lgan zapchast oldin, keyin vergul bilan ekran turi (masalan LCD, KAIKU)."""
+    if not order.zapchast_olib_kelish_kerak or not order.screen_type:
+        return order.required_parts or ''
+    screen_label = order.get_screen_type_display()
+    parts = [p.strip() for p in (order.required_parts or '').split(',') if p.strip()]
+    screen_choices = dict(RepairOrder.SCREEN_TYPE_CHOICES)
+    parts = [p for p in parts if p not in screen_choices.values()]
+    if not parts:
+        return screen_label
+    return ', '.join(parts) + ', ' + screen_label
+
+
 def _extract_part_names(required_parts_str):
     """Parse 'ekran x 2, batareya, LCD' -> ['ekran', 'batareya', 'LCD']"""
     names = []
@@ -355,10 +368,11 @@ def order_create(request):
         if form.is_valid():
             order = form.save(commit=False)
             order.shop = request.shop
+            if order.zapchast_olib_kelish_kerak:
+                order.required_parts = _required_parts_with_screen_type(order)
             order.save()
             if order.zapchast_olib_kelish_kerak and order.required_parts:
-                for name, qty in _parse_required_parts(order.required_parts):
-                    ZapchastItem.objects.create(shop=request.shop, name=name, quantity=qty, phone_model=order.phone_model, repair_order=order)
+                ZapchastItem.objects.create(shop=request.shop, name=order.required_parts, quantity=1, phone_model=order.phone_model, repair_order=order)
             messages.success(request, 'Buyurtma muvaffaqiyatli qo\'shildi!')
             return redirect('repairs:order_list')
         else:
@@ -403,11 +417,13 @@ def order_edit(request, pk):
     if request.method == 'POST':
         form = RepairOrderForm(request.POST, instance=order)
         if form.is_valid():
-            order = form.save()
+            order = form.save(commit=False)
+            if order.zapchast_olib_kelish_kerak:
+                order.required_parts = _required_parts_with_screen_type(order)
+            order.save()
             if order.zapchast_olib_kelish_kerak and order.required_parts:
                 order.zapchast_items.all().delete()
-                for name, qty in _parse_required_parts(order.required_parts):
-                    ZapchastItem.objects.create(shop=request.shop, name=name, quantity=qty, phone_model=order.phone_model, repair_order=order)
+                ZapchastItem.objects.create(shop=request.shop, name=order.required_parts, quantity=1, phone_model=order.phone_model, repair_order=order)
             else:
                 order.zapchast_items.all().delete()
             messages.success(request, 'Buyurtma yangilandi!')

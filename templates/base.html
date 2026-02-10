@@ -23,6 +23,67 @@
         .navbar {
             box-shadow: 0 4px 20px rgba(0,0,0,0.1);
             background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+            position: sticky;
+            top: 0;
+            z-index: 1030;
+        }
+        .navbar-brand {
+            font-size: 1.15rem;
+            letter-spacing: 0.02em;
+            padding: 0.4rem 0.5rem;
+            border-radius: 12px;
+            transition: background 0.2s, transform 0.2s;
+        }
+        .navbar-brand:hover {
+            background: rgba(255,255,255,0.12);
+            transform: translateY(-1px);
+        }
+        .navbar-brand i {
+            font-size: 1.35rem;
+            vertical-align: middle;
+            margin-right: 0.4rem;
+            opacity: 0.95;
+        }
+        .btn-vizitka-nav {
+            width: 2.75rem;
+            height: 2.75rem;
+            padding: 0;
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            border: 1px solid rgba(255,255,255,0.4);
+            background: rgba(255,255,255,0.15);
+            color: #fff;
+            transition: all 0.2s;
+        }
+        .btn-vizitka-nav:hover {
+            background: rgba(255,255,255,0.28);
+            border-color: rgba(255,255,255,0.7);
+            color: #fff;
+            transform: scale(1.05);
+        }
+        .navbar-user {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 0.85rem;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.3);
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #fff;
+            transition: all 0.2s;
+        }
+        .navbar-user:hover {
+            background: rgba(255,255,255,0.22);
+            border-color: rgba(255,255,255,0.5);
+        }
+        .navbar-user i {
+            font-size: 1.2rem;
+            opacity: 0.9;
         }
         .card {
             border: none;
@@ -40,54 +101,52 @@
             box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
         }
         .nav-menu-item {
-            border: 1px solid rgba(255,255,255,0.3);
-            border-radius: 10px;
-            padding: 0.4rem 1rem !important;
+            position: relative;
+            border: 1px solid rgba(255,255,255,0.35);
+            border-radius: 14px;
+            padding: 0.5rem !important;
             margin: 0 0.25rem;
+            width: 3rem;
+            height: 3rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             transition: all 0.2s;
+            font-size: 1.4rem;
         }
         .nav-menu-item:hover {
-            background: rgba(255,255,255,0.15) !important;
-            border-color: rgba(255,255,255,0.5);
-        }
-        .nav-menu-item.active {
             background: rgba(255,255,255,0.2) !important;
             border-color: rgba(255,255,255,0.6);
+            transform: scale(1.05);
         }
-        .nav-menu-text { display: inline; }
-        @media (min-width: 992px) {
-            .nav-menu-text {
-                max-width: 0;
-                overflow: hidden;
-                opacity: 0;
-                white-space: nowrap;
-                transition: max-width 0.25s ease, opacity 0.2s;
-                display: inline-block;
-                vertical-align: middle;
-                margin-left: 0;
-            }
-            .nav-menu-item:hover .nav-menu-text,
-            .nav-menu-item.active .nav-menu-text {
-                max-width: 18em;
-                opacity: 1;
-                margin-left: 0.35rem;
-            }
-            .nav-menu-item { padding: 0.5rem 0.65rem !important; }
-            .nav-menu-item .me-1 { margin-right: 0 !important; }
+        .nav-menu-item.active {
+            background: rgba(255,255,255,0.25) !important;
+            border-color: rgba(255,255,255,0.7);
         }
-        .btn-yangi-buyurtma {
+        .nav-menu-item .badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            font-size: 0.65rem;
+            min-width: 1.1rem;
+            padding: 0.15em 0.35em;
+        }
+        .nav-item { position: relative; }
+        .nav-menu-item.btn-yangi-buyurtma {
             background: #fff !important;
             color: #1d4ed8 !important;
             border: 2px solid #fff !important;
             font-weight: 600;
             box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            font-size: 1.5rem;
         }
-        .btn-yangi-buyurtma:hover {
+        .nav-menu-item.btn-yangi-buyurtma:hover {
             background: #f8fafc !important;
             color: #1e40af !important;
             border-color: #fff !important;
             box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
+        .nav-menu-item.text-white-50:hover { color: #fff !important; }
         /* Qidiruv (poisk) */
         .search-bar .input-group {
             border-radius: 14px;
@@ -123,14 +182,13 @@
             .navbar .container { padding-left: 0.75rem; padding-right: 0.75rem; }
             .navbar-brand { font-size: 1rem; }
             .nav-menu-item {
-                padding: 0.6rem 1rem !important;
-                margin: 0.2rem 0;
-                min-height: 44px;
-                display: flex;
-                align-items: center;
+                width: 3rem;
+                height: 3rem;
+                min-height: 48px;
+                min-width: 48px;
+                font-size: 1.45rem;
+                margin: 0.2rem 0.2rem;
             }
-            .nav-menu-item .badge { font-size: 0.7rem; }
-            .btn-yangi-buyurtma { min-height: 44px; padding: 0.5rem 1rem !important; }
         }
         @media (max-width: 767px) {
             main.container { padding-left: 0.5rem !important; padding-right: 0.5rem !important; padding-top: 1rem !important; }
@@ -150,7 +208,10 @@
         }
         @media (max-width: 575px) {
             .navbar-brand { font-size: 0.95rem; }
-            .navbar-brand i { margin-right: 0.25rem; }
+            .navbar-brand i { margin-right: 0.25rem; font-size: 1.15rem; }
+            .btn-vizitka-nav { width: 2.5rem; height: 2.5rem; font-size: 1.1rem; }
+            .navbar-user { padding: 0.35rem 0.65rem; font-size: 0.85rem; }
+            .navbar-user i { font-size: 1.1rem; }
             .nav-menu-item { font-size: 0.9rem; }
             .history-tab { padding: 0.5rem 0.75rem !important; font-size: 0.9rem; }
         }
@@ -160,17 +221,17 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
-            <a class="navbar-brand fw-bold" href="{% url 'repairs:order_list' %}">
-                <i class="bi bi-phone"></i> Telefon Ustaxonasi
+            <a class="navbar-brand fw-bold text-white text-decoration-none" href="{% url 'repairs:order_list' %}">
+                <i class="bi bi-phone-fill"></i> NFix
             </a>
             {% if user_has_shop %}
-            <div class="d-flex align-items-center gap-2 ms-2 ms-md-3">
-                <button type="button" class="btn btn-sm btn-light" data-bs-toggle="modal" data-bs-target="#vizitkaModal" title="Vizitkani chop etish">
-                    <i class="bi bi-printer"></i> Vizitkani chop etish
+            <div class="d-flex align-items-center gap-2 ms-3">
+                <button type="button" class="btn btn-vizitka-nav" data-bs-toggle="modal" data-bs-target="#vizitkaModal" title="Vizitkani chop etish">
+                    <i class="bi bi-printer-fill"></i>
                 </button>
-                <span class="d-inline-flex align-items-center gap-1 px-2 py-1 rounded bg-light bg-opacity-25 text-white" style="font-size: 0.85rem;">
-                    <i class="bi bi-person-circle"></i>
-                    <span class="text-nowrap">{{ user.username }}</span>
+                <span class="navbar-user text-nowrap">
+                    <i class="bi bi-person-circle-fill"></i>
+                    <span>{{ user.username }}</span>
                 </span>
             </div>
             {% endif %}
@@ -182,57 +243,57 @@
                     {% if user_has_shop %}
                     <li class="nav-item">
                         <a class="nav-link nav-menu-item {% if request.resolver_match.url_name in 'order_list,order_detail,order_edit' %}active{% endif %}" href="{% url 'repairs:order_list' %}" title="Buyurtmalar">
-                            <i class="bi bi-list-ul me-1"></i><span class="nav-menu-text"> Buyurtmalar</span>
+                            <i class="bi bi-clipboard2-pulse"></i>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link nav-menu-item {% if request.resolver_match.url_name in 'ready_phones_list,order_complete_confirm' %}active{% endif %}" href="{% url 'repairs:ready_phones_list' %}" title="Tayyor bo'lgan telefonlar">
-                            <i class="bi bi-check-circle me-1"></i><span class="nav-menu-text"> Tayyor bo'lgan telefonlar</span>
+                            <i class="bi bi-check-circle-fill"></i>
                             {% if ready_phones_count %}
-                            <span class="badge bg-danger ms-1">{{ ready_phones_count }}</span>
+                            <span class="badge bg-danger">{{ ready_phones_count }}</span>
                             {% endif %}
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link nav-menu-item {% if request.resolver_match.url_name in 'zapchast_zakaz_list,zapchast_edit,zapchast_add' %}active{% endif %}" href="{% url 'repairs:zapchast_zakaz_list' %}" title="ZAPCHASTLAR">
-                            <i class="bi bi-box-seam me-1"></i><span class="nav-menu-text"> ZAPCHASTLAR</span>
+                        <a class="nav-link nav-menu-item {% if request.resolver_match.url_name in 'zapchast_zakaz_list,zapchast_edit,zapchast_add' %}active{% endif %}" href="{% url 'repairs:zapchast_zakaz_list' %}" title="Zapchastlar">
+                            <i class="bi bi-box-seam-fill"></i>
                             {% if zapchast_count %}
-                            <span class="badge bg-warning text-dark ms-1">{{ zapchast_count }}</span>
+                            <span class="badge bg-warning text-dark">{{ zapchast_count }}</span>
                             {% endif %}
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link nav-menu-item {% if request.resolver_match.url_name == 'order_history' %}active{% endif %}" href="{% url 'repairs:order_history' %}" title="Istoriya">
-                            <i class="bi bi-clock-history me-1"></i><span class="nav-menu-text"> Istoriya</span>
+                            <i class="bi bi-clock-history"></i>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link nav-menu-item {% if request.resolver_match.url_name == 'debtors_list' %}active{% endif %}" href="{% url 'repairs:debtors_list' %}" title="Qarzdorlar ro'yxati">
-                            <i class="bi bi-wallet2 me-1"></i><span class="nav-menu-text"> Qarzdorlar ro'yxati</span>
+                        <a class="nav-link nav-menu-item {% if request.resolver_match.url_name == 'debtors_list' %}active{% endif %}" href="{% url 'repairs:debtors_list' %}" title="Qarzdorlar">
+                            <i class="bi bi-wallet2"></i>
                             {% if debt_reminder_count %}
-                            <span class="badge bg-danger ms-1" title="Muddati kelgan qarzdorlar">{{ debt_reminder_count }}</span>
+                            <span class="badge bg-danger" title="Muddati kelgan qarzdorlar">{{ debt_reminder_count }}</span>
                             {% endif %}
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link nav-menu-item btn btn-yangi-buyurtma btn-sm px-3 {% if request.resolver_match.url_name == 'order_create' %}active{% endif %}" href="{% url 'repairs:order_create' %}" title="Yangi buyurtma">
-                            <i class="bi bi-plus-lg me-1"></i><span class="nav-menu-text"> Yangi buyurtma</span>
+                        <a class="nav-link nav-menu-item btn btn-yangi-buyurtma btn-sm {% if request.resolver_match.url_name == 'order_create' %}active{% endif %}" href="{% url 'repairs:order_create' %}" title="Yangi buyurtma">
+                            <i class="bi bi-plus-lg"></i>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link nav-menu-item text-white-50" href="{% url 'repairs:logout' %}" title="Chiqish">
-                            <i class="bi bi-box-arrow-right me-1"></i><span class="nav-menu-text"> Chiqish</span>
+                            <i class="bi bi-box-arrow-right"></i>
                         </a>
                     </li>
                     {% else %}
                     <li class="nav-item">
                         <a class="nav-link nav-menu-item" href="{% url 'repairs:login' %}" title="Kirish">
-                            <i class="bi bi-box-arrow-in-right me-1"></i><span class="nav-menu-text"> Kirish</span>
+                            <i class="bi bi-box-arrow-in-right"></i>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link nav-menu-item" href="{% url 'repairs:register' %}" title="Ro'yxatdan o'tish">
-                            <i class="bi bi-person-plus me-1"></i><span class="nav-menu-text"> Ro'yxatdan o'tish</span>
+                            <i class="bi bi-person-plus"></i>
                         </a>
                     </li>
                     {% endif %}
