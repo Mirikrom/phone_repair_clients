@@ -3,12 +3,15 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User
+from django.core.paginator import Paginator
 from django.db.models import Q
 from django.http import JsonResponse
 from django.utils import timezone
 from datetime import timedelta
 from .models import RepairOrder, ZapchastItem, Shop, ShopProfile
 from .forms import RepairOrderForm
+
+PER_PAGE = 10
 
 
 def _parse_required_parts(required_parts_str):
@@ -200,10 +203,14 @@ def order_list(request):
             cond |= Q(client_phone__icontains=digits)
         in_progress_orders = in_progress_orders.filter(cond)
     in_progress_orders = in_progress_orders.order_by('-created_at')
+    paginator = Paginator(in_progress_orders, PER_PAGE)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
     today = timezone.now().date()
     yesterday = today - timedelta(days=1)
     return render(request, 'repairs/order_list.html', {
-        'orders': in_progress_orders,
+        'orders': page_obj.object_list,
+        'page_obj': page_obj,
         'today': today,
         'yesterday': yesterday,
         'q': q,
@@ -221,7 +228,13 @@ def ready_phones_list(request):
             cond |= Q(client_phone__icontains=digits)
         ready_orders = ready_orders.filter(cond)
     ready_orders = ready_orders.order_by('-created_at')
-    return render(request, 'repairs/ready_phones_list.html', {'ready_orders': ready_orders, 'q': q})
+    paginator = Paginator(ready_orders, PER_PAGE)
+    page_obj = paginator.get_page(request.GET.get('page', 1))
+    return render(request, 'repairs/ready_phones_list.html', {
+        'ready_orders': page_obj.object_list,
+        'page_obj': page_obj,
+        'q': q,
+    })
 
 
 def debtors_list(request):
@@ -235,8 +248,15 @@ def debtors_list(request):
             cond |= Q(client_phone__icontains=digits)
         debtors = debtors.filter(cond)
     debtors = debtors.order_by('-created_at')
+    paginator = Paginator(debtors, PER_PAGE)
+    page_obj = paginator.get_page(request.GET.get('page', 1))
     today = timezone.now().date()
-    return render(request, 'repairs/debtors_list.html', {'debtors': debtors, 'today': today, 'q': q})
+    return render(request, 'repairs/debtors_list.html', {
+        'debtors': page_obj.object_list,
+        'page_obj': page_obj,
+        'today': today,
+        'q': q,
+    })
 
 
 def order_history(request):
@@ -257,9 +277,12 @@ def order_history(request):
                 Q(repair_order__phone_model__icontains=q)
             )
         zapchast_items = zapchast_items.order_by('-done_at', '-created_at')
+        paginator = Paginator(zapchast_items, PER_PAGE)
+        page_obj = paginator.get_page(request.GET.get('page', 1))
         return render(request, 'repairs/order_history.html', {
             'orders': [],
-            'zapchast_history': zapchast_items,
+            'zapchast_history': page_obj.object_list,
+            'page_obj': page_obj,
             'tab': tab,
             'today': today,
             'yesterday': yesterday,
@@ -274,9 +297,12 @@ def order_history(request):
                 cond |= Q(client_phone__icontains=digits)
             completed_orders = completed_orders.filter(cond)
         completed_orders = completed_orders.order_by('-completed_at', '-created_at')
+        paginator = Paginator(completed_orders, PER_PAGE)
+        page_obj = paginator.get_page(request.GET.get('page', 1))
         return render(request, 'repairs/order_history.html', {
-            'orders': completed_orders,
+            'orders': page_obj.object_list,
             'zapchast_history': [],
+            'page_obj': page_obj,
             'tab': tab,
             'today': today,
             'yesterday': yesterday,
@@ -448,13 +474,17 @@ def zapchast_zakaz_list(request):
             Q(repair_order__phone_model__icontains=q)
         )
     items = items.order_by('is_done', '-done_at', '-created_at')
-    not_done_items = [i for i in items if not i.is_done]
-    done_items = [i for i in items if i.is_done]
+    paginator = Paginator(items, PER_PAGE)
+    page_obj = paginator.get_page(request.GET.get('page', 1))
+    page_items = page_obj.object_list
+    not_done_items = [i for i in page_items if not i.is_done]
+    done_items = [i for i in page_items if i.is_done]
     return render(request, 'repairs/zapchast_zakaz_list.html', {
-        'items': items,
+        'items': page_items,
         'not_done_items': not_done_items,
         'done_items': done_items,
         'has_done': bool(done_items),
+        'page_obj': page_obj,
         'q': q,
     })
 

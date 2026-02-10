@@ -130,6 +130,7 @@
             <p class="text-muted mt-3 mb-0">Olib ketilgan telefonlar yo'q</p>
         </div>
         {% endif %}
+        {% if page_obj %}{% include 'repairs/_pagination.html' %}{% endif %}
     </div>
 </div>
 {% else %}
@@ -186,6 +187,7 @@
             <p class="text-muted small">ZAPCHASTLAR da "Olindi" bosilganda shu yerga yoziladi</p>
         </div>
         {% endif %}
+        {% if page_obj %}{% include 'repairs/_pagination.html' %}{% endif %}
     </div>
 </div>
 {% endif %}

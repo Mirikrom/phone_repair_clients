@@ -24,7 +24,7 @@
                             <i class="bi bi-archive"></i> Tugatish
                         </button>
                     </form>
-                    <span class="badge bg-light text-dark">{{ items|length }} ta</span>
+                    <span class="badge bg-light text-dark">{% if page_obj %}{{ page_obj.paginator.count }}{% else %}{{ items|length }}{% endif %} ta</span>
                 </div>
             </div>
             <div class="card-body">
@@ -178,6 +178,7 @@
                         </tbody>
                     </table>
                 </div>
+                {% if page_obj %}{% include 'repairs/_pagination.html' %}{% endif %}
             </div>
         </div>
     </div>
