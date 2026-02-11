@@ -5,7 +5,7 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator
 from django.db.models import Q
-from django.http import JsonResponse
+from django.http import JsonResponse, Http404
 from django.utils import timezone
 from datetime import timedelta
 from .models import RepairOrder, ZapchastItem, Shop, ShopProfile
@@ -55,7 +55,7 @@ def _extract_part_names(required_parts_str):
 
 
 def login_view(request):
-    """Kirish - bosh sahifa. Login/parol bo'lsa kirish, yo'q bo'lsa registerga."""
+    """Kirish - bosh sahifa. Login/parol bo'lsa kirish."""
     if request.user.is_authenticated and ShopProfile.objects.filter(user=request.user).exists():
         next_url = request.GET.get('next') or request.POST.get('next', 'repairs:order_list')
         return redirect(next_url)
@@ -76,8 +76,8 @@ def login_view(request):
             if ShopProfile.objects.filter(user=user).exists():
                 next_url = request.POST.get('next') or request.GET.get('next', 'repairs:order_list')
                 return redirect(next_url)
-            messages.warning(request, 'Sizda ustaxona profili yo\'q. Chiqib, yangi hisob bilan ro\'yxatdan o\'ting.')
             logout(request)
+            return render(request, 'repairs/login.html', {'no_profile': True})
         else:
             messages.error(request, 'Login yoki parol noto\'g\'ri.')
     no_profile = request.user.is_authenticated and not ShopProfile.objects.filter(user=request.user).exists()
@@ -88,6 +88,16 @@ def logout_view(request):
     """Chiqish"""
     logout(request)
     return redirect('repairs:login')
+
+
+def register_disabled(request):
+    """Ro'yxatdan o'tish o'chirilgan. Userlarni faqat admin yaratadi."""
+    raise Http404("Ro'yxatdan o'tish o'chirilgan.")
+
+
+def custom_404(request, exception):
+    """Default 404 sahifa (productionda)."""
+    return render(request, '404.html', status=404)
 
 
 def register_view(request):

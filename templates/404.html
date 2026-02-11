@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}Sahifa topilmadi - Telefon Ustaxonasi{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6">
+        <div class="card">
+            <div class="card-header bg-primary text-white py-3">
+                <h5 class="mb-0"><i class="bi bi-exclamation-triangle-fill me-2"></i>Xatolik</h5>
+            </div>
+            <div class="card-body p-4 text-center">
+                <div class="display-6 fw-bold mb-2" style="color:#1e293b;">404</div>
+                <p class="text-muted mb-4">
+                    Kechirasiz, siz qidirgan sahifa topilmadi.
+                </p>
+                <div class="d-flex justify-content-center gap-2 flex-wrap">
+                    <a href="{% url 'repairs:order_list' %}" class="btn btn-primary">
+                        <i class="bi bi-house-door me-2"></i>Bosh sahifa
+                    </a>
+                    <a href="{% url 'repairs:login' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Kirish
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

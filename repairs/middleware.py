@@ -21,6 +21,6 @@ class ShopMiddleware:
         if hasattr(request.user, 'shop_profile'):
             request.shop = request.user.shop_profile.shop
         else:
-            return redirect('/register/?msg=profil')
+            return redirect('/?msg=profil')
 
         return self.get_response(request)

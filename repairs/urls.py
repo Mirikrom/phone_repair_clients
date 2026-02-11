@@ -7,7 +7,7 @@ app_name = 'repairs'
 urlpatterns = [
     path('', views.login_view, name='login'),
     path('login/', RedirectView.as_view(url='/', permanent=False)),
-    path('register/', views.register_view, name='register'),
+    path('register/', views.register_disabled, name='register'),
     path('logout/', views.logout_view, name='logout'),
     path('buyurtmalar/', views.order_list, name='order_list'),
     path('tayyor/', views.ready_phones_list, name='ready_phones_list'),

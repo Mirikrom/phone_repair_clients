@@ -45,21 +45,21 @@ python manage.py createsuperuser   # admin login/parol yarating
 
 **Agar loyiha yangi bo'lsa** (ma'lumot yo'q):
 
-- Birinchi foydalanuvchi `/register/` sahifasiga kiring
-- Ustaxona nomi, login va parol kiriting
-- Avtomatik yangi ustaxona va hisob yaratiladi
+1. Django admin: `https://sizning-server.com/admin/`
+2. **Shop** (Ustaxona) — yangi Shop yarating
+3. **Users** — yangi user yarating (**userlarni faqat admin yaratadi**)
+4. **Shop profiles** — User va Shop ni bog'lang
 
 ---
 
 ## 2. Boshqa ustaga berish (yangi ustaxona)
 
-Har bir yangi usta **o'z hisobini** yaratadi:
+Yangi usta uchun hisobni **admin** ochib beradi:
 
-1. Ustaga sayt manzilini bering: `https://sizning-server.com/`
-2. U **Ro'yxatdan o'tish** tugmasini bosadi
-3. Ustaxona nomi (masalan: "Ahmad ustaxonasi"), login va parol kiritadi
-4. Tizim avtomatik yangi ustaxona yaratadi
-5. U faqat o'z buyurtmalarini ko'radi — boshqa ustaxonalarning ma'lumotlari ko'rinmaydi
+1. Admin panelda yangi **Shop** yarating (ustaxona)
+2. Yangi **User** yarating (login/parol)
+3. **ShopProfile** orqali User + Shop ni bog'lang
+4. Ustaga login/parolni yuboring
 
 ---
 
@@ -71,7 +71,7 @@ Tizim **multi-tenant**:
 |-------|--------|
 | **Har bir ustaxona** | O'z login va paroli bilan kiradi |
 | **Ma'lumotlar** | Ustaxonalar bir-birining buyurtmalarini ko'rmaydi |
-| **Yangi usta** | `/register/` orqali o'z hisobini yaratadi |
+| **Yangi usta** | Hisobni admin yaratadi va ShopProfile bog'laydi |
 | **Bitta server** | Barcha ustaxonalar bir serverda, lekin ma'lumotlar alohida |
 
 ---
@@ -144,5 +144,5 @@ A: Ha. `createsuperuser` bilan yaratilgan admin barcha ustaxonalar va buyurtmala
 ## 6. Xulosa
 
 1. **Serverga qo'yish**: `migrate` → `createsuperuser` → (ixtiyoriy) birinchi ustaxona uchun ShopProfile
-2. **Yangi usta**: `/register/` orqali o'z hisobini yaratadi
+2. **Yangi usta**: admin yangi user + Shop + ShopProfile ochib beradi
 3. **Ma'lumotlar**: Ustaxonalar o'rtasida ajratilgan, bir-biriga ko'rinmaydi
