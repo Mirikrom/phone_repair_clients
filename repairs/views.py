@@ -11,7 +11,7 @@ from datetime import timedelta
 from .models import RepairOrder, ZapchastItem, Shop, ShopProfile
 from .forms import RepairOrderForm
 
-PER_PAGE = 10
+PER_PAGE = 100
 
 
 def _parse_required_parts(required_parts_str):
