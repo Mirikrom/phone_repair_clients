@@ -271,6 +271,37 @@
             }
             }
             }
+
+            /* ✅ Navbar: printer + user pill bir xil bo‘yin */
+.navbar .btn-vizitka-nav,
+.navbar .navbar-user{
+  height: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* printer knopka eni ham mos bo‘lsin */
+.navbar .btn-vizitka-nav{
+  width: 44px;
+  border-radius: 14px; /* xohlasang 999px qilib pill ham qila olasan */
+}
+
+/* user pill paddingni heightga moslaymiz */
+.navbar .navbar-user{
+  padding: 0 14px;        /* oldin yuqori/past padding bilan balandlik o'zgarardi */
+  border-radius: 14px;
+  line-height: 1;
+}
+
+/* iconlar ham bir xil ko‘rinsin */
+.navbar .btn-vizitka-nav i,
+.navbar .navbar-user i{
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+
     </style>
     {% block extra_css %}{% endblock %}
 </head>
