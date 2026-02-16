@@ -215,6 +215,62 @@
             .nav-menu-item { font-size: 0.9rem; }
             .history-tab { padding: 0.5rem 0.75rem !important; font-size: 0.9rem; }
         }
+
+        /* ✅ Mobil: collapse ochilganda ikon menu xunuk bo‘lib ketmasin */
+            @media (max-width: 991.98px){
+
+            /* collapse panelga joy beramiz */
+            .navbar-collapse{
+            padding: 10px 0 14px;
+            }
+
+            /* UL'ni grid qilib yuboramiz */
+            .navbar-nav{
+            display: grid !important;
+            grid-template-columns: repeat(4, minmax(0, 1fr)); /* 4 ta ustun */
+            gap: 10px;
+            width: 100%;
+            padding-top: 10px;
+            }
+
+            /* har bir li 100% bo‘lsin */
+            .navbar-nav .nav-item{
+            width: 100%;
+            margin: 0 !important;
+            }
+
+            /* icon buttonlar katakni to‘ldirsin */
+            .navbar-nav .nav-link.nav-menu-item{
+            width: 100% !important;
+            height: 52px !important;
+            margin: 0 !important;
+            border-radius: 16px !important;
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.35rem;
+            }
+
+            /* “+” yangi buyurtma ham gridga mos tushsin */
+            .navbar-nav .nav-link.btn-yangi-buyurtma{
+            width: 100% !important;
+            height: 52px !important;
+            border-radius: 16px !important;
+            }
+
+            /* badge joylashuvi o‘zgarmasin */
+            .nav-menu-item .badge{
+            top: 4px !important;
+            right: 6px !important;
+            }
+
+            /* juda kichik ekranlarda 3 ustun qilamiz */
+            @media (max-width: 420px){
+            .navbar-nav{
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+            }
+            }
     </style>
     {% block extra_css %}{% endblock %}
 </head>

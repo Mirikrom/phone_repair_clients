@@ -5,200 +5,440 @@
 
 {% block extra_css %}
 <style>
-.order-row:hover { background-color: #f1f5f9 !important; }
-.date-separator td { border-bottom: 2px solid #cbd5e1 !important; }
-.history-tab { border-radius: 10px; padding: 0.5rem 1.25rem; transition: all 0.2s; }
-.history-tab:hover { background: rgba(0,0,0,0.05); }
-.history-tab.active { background: #2563eb; color: #fff !important; }
-@media (max-width: 767px) {
-    .d-flex.gap-2.mb-4 { flex-wrap: wrap; gap: 0.5rem !important; }
-    .history-tab { flex: 1 1 auto; text-align: center; }
-    .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-    .table { min-width: 700px; }
+:root{
+  --bg:#f6f7fb;
+  --row:#eaf2ff;
+  --rowHover:#3f66ff;
+  --text:#0f172a;
+  --muted:#6b7280;
+  --white:#fff;
+  --line: rgba(148,163,184,.28);
+}
+
+body{ background: var(--bg); }
+
+.container{ max-width: 1400px !important; }
+@media (min-width: 1600px){ .container{ max-width: 1600px !important; } }
+
+.orders-shell{
+  background:#fff;
+  border-radius: 18px;
+  padding: 16px;
+  box-shadow: 0 14px 40px rgba(2,6,23,.08);
+}
+
+.search-bar .input-group{
+  border-radius: 14px;
+  overflow:hidden;
+  background:#fff;
+  box-shadow: 0 10px 24px rgba(2,6,23,.08);
+  border: 1px solid rgba(148,163,184,.25);
+}
+.search-bar .input-group-text{ background:transparent; border:0; color:var(--muted); }
+.search-bar .form-control{ border:0; background:transparent; }
+.search-bar .form-control:focus{ box-shadow:none; }
+
+/* Tabs */
+.history-tabs{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
+.history-tab{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding: 10px 18px;
+  border-radius: 14px;
+  font-weight: 700;
+  text-decoration: none !important;
+  transition: all .2s ease;
+  border: 2px solid rgba(148,163,184,.3);
+  background: #fff;
+  color: #475569;
+}
+.history-tab:hover{ background: #f1f5f9; border-color: #94a3b8; color: #1e293b; }
+.history-tab.active{ background: #3f66ff; border-color: #3f66ff; color: #fff; }
+
+.desktop-table{ display:block; }
+.mobile-cards{ display:none; }
+
+.pill-table{ width:100%; border-collapse: separate !important; border-spacing: 0 8px; }
+.pill-table td, .pill-table th{ border:0 !important; }
+
+.pill-table thead th{
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: #fff;
+  padding: 8px 10px 10px;
+  color: #7a8696;
+  font-weight: 900;
+  font-size: .82rem;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  border-bottom: 1px solid var(--line) !important;
+  white-space: nowrap;
+}
+
+.pill-row td{
+  background: var(--row);
+  padding: 10px 10px;
+  vertical-align: middle;
+  font-weight: 800;
+  color: var(--text);
+  transition: background .18s ease, transform .18s ease, box-shadow .18s ease, color .18s ease;
+  font-size: .92rem;
+  line-height: 1.15;
+}
+.pill-row td:first-child{ border-top-left-radius: 18px; border-bottom-left-radius: 18px; }
+.pill-row td:last-child{ border-top-right-radius: 18px; border-bottom-right-radius: 18px; }
+
+.pill-row{ cursor: pointer; transform: translateY(0); }
+.pill-row:hover{ transform: translateY(-2px); }
+.pill-row:hover td{
+  background: var(--rowHover);
+  color: var(--white);
+  box-shadow: 0 18px 34px rgba(63,102,255,.22);
+}
+.pill-row:hover .muted{ color: rgba(255,255,255,.86) !important; }
+.pill-row:hover .btn-icon{ background: rgba(255,255,255,.18); color: #fff; }
+
+.model-strong{ font-size: .98rem; font-weight: 1000; }
+.model-sub{ font-weight: 700; color: #5b6675; font-size: .82rem; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.money{ font-variant-numeric: tabular-nums; font-weight: 1000; }
+.muted{ color: var(--muted); }
+.actions{ text-align:right; width: 120px; }
+
+.btn-icon{
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border: 2px solid rgba(63,102,255,.25);
+  background: #fff;
+  color: #1e293b;
+  box-shadow: 0 4px 10px rgba(63,102,255,.12);
+  transition: all .18s ease;
+}
+.btn-icon:hover{ background: #3f66ff; color: #fff; border-color: #3f66ff; transform: translateY(-1px); }
+.pill-row:hover .btn-icon{ background: #fff; color: #1e293b; }
+
+.day-row td{ padding: 0 !important; background: transparent !important; }
+.day-pill{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding: 8px 12px;
+  border-radius: 14px;
+  background: rgba(2,6,23,.04);
+  border: 1px solid rgba(148,163,184,.25);
+  font-weight: 500;
+  color: #334155;
+}
+.day-pill .dot{ width: 10px; height: 10px; border-radius: 999px; background: #3f66ff; box-shadow: 0 8px 18px rgba(63,102,255,.25); }
+
+.empty-pill{
+  display:inline-block;
+  padding: 3px 10px;
+  font-size: .75rem;
+  font-weight: 800;
+  border-radius: 999px;
+  background: rgba(148,163,184,.18);
+  color: #64748b;
+}
+.pill-row:hover .empty-pill{ background: rgba(255,255,255,.25); color: rgba(255,255,255,.85); }
+
+.col-idx{ width: 60px; }
+.col-time{ width: 90px; text-align: center; }
+
+@media (max-width: 1200px){
+  .pill-table thead th:nth-child(4),
+  .pill-table thead th:nth-child(6){ display: none; }
+  .pill-row td:nth-child(4),
+  .pill-row td:nth-child(6){ display: none; }
+}
+
+/* ===== MOBILE ===== */
+@media (max-width: 991px){
+  .desktop-table{ display: none; }
+  .mobile-cards{ display: block; }
+  .orders-shell{ padding: 12px; }
+  .day-pill{ margin-bottom: 10px; }
+  .history-tabs{ margin-bottom: 12px; }
+  .history-tab{ flex: 1 1 auto; justify-content: center; }
+
+  .order-card{
+    background: var(--row);
+    border-radius: 18px;
+    padding: 12px;
+    margin-bottom: 10px;
+    box-shadow: 0 10px 20px rgba(2,6,23,.06);
+    transition: .16s ease;
+    cursor: pointer;
+  }
+  .order-card:hover{
+    background: var(--rowHover);
+    color: #fff;
+  }
+  .order-card:hover .muted,
+  .order-card:hover .label{ color: rgba(255,255,255,.86); }
+  .order-card:hover .btn-icon{ background: rgba(255,255,255,.18); color: #fff; }
+
+  .card-top{ display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 6px; }
+  .card-model{ font-weight: 1000; font-size: 1.02rem; line-height: 1.2; }
+  .card-time{ font-weight: 1000; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .card-phone{ font-size: .92rem; font-weight: 800; margin-bottom: 8px; }
+  .card-grid{ display: grid; grid-template-columns: 1fr 1fr; gap: 8px 10px; font-size: .9rem; }
+  .label{ color: #64748b; font-weight: 800; margin-right: 6px; }
+  .card-actions{ display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px; }
+
+  .zap-card{
+    background: var(--row);
+    border-radius: 18px;
+    padding: 14px;
+    margin-bottom: 10px;
+    box-shadow: 0 10px 20px rgba(2,6,23,.06);
+  }
+  .zap-card .card-top{ margin-bottom: 6px; }
+  .zap-card .card-name{ font-weight: 800; color: var(--muted); font-size: .9rem; }
 }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-    <div>
-        <h2 class="mb-1 fw-bold" style="color: #1e293b;"><i class="bi bi-clock-history text-secondary me-2"></i>Istoriya</h2>
-        <p class="text-muted mb-0 small">{% if tab == 'zapchast' %}Zapchastlar istoriyasi{% else %}Olib ketilgan telefonlar{% endif %}</p>
-    </div>
-    <a href="{% url 'repairs:order_list' %}" class="btn btn-outline-primary px-4 py-2">
-        <i class="bi bi-arrow-left me-2"></i> Buyurtmalar
-    </a>
+  <div>
+    <h2 class="mb-1 fw-bold" style="color:#1e293b;">
+      <i class="bi bi-clock-history text-primary me-2"></i>Istoriya
+    </h2>
+    <p class="text-muted mb-0 small">
+      {% if tab == 'zapchast' %}Zapchastlar istoriyasi{% else %}Olib ketilgan telefonlar{% endif %}
+    </p>
+  </div>
+  <a href="{% url 'repairs:order_list' %}" class="btn btn-outline-primary px-4 py-2" style="border-radius:14px;">
+    <i class="bi bi-arrow-left me-2"></i> Buyurtmalar
+  </a>
 </div>
 
 <form method="get" class="mb-3 search-bar js-live-search">
-    <input type="hidden" name="tab" value="{{ tab }}">
-    <div class="input-group">
-        <span class="input-group-text"><i class="bi bi-search"></i></span>
-        <input type="text" name="q" value="{{ q|default:'' }}" class="form-control js-live-search-input" placeholder="Model yoki nomer bo'yicha qidirish">
-        <button class="btn btn-outline-primary d-none d-md-inline-flex" type="submit">Qidirish</button>
-        {% if q %}
-        <a class="btn btn-outline-secondary" href="{% url 'repairs:order_history' %}{% if tab == 'zapchast' %}?tab=zapchast{% endif %}">Tozalash</a>
-        {% endif %}
-    </div>
+  <input type="hidden" name="tab" value="{{ tab }}">
+  <div class="input-group">
+    <span class="input-group-text"><i class="bi bi-search"></i></span>
+    <input type="text" name="q" value="{{ q|default:'' }}" class="form-control js-live-search-input" placeholder="Model yoki nomer bo'yicha qidirish">
+    <button class="btn btn-outline-primary d-none d-md-inline-flex" type="submit">Qidirish</button>
+    {% if q %}
+    <a class="btn btn-outline-secondary" href="{% url 'repairs:order_history' %}{% if tab == 'zapchast' %}?tab=zapchast{% endif %}">Tozalash</a>
+    {% endif %}
+  </div>
 </form>
 
-<div class="d-flex gap-2 mb-4">
-    <a href="{% url 'repairs:order_history' %}" class="history-tab text-decoration-none {% if tab == 'phones' %}active{% else %}text-secondary border{% endif %}">
-        <i class="bi bi-archive me-2"></i>Olib ketilgan telefonlar
-    </a>
-    <a href="{% url 'repairs:order_history' %}?tab=zapchast" class="history-tab text-decoration-none {% if tab == 'zapchast' %}active{% else %}text-secondary border{% endif %}">
-        <i class="bi bi-box-seam me-2"></i>Zapchastlar
-    </a>
+<div class="history-tabs">
+  <a href="{% url 'repairs:order_history' %}" class="history-tab {% if tab == 'phones' %}active{% endif %}">
+    <i class="bi bi-archive"></i> Olib ketilgan telefonlar
+  </a>
+  <a href="{% url 'repairs:order_history' %}?tab=zapchast" class="history-tab {% if tab == 'zapchast' %}active{% endif %}">
+    <i class="bi bi-box-seam"></i> Zapchastlar
+  </a>
 </div>
 
-{% if tab == 'phones' %}
-<div class="card border-0">
-    <div class="card-header py-3" style="background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%); border-radius: 16px 16px 0 0;">
-        <h6 class="mb-0 fw-bold text-secondary"><i class="bi bi-archive me-2"></i>Olib ketilgan telefonlar</h6>
+<div class="orders-shell">
+  {% if tab == 'phones' %}
+    {% if orders %}
+    <div class="desktop-table">
+      <div class="table-responsive">
+        <table class="pill-table">
+          <thead>
+            <tr>
+              <th class="col-idx">#</th>
+              <th>Model</th>
+              <th>Nomer</th>
+              <th>Zapchast</th>
+              <th>Narxi</th>
+              <th>Zaklad</th>
+              <th>To'lov / Eslatma</th>
+              <th class="col-time">Data</th>
+              <th class="actions">Amallar</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for order in orders %}
+            {% with order_date=order.completed_at|default:order.created_at %}
+            {% ifchanged order_date.date %}
+            <tr class="day-row">
+              <td colspan="9">
+                <div class="day-pill">
+                  <span class="dot"></span>
+                  {% if order_date.date == today %}Bugun
+                  {% elif order_date.date == yesterday %}Kecha
+                  {% else %}{{ order_date|date:"d.m.Y" }}{% endif %}
+                </div>
+              </td>
+            </tr>
+            {% endifchanged %}
+            {% endwith %}
+            <tr class="pill-row" data-href="{% url 'repairs:order_detail' order.pk %}">
+              <td class="muted">{{ forloop.counter }}</td>
+              <td>
+                <div class="model-strong">{{ order.phone_model }}</div>
+                {% if order.client_name %}<div class="model-sub"><i class="bi bi-person me-1"></i>{{ order.client_name }}</div>{% endif %}
+              </td>
+              <td>{{ order.client_phone|phone_without_prefix|default:"—" }}</td>
+              <td>{% if order.required_parts %}{{ order.required_parts }}{% else %}<span class="empty-pill">—</span>{% endif %}</td>
+              <td class="money">{% if order.repair_cost %}{{ order.repair_cost|intcomma_uz }}{% else %}<span class="empty-pill">—</span>{% endif %}</td>
+              <td class="money">{% if order.deposit_amount %}{{ order.deposit_amount|intcomma_uz }}{% else %}<span class="empty-pill">—</span>{% endif %}</td>
+              <td>{% if order.handover_notes %}<span style="color:#b45309;">{{ order.handover_notes }}</span>{% else %}<span class="empty-pill">—</span>{% endif %}</td>
+              <td class="muted col-time">{% if order.completed_at %}{{ order.completed_at|date:"d.m.Y H:i" }}{% else %}{{ order.created_at|date:"d.m.Y H:i" }}{% endif %}</td>
+              <td class="actions no-row-click" onclick="event.stopPropagation();">
+                <a href="{% url 'repairs:order_return_to_ready' order.pk %}" class="btn-icon me-1" title="Tayyor ro'yxatiga qaytarish" onclick="return confirm('Tayyor bo\'lgan telefonlar ro\'yxatiga qaytaramizmi?');">
+                  <i class="bi bi-arrow-counterclockwise"></i>
+                </a>
+                <a href="{% url 'repairs:order_delete' order.pk %}?next=repairs:order_history" class="btn-icon" title="O'chirish">
+                  <i class="bi bi-trash"></i>
+                </a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     </div>
-    <div class="card-body p-0">
-        {% if orders %}
-        <div class="table-responsive">
-            <table class="table table-hover mb-0 align-middle">
-                <thead style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);">
-                    <tr class="border-bottom">
-                        <th class="py-3 px-3 text-uppercase small fw-semibold text-secondary">#</th>
-                        <th class="py-3 px-3 text-uppercase small fw-semibold text-secondary">Model</th>
-                        <th class="py-3 px-3 text-uppercase small fw-semibold text-secondary">Nomer</th>
-                        <th class="py-3 px-3 text-uppercase small fw-semibold text-secondary">Zapchast</th>
-                        <th class="py-3 px-3 text-uppercase small fw-semibold text-secondary">Narxi</th>
-                        <th class="py-3 px-3 text-uppercase small fw-semibold text-secondary">Zaklad</th>
-                        <th class="py-3 px-3 text-uppercase small fw-semibold text-secondary">Ekran</th>
-                        <th class="py-3 px-3 text-uppercase small fw-semibold text-secondary">Laminat</th>
-                        <th class="py-3 px-3 text-uppercase small fw-semibold text-secondary">To'lov / Eslatma</th>
-                        <th class="py-3 px-3 text-uppercase small fw-semibold text-secondary">Data</th>
-                        <th class="py-3 px-3 text-uppercase small fw-semibold text-secondary text-end">Amallar</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for order in orders %}
-                    {% with order_date=order.completed_at|default:order.created_at %}
-                    {% ifchanged order_date.date %}
-                    <tr class="date-separator">
-                        <td colspan="11" class="py-2 px-3 fw-semibold" style="background: linear-gradient(135deg, #e2e8f0 0%, #f1f5f9 100%); color: #475569; font-size: 0.9rem;">
-                            <i class="bi bi-calendar3 me-2"></i>
-                            {% if order_date.date == today %}
-                                Bugun
-                            {% elif order_date.date == yesterday %}
-                                Kecha
-                            {% else %}
-                                {{ order_date|date:"d.m.Y" }}
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% endifchanged %}
-                    {% endwith %}
-                    <tr class="order-row border-bottom" data-href="{% url 'repairs:order_detail' order.pk %}" style="cursor: pointer; transition: background 0.2s;">
-                        <td class="py-3 px-3 text-muted">{{ forloop.counter }}</td>
-                        <td class="py-3 px-3">
-                            <strong class="text-dark">{{ order.phone_model }}</strong>
-                            {% if order.client_name %}
-                            <div class="small text-muted mt-1"><i class="bi bi-person me-1"></i>{{ order.client_name }}</div>
-                            {% endif %}
-                        </td>
-                        <td class="py-3 px-3">{{ order.client_phone|phone_without_prefix }}</td>
-                        <td class="py-3 px-3">{% if order.required_parts %}{{ order.required_parts }}{% else %}<span class="text-muted">—</span>{% endif %}</td>
-                        <td class="py-3 px-3">{% if order.repair_cost %}{{ order.repair_cost|intcomma_uz }}{% else %}<span class="text-muted">—</span>{% endif %}</td>
-                        <td class="py-3 px-3">{% if order.deposit_amount %}{{ order.deposit_amount|intcomma_uz }}{% else %}<span class="text-muted">—</span>{% endif %}</td>
-                        <td class="py-3 px-3">{% if order.screen_type %}{{ order.get_screen_type_display }}{% else %}<span class="text-muted">—</span>{% endif %}</td>
-                        <td class="py-3 px-3">{% if order.laminat %}{{ order.get_laminat_display }}{% else %}<span class="text-muted">—</span>{% endif %}</td>
-                        <td class="py-3 px-3">{% if order.handover_notes %}<span class="text-warning">{{ order.handover_notes }}</span>{% else %}<span class="text-muted">—</span>{% endif %}</td>
-                        <td class="py-3 px-3">{% if order.completed_at %}{{ order.completed_at|date:"d.m.Y H:i" }}{% else %}{{ order.created_at|date:"d.m.Y H:i" }}{% endif %}</td>
-                        <td class="no-row-click py-3 px-3 text-end" onclick="event.stopPropagation();">
-                            <div class="d-flex align-items-center justify-content-end gap-1 flex-nowrap">
-                                <a href="{% url 'repairs:order_return_to_ready' order.pk %}" class="btn btn-sm btn-outline-primary d-flex align-items-center justify-content-center rounded-circle p-2" style="width: 2rem; height: 2rem;" title="Tayyor bo'lgan telefonlar ro'yxatiga qaytarish" onclick="return confirm('Buyurtmani tayyor bo\'lgan telefonlar ro\'yxatiga qaytaramizmi?');">
-                                    <i class="bi bi-arrow-counterclockwise"></i>
-                                </a>
-                                <a href="{% url 'repairs:order_delete' order.pk %}?next=repairs:order_history" class="btn btn-sm btn-outline-danger d-flex align-items-center justify-content-center rounded-circle p-2" style="width: 2rem; height: 2rem;" title="O'chirish">
-                                    <i class="bi bi-trash"></i>
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+
+    <div class="mobile-cards">
+      {% for order in orders %}
+      {% with order_date=order.completed_at|default:order.created_at %}
+      {% ifchanged order_date.date %}
+      <div class="day-pill">
+        <span class="dot"></span>
+        {% if order_date.date == today %}Bugun
+        {% elif order_date.date == yesterday %}Kecha
+        {% else %}{{ order_date|date:"d.m.Y" }}{% endif %}
+      </div>
+      {% endifchanged %}
+      {% endwith %}
+      <div class="order-card" data-href="{% url 'repairs:order_detail' order.pk %}">
+        <div class="card-top">
+          <div class="card-model">{{ order.phone_model }}</div>
+          <div class="card-time">{% if order.completed_at %}{{ order.completed_at|date:"H:i" }}{% else %}{{ order.created_at|date:"H:i" }}{% endif %}</div>
         </div>
-        {% else %}
-        <div class="text-center py-5 px-4">
-            <i class="bi bi-archive display-4 text-muted opacity-50"></i>
-            <p class="text-muted mt-3 mb-0">Olib ketilgan telefonlar yo'q</p>
+        <div class="card-phone muted">
+          {{ order.client_phone|phone_without_prefix|default:"—" }}
+          {% if order.client_name %} · {{ order.client_name }}{% endif %}
         </div>
-        {% endif %}
-        {% if page_obj %}{% include 'repairs/_pagination.html' %}{% endif %}
+        <div class="card-grid">
+          <div><span class="label">Narxi:</span> {% if order.repair_cost %}<span class="money">{{ order.repair_cost|intcomma_uz }}</span>{% else %}<span class="muted">—</span>{% endif %}</div>
+          <div><span class="label">To'lov:</span> {% if order.handover_notes %}{{ order.handover_notes|truncatewords:5 }}{% else %}<span class="muted">—</span>{% endif %}</div>
+        </div>
+        <div class="card-actions no-row-click">
+          <a href="{% url 'repairs:order_return_to_ready' order.pk %}" class="btn-icon" title="Tayyor ro'yxatiga" onclick="event.stopPropagation(); return confirm('Tayyor ro\'yxatiga qaytaramizmi?');">
+            <i class="bi bi-arrow-counterclockwise"></i>
+          </a>
+          <a href="{% url 'repairs:order_delete' order.pk %}?next=repairs:order_history" class="btn-icon" title="O'chirish" onclick="event.stopPropagation();">
+            <i class="bi bi-trash"></i>
+          </a>
+        </div>
+      </div>
+      {% endfor %}
     </div>
+
+    {% if page_obj %}{% include 'repairs/_pagination.html' %}{% endif %}
+    {% else %}
+    <div class="text-center py-5 px-4">
+      <i class="bi bi-archive display-4 text-muted opacity-50"></i>
+      <p class="text-muted mt-3 mb-0">Olib ketilgan telefonlar yo'q</p>
+    </div>
+    {% endif %}
+
+  {% else %}
+    {% if zapchast_history %}
+    <div class="desktop-table">
+      <div class="table-responsive">
+        <table class="pill-table">
+          <thead>
+            <tr>
+              <th class="col-idx">#</th>
+              <th>Model</th>
+              <th>Zapchast</th>
+              <th style="width:70px;" class="text-center">Soni</th>
+              <th class="col-time">Olingan sana</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in zapchast_history %}
+            {% with item_date=item.done_at|default:item.created_at %}
+            {% ifchanged item_date.date %}
+            <tr class="day-row">
+              <td colspan="5">
+                <div class="day-pill">
+                  <span class="dot"></span>
+                  {% if item_date.date == today %}Bugun
+                  {% elif item_date.date == yesterday %}Kecha
+                  {% else %}{{ item_date|date:"d.m.Y" }}{% endif %}
+                </div>
+              </td>
+            </tr>
+            {% endifchanged %}
+            {% endwith %}
+            <tr class="pill-row">
+              <td class="muted">{{ forloop.counter }}</td>
+              <td class="model-strong">{% if item.phone_model %}{{ item.phone_model }}{% elif item.repair_order %}{{ item.repair_order.phone_model }}{% else %}—{% endif %}</td>
+              <td>{{ item.name }}</td>
+              <td class="text-center">{{ item.quantity }}</td>
+              <td class="muted col-time">{% if item.done_at %}{{ item.done_at|date:"d.m.Y H:i" }}{% else %}{{ item.created_at|date:"d.m.Y H:i" }}{% endif %}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="mobile-cards">
+      {% for item in zapchast_history %}
+      {% with item_date=item.done_at|default:item.created_at %}
+      {% ifchanged item_date.date %}
+      <div class="day-pill">
+        <span class="dot"></span>
+        {% if item_date.date == today %}Bugun
+        {% elif item_date.date == yesterday %}Kecha
+        {% else %}{{ item_date|date:"d.m.Y" }}{% endif %}
+      </div>
+      {% endifchanged %}
+      {% endwith %}
+      <div class="zap-card">
+        <div class="card-top">
+          <div class="card-model">{% if item.phone_model %}{{ item.phone_model }}{% elif item.repair_order %}{{ item.repair_order.phone_model }}{% else %}—{% endif %}</div>
+          <div class="card-time muted">{% if item.done_at %}{{ item.done_at|date:"H:i" }}{% else %}{{ item.created_at|date:"H:i" }}{% endif %}</div>
+        </div>
+        <div class="card-name">{{ item.name }} · {{ item.quantity }} ta</div>
+      </div>
+      {% endfor %}
+    </div>
+
+    {% if page_obj %}{% include 'repairs/_pagination.html' %}{% endif %}
+    {% else %}
+    <div class="text-center py-5 px-4">
+      <i class="bi bi-box-seam display-4 text-muted opacity-50"></i>
+      <p class="text-muted mt-3 mb-0">Zapchastlar istoriyasi bo'sh</p>
+      <p class="text-muted small">Zapchastlar sahifasida "Olindi" va "Tugatish" bosilganda shu yerga yoziladi</p>
+    </div>
+    {% endif %}
+  {% endif %}
 </div>
-{% else %}
-<div class="card border-0">
-    <div class="card-header py-3" style="background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border-radius: 16px 16px 0 0;">
-        <h6 class="mb-0 fw-bold text-secondary"><i class="bi bi-box-seam me-2"></i>Zapchastlar istoriyasi</h6>
-    </div>
-    <div class="card-body p-0">
-        {% if zapchast_history %}
-        <div class="table-responsive">
-            <table class="table table-hover mb-0 align-middle">
-                <thead style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);">
-                    <tr class="border-bottom">
-                        <th class="py-3 px-3 text-uppercase small fw-semibold text-secondary">#</th>
-                        <th class="py-3 px-3 text-uppercase small fw-semibold text-secondary">Model</th>
-                        <th class="py-3 px-3 text-uppercase small fw-semibold text-secondary">Zapchast</th>
-                        <th class="py-3 px-3 text-uppercase small fw-semibold text-secondary">Soni</th>
-                        <th class="py-3 px-3 text-uppercase small fw-semibold text-secondary">Olingan sana</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in zapchast_history %}
-                    {% with item_date=item.done_at|default:item.created_at %}
-                    {% ifchanged item_date.date %}
-                    <tr class="date-separator">
-                        <td colspan="5" class="py-2 px-3 fw-semibold" style="background: linear-gradient(135deg, #d1fae5 0%, #ecfdf5 100%); color: #475569; font-size: 0.9rem;">
-                            <i class="bi bi-calendar3 me-2"></i>
-                            {% if item_date.date == today %}
-                                Bugun
-                            {% elif item_date.date == yesterday %}
-                                Kecha
-                            {% else %}
-                                {{ item_date|date:"d.m.Y" }}
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% endifchanged %}
-                    {% endwith %}
-                    <tr class="border-bottom">
-                        <td class="py-3 px-3 text-muted">{{ forloop.counter }}</td>
-                        <td class="py-3 px-3">{% if item.phone_model %}{{ item.phone_model }}{% elif item.repair_order %}{{ item.repair_order.phone_model }}{% else %}—{% endif %}</td>
-                        <td class="py-3 px-3">{{ item.name }}</td>
-                        <td class="py-3 px-3">{{ item.quantity }}</td>
-                        <td class="py-3 px-3">{% if item.done_at %}{{ item.done_at|date:"d.m.Y H:i" }}{% else %}{{ item.created_at|date:"d.m.Y H:i" }}{% endif %}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        {% else %}
-        <div class="text-center py-5 px-4">
-            <i class="bi bi-box-seam display-4 text-muted opacity-50"></i>
-            <p class="text-muted mt-3 mb-0">Zapchastlar istoriyasi bo'sh</p>
-            <p class="text-muted small">ZAPCHASTLAR da "Olindi" bosilganda shu yerga yoziladi</p>
-        </div>
-        {% endif %}
-        {% if page_obj %}{% include 'repairs/_pagination.html' %}{% endif %}
-    </div>
-</div>
-{% endif %}
 
 <script>
-document.querySelectorAll('.order-row').forEach(row => {
+document.addEventListener("DOMContentLoaded", function() {
+  document.querySelectorAll('.pill-row[data-href]').forEach(function(row) {
     row.addEventListener('click', function(e) {
-        if (!e.target.closest('.no-row-click')) {
-            window.location.href = this.dataset.href;
-        }
+      if (!e.target.closest('.no-row-click') && this.dataset.href) {
+        window.location.href = this.dataset.href;
+      }
     });
+  });
+  document.querySelectorAll('.order-card').forEach(function(card) {
+    card.addEventListener('click', function(e) {
+      if (!e.target.closest('.no-row-click') && card.dataset.href) {
+        window.location.href = card.dataset.href;
+      }
+    });
+  });
 });
 </script>
 {% endblock %}

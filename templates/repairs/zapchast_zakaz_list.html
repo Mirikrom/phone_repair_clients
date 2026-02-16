@@ -1,248 +1,556 @@
 {% extends 'base.html' %}
+{% load repair_filters %}
 
-{% block title %}ZAPCHASTLAR - Telefon Ustaxonasi{% endblock %}
+{% block title %}Zapchastlar - Telefon Ustaxonasi{% endblock %}
+
+{% block extra_css %}
+<style>
+:root{
+  --bg:#f6f7fb;
+  --row:#eaf2ff;
+  --rowHover:#3f66ff;
+  --text:#0f172a;
+  --muted:#6b7280;
+  --white:#fff;
+  --line: rgba(148,163,184,.28);
+}
+
+body{ background: var(--bg); }
+
+.container{ max-width: 1400px !important; }
+@media (min-width: 1600px){ .container{ max-width: 1600px !important; } }
+
+.orders-shell{
+  background:#fff;
+  border-radius: 18px;
+  padding: 16px;
+  box-shadow: 0 14px 40px rgba(2,6,23,.08);
+}
+
+.search-bar .input-group{
+  border-radius: 14px;
+  overflow:hidden;
+  background:#fff;
+  box-shadow: 0 10px 24px rgba(2,6,23,.08);
+  border: 1px solid rgba(148,163,184,.25);
+}
+.search-bar .input-group-text{ background:transparent; border:0; color:var(--muted); }
+.search-bar .form-control{ border:0; background:transparent; }
+.search-bar .form-control:focus{ box-shadow:none; }
+
+/* Section pill (Olinmagan / Olingan) */
+.day-pill{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding: 8px 12px;
+  margin-bottom: 6px;
+  border-radius: 14px;
+  background: rgba(2,6,23,.04);
+  border: 1px solid rgba(148,163,184,.25);
+  font-weight: 600;
+  color: #334155;
+  font-size: .9rem;
+}
+.day-pill .dot{
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: #3f66ff;
+  box-shadow: 0 8px 18px rgba(63,102,255,.25);
+}
+
+.desktop-table{ display:block; }
+.mobile-cards{ display:none; }
+
+.pill-table{
+  width:100%;
+  border-collapse: separate !important;
+  border-spacing: 0 8px;
+}
+.pill-table td, .pill-table th{ border:0 !important; }
+
+.pill-table thead th{
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: #fff;
+  padding: 8px 10px 10px;
+  color: #7a8696;
+  font-weight: 900;
+  font-size: .82rem;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  border-bottom: 1px solid var(--line) !important;
+  white-space: nowrap;
+}
+
+.pill-row td{
+  background: var(--row);
+  padding: 10px 10px;
+  vertical-align: middle;
+  font-weight: 800;
+  color: var(--text);
+  transition: background .18s ease, transform .18s ease, box-shadow .18s ease, color .18s ease;
+  font-size: .92rem;
+  line-height: 1.15;
+}
+.pill-row td:first-child{ border-top-left-radius: 18px; border-bottom-left-radius: 18px; }
+.pill-row td:last-child{ border-top-right-radius: 18px; border-bottom-right-radius: 18px; }
+
+.pill-row{
+  cursor: default;
+  transform: translateY(0);
+}
+.pill-row:hover td{
+  background: var(--rowHover);
+  color: var(--white);
+  box-shadow: 0 18px 34px rgba(63,102,255,.22);
+}
+.pill-row:hover .muted{ color: rgba(255,255,255,.86) !important; }
+.pill-row:hover .btn-icon{ background: rgba(255,255,255,.18); color: #fff; }
+
+.pill-row.done-row{ opacity: 0.88; }
+.pill-row.done-row td{ text-decoration: line-through; }
+
+.muted{ color: var(--muted); }
+.model-strong{ font-weight: 1000; }
+
+.actions{ text-align:right; width: 200px; }
+.btn-icon{
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border: 2px solid rgba(63,102,255,.25);
+  background: #fff;
+  color: #1e293b;
+  box-shadow: 0 4px 10px rgba(63,102,255,.12);
+  transition: all .18s ease;
+}
+.btn-icon:hover{
+  background: #3f66ff;
+  color: #fff;
+  border-color: #3f66ff;
+  transform: translateY(-1px);
+}
+.pill-row:hover .btn-icon{ background: rgba(255,255,255,.18); color: #1e293b; }
+
+.day-row td{ padding: 0 !important; background: transparent !important; border: 0 !important; }
+
+.col-check{ width: 50px; text-align: center; }
+.col-toggle{ width: 50px; text-align: center; }
+.toggle-box{
+  width: 28px;
+  height: 28px;
+  border: 2px solid #94a3b8;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all .2s;
+}
+.toggle-box.done{ background: #10b981; border-color: #10b981; color: #fff; }
+.pill-row:hover .toggle-box:not(.done){ border-color: rgba(255,255,255,.6); }
+
+.empty-pill{
+  display:inline-block;
+  padding: 3px 10px;
+  font-size: .75rem;
+  font-weight: 800;
+  border-radius: 999px;
+  background: rgba(148,163,184,.18);
+  color: #64748b;
+}
+.pill-row:hover .empty-pill{ background: rgba(255,255,255,.25); color: rgba(255,255,255,.9); }
+
+/* Add form */
+.zapchast-add-form{
+  background: rgba(234,242,255,.6);
+  border: 1px solid rgba(148,163,184,.2);
+  border-radius: 14px;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+}
+
+/* ===== MOBILE ===== */
+@media (max-width: 991px){
+  .desktop-table{ display:none; }
+  .mobile-cards{ display:block; }
+  .orders-shell{ padding: 12px; }
+  .day-pill{ margin-bottom: 10px; }
+
+  .zap-item-card{
+    background: var(--row);
+    border-radius: 18px;
+    padding: 14px;
+    margin-bottom: 10px;
+    box-shadow: 0 10px 20px rgba(2,6,23,.06);
+    transition: .16s ease;
+  }
+  .zap-item-card:hover{
+    background: var(--rowHover);
+    color: #fff;
+  }
+  .zap-item-card:hover .muted,
+  .zap-item-card:hover .label{ color: rgba(255,255,255,.86); }
+  .zap-item-card:hover .btn-icon{
+    background: rgba(255,255,255,.18);
+    color: #fff;
+  }
+  .zap-item-card.done-card{ opacity: 0.88; }
+  .zap-item-card.done-card .card-model,
+  .zap-item-card.done-card .card-name{ text-decoration: line-through; }
+
+  .card-top{
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .card-model{ font-size: 1rem; font-weight: 1000; line-height: 1.2; }
+  .card-name{ font-weight: 800; color: var(--muted); font-size: .9rem; margin-bottom: 8px; }
+  .zap-item-card:hover .card-name{ color: rgba(255,255,255,.86); }
+  .card-time{ font-variant-numeric: tabular-nums; white-space: nowrap; font-weight: 800; }
+
+  .card-grid{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 10px;
+    font-size: .9rem;
+    margin-bottom: 10px;
+  }
+  .label{ color: #64748b; font-weight: 800; margin-right: 6px; }
+  .zap-item-card:hover .label{ color: rgba(255,255,255,.86); }
+
+  .card-actions{
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+}
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center mx-0">
-    <div class="col-12 col-lg-10 px-0 px-md-2">
-        <div class="card">
-            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center flex-wrap gap-2 py-2 py-md-3">
-                <h4 class="mb-0 fs-5 fs-md-4"><i class="bi bi-box-seam"></i> ZAPCHASTLAR</h4>
-                <div class="d-flex align-items-center flex-wrap gap-1">
-                    <button type="button" id="btn-olindi" class="btn btn-success btn-sm" disabled>
-                        <i class="bi bi-check2-square"></i> Olindi
-                    </button>
-                    <button type="button" id="btn-rasm" class="btn btn-info btn-sm" disabled title="ZAPCHASTLAR rasmni saqlab olish">
-                        <i class="bi bi-image"></i> Rasm
-                    </button>
-                    <button type="button" id="btn-print" class="btn btn-light btn-sm" disabled>
-                        <i class="bi bi-printer"></i> Pechat
-                    </button>
-                    <form method="post" action="{% url 'repairs:zapchast_tugatish' %}" class="d-inline" id="form-tugatish">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-warning btn-sm" {% if not has_done %}disabled{% endif %} title="Olindilarni istoriyaga yuborish">
-                            <i class="bi bi-archive"></i> Tugatish
-                        </button>
-                    </form>
-                    <span class="badge bg-light text-dark">{% if page_obj %}{{ page_obj.paginator.count }}{% else %}{{ items|length }}{% endif %} ta</span>
-                </div>
-            </div>
-            <div class="card-body">
-                <form method="get" class="mb-3 search-bar js-live-search">
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="bi bi-search"></i></span>
-                        <input type="text" name="q" value="{{ q|default:'' }}" class="form-control js-live-search-input" placeholder="Model yoki zapchast nomi bo'yicha qidirish">
-                        <button class="btn btn-outline-primary d-none d-md-inline-flex" type="submit">Qidirish</button>
-                        {% if q %}
-                        <a class="btn btn-outline-secondary" href="{% url 'repairs:zapchast_zakaz_list' %}">Tozalash</a>
-                        {% endif %}
-                    </div>
-                </form>
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+  <div>
+    <h2 class="mb-1 fw-bold" style="color:#1e293b;">
+      <i class="bi bi-box-seam text-primary me-2"></i>Zapchastlar
+    </h2>
+    <p class="text-muted mb-0 small">
+      Zakaz zapchastlar — {% if page_obj %}{{ page_obj.paginator.count }}{% else %}{{ items|length }}{% endif %} ta
+    </p>
+  </div>
+  <div class="d-flex align-items-center flex-wrap gap-2">
+    <button type="button" id="btn-olindi" class="btn btn-success btn-sm" disabled style="border-radius:12px;">
+      <i class="bi bi-check2-square me-1"></i> Olindi
+    </button>
+    <button type="button" id="btn-rasm" class="btn btn-info btn-sm" disabled style="border-radius:12px;" title="Rasmni saqlab olish">
+      <i class="bi bi-image me-1"></i> Rasm
+    </button>
+    <button type="button" id="btn-print" class="btn btn-outline-primary btn-sm" disabled style="border-radius:12px;">
+      <i class="bi bi-printer me-1"></i> Pechat
+    </button>
+    <form method="post" action="{% url 'repairs:zapchast_tugatish' %}" class="d-inline" id="form-tugatish">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-warning btn-sm" {% if not has_done %}disabled{% endif %} style="border-radius:12px;" title="Olindilarni istoriyaga yuborish">
+        <i class="bi bi-archive me-1"></i> Tugatish
+      </button>
+    </form>
+  </div>
+</div>
 
-                <form method="post" action="{% url 'repairs:zapchast_add' %}" class="mb-4">
-                    {% csrf_token %}
-                    <div class="row g-2 align-items-end">
-                        <div class="col-12 col-md-3">
-                            <label class="form-label small mb-0">Telefon modeli</label>
-                            <input type="text" name="phone_model" class="form-control" maxlength="200">
-                        </div>
-                        <div class="col-12 col-md-3">
-                            <label class="form-label small mb-0">Zapchast nomi</label>
-                            <input type="text" name="name" class="form-control" maxlength="300">
-                        </div>
-                        <div class="col-6 col-md-2">
-                            <label class="form-label small mb-0">Soni</label>
-                            <input type="number" name="quantity" class="form-control" value="1" min="1" max="999">
-                        </div>
-                        <div class="col-6 col-md-auto">
-                            <button type="submit" class="btn btn-primary w-100 w-md-auto">
-                                <i class="bi bi-plus-lg"></i> Qo'shish
-                            </button>
-                        </div>
-                    </div>
-                </form>
+<form method="get" class="mb-3 search-bar js-live-search">
+  <div class="input-group">
+    <span class="input-group-text"><i class="bi bi-search"></i></span>
+    <input type="text" name="q" value="{{ q|default:'' }}" class="form-control js-live-search-input" placeholder="Model yoki zapchast nomi bo'yicha qidirish">
+    <button class="btn btn-outline-primary d-none d-md-inline-flex" type="submit">Qidirish</button>
+    {% if q %}
+    <a class="btn btn-outline-secondary" href="{% url 'repairs:zapchast_zakaz_list' %}">Tozalash</a>
+    {% endif %}
+  </div>
+</form>
 
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle">
-                        <thead class="table-light">
-                            <tr>
-                                <th style="width: 55px;" class="text-center">
-                                    <input type="checkbox" id="select-all-print" class="form-check-input" style="width: 22px; height: 22px; cursor: pointer;" title="Hammasini tanlash">
-                                </th>
-                                <th style="width: 55px;" class="text-center">✓</th>
-                                <th>Telefon modeli</th>
-                                <th>Zapchast nomi</th>
-                                <th style="width: 70px;" class="text-center">Soni</th>
-                                <th style="width: 95px;">Sana</th>
-                                <th style="width: 260px;" class="text-end">Amallar</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% if not_done_items %}
-                            <tr class="table-light border-bottom">
-                                <td colspan="7" class="py-2 px-3 fw-semibold text-secondary">
-                                    <i class="bi bi-cart-plus me-2"></i>Olinmagan tovarlar
-                                </td>
-                            </tr>
-                            {% endif %}
-                            {% for item in not_done_items %}
-                            <tr>
-                                <td class="text-center align-middle">
-                                    <input type="checkbox" class="form-check-input print-select" data-id="{{ item.pk }}" style="width: 22px; height: 22px; cursor: pointer;">
-                                </td>
-                                <td class="text-center align-middle">
-                                    <a href="{% url 'repairs:zapchast_toggle' item.pk %}" class="text-decoration-none d-inline-flex align-items-center justify-content-center" style="width: 28px; height: 28px; border: 2px solid #94a3b8; border-radius: 6px;" title="Olib kelingan">
-                                        <span style="width: 14px; height: 14px;"></span>
-                                    </a>
-                                </td>
-                                <td>
-                                    {% if item.repair_order %}
-                                    <a href="{% url 'repairs:order_detail' item.repair_order.pk %}" class="text-decoration-none">{% if item.phone_model %}{{ item.phone_model }}{% else %}{{ item.repair_order.phone_model }}{% endif %}</a>
-                                    {% else %}
-                                    {{ item.phone_model|default:"—" }}
-                                    {% endif %}
-                                </td>
-                                <td>{{ item.name }}</td>
-                                <td class="text-center">{{ item.quantity }}</td>
-                                <td class="small text-muted">{{ item.created_at|date:"d.m.Y H:i" }}</td>
-                                <td class="text-end">
-                                    <div class="d-flex flex-wrap gap-1 justify-content-end">
-                                        <a href="{% url 'repairs:zapchast_toggle' item.pk %}" class="btn btn-sm btn-outline-success" title="Olindi">
-                                            <i class="bi bi-check-lg"></i> Olindi
-                                        </a>
-                                        <a href="{% url 'repairs:zapchast_edit' item.pk %}" class="btn btn-sm btn-outline-primary" title="Tahrirlash">
-                                            <i class="bi bi-pencil"></i>
-                                        </a>
-                                        <a href="{% url 'repairs:zapchast_delete' item.pk %}" class="btn btn-sm btn-outline-danger" title="O'chirish">
-                                            <i class="bi bi-trash"></i>
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                            {% if done_items %}
-                            <tr class="table-info border-top border-2">
-                                <td colspan="7" class="py-2 px-3 fw-semibold text-secondary">
-                                    <i class="bi bi-check2-square me-2"></i>Olingan tovarlar
-                                </td>
-                            </tr>
-                            {% for item in done_items %}
-                            <tr class="table-secondary" style="text-decoration: line-through; opacity: 0.85;">
-                                <td class="text-center align-middle"></td>
-                                <td class="text-center align-middle">
-                                    <a href="{% url 'repairs:zapchast_toggle' item.pk %}" class="text-decoration-none d-inline-flex align-items-center justify-content-center bg-success text-white rounded" style="width: 28px; height: 28px;" title="Bekor qilish">
-                                        <i class="bi bi-check-lg"></i>
-                                    </a>
-                                </td>
-                                <td>
-                                    {% if item.repair_order %}
-                                    <a href="{% url 'repairs:order_detail' item.repair_order.pk %}" class="text-decoration-none text-muted">{% if item.phone_model %}{{ item.phone_model }}{% else %}{{ item.repair_order.phone_model }}{% endif %}</a>
-                                    {% else %}
-                                    <span class="text-muted">{{ item.phone_model|default:"—" }}</span>
-                                    {% endif %}
-                                </td>
-                                <td class="text-muted">{{ item.name }}</td>
-                                <td class="text-center text-muted">{{ item.quantity }}</td>
-                                <td class="small text-muted">{% if item.done_at %}{{ item.done_at|date:"d.m.Y H:i" }}{% else %}{{ item.created_at|date:"d.m.Y H:i" }}{% endif %}</td>
-                                <td class="text-end">
-                                    <div class="d-flex flex-wrap gap-1 justify-content-end">
-                                        <a href="{% url 'repairs:zapchast_toggle' item.pk %}" class="btn btn-sm btn-outline-secondary" title="Bekor qilish">
-                                            <i class="bi bi-x-lg"></i> Bekor
-                                        </a>
-                                        <a href="{% url 'repairs:zapchast_edit' item.pk %}" class="btn btn-sm btn-outline-primary" title="Tahrirlash">
-                                            <i class="bi bi-pencil"></i>
-                                        </a>
-                                        <a href="{% url 'repairs:zapchast_delete' item.pk %}" class="btn btn-sm btn-outline-danger" title="O'chirish">
-                                            <i class="bi bi-trash"></i>
-                                        </a>
-                                        <form method="post" action="{% url 'repairs:zapchast_tugatish' %}" class="d-inline">
-                                            {% csrf_token %}
-                                            <input type="hidden" name="ids" value="{{ item.pk }}">
-                                            <button type="submit" class="btn btn-sm btn-warning" title="Istoriyaga yuborish">
-                                                <i class="bi bi-archive"></i> Tugatish
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                            {% endif %}
-                            {% if not items %}
-                            <tr>
-                                <td colspan="7" class="text-center py-4 text-muted">
-                                    <i class="bi bi-inbox fs-1 d-block mb-2"></i>
-                                    Zapchast ro'yxati bo'sh. Qo'shish uchun yuqoridagi formadan foydalaning.
-                                </td>
-                            </tr>
-                            {% endif %}
-                        </tbody>
-                    </table>
-                </div>
-                {% if page_obj %}{% include 'repairs/_pagination.html' %}{% endif %}
-            </div>
-        </div>
+<form method="post" action="{% url 'repairs:zapchast_add' %}" class="zapchast-add-form mb-3">
+  {% csrf_token %}
+  <div class="row g-2 align-items-end">
+    <div class="col-12 col-md-3">
+      <label class="form-label small mb-0">Telefon modeli</label>
+      <input type="text" name="phone_model" class="form-control" maxlength="200" style="border-radius:10px;">
     </div>
+    <div class="col-12 col-md-3">
+      <label class="form-label small mb-0">Zapchast nomi</label>
+      <input type="text" name="name" class="form-control" maxlength="300" style="border-radius:10px;">
+    </div>
+    <div class="col-6 col-md-2">
+      <label class="form-label small mb-0">Soni</label>
+      <input type="number" name="quantity" class="form-control" value="1" min="1" max="999" style="border-radius:10px;">
+    </div>
+    <div class="col-6 col-md-auto">
+      <button type="submit" class="btn btn-primary w-100 w-md-auto" style="border-radius:12px;">
+        <i class="bi bi-plus-lg me-1"></i> Qo'shish
+      </button>
+    </div>
+  </div>
+</form>
+
+<div class="orders-shell">
+  {% if items %}
+
+    <!-- DESKTOP TABLE -->
+    <div class="desktop-table">
+      <div class="table-responsive">
+        <table class="pill-table">
+          <thead>
+            <tr>
+              <th class="col-check">
+                <input type="checkbox" id="select-all-print" class="form-check-input" style="width: 20px; height: 20px; cursor: pointer;" title="Hammasini tanlash">
+              </th>
+              <th class="col-toggle">✓</th>
+              <th>Telefon modeli</th>
+              <th>Zapchast nomi</th>
+              <th style="width:70px;" class="text-center">Soni</th>
+              <th style="width:90px;">Sana</th>
+              <th class="actions">Amallar</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if not_done_items %}
+            <tr class="day-row">
+              <td colspan="7" class="p-0 pt-2 pb-1"><div class="day-pill"><span class="dot"></span><span>Olinmagan tovarlar</span></div></td>
+            </tr>
+            {% for item in not_done_items %}
+            <tr class="pill-row" {% if item.repair_order %}data-href="{% url 'repairs:order_detail' item.repair_order.pk %}"{% endif %}>
+              <td class="col-check no-row-click" onclick="event.stopPropagation();">
+                <input type="checkbox" class="form-check-input print-select" data-id="{{ item.pk }}" style="width: 20px; height: 20px; cursor: pointer;">
+              </td>
+              <td class="col-toggle no-row-click" onclick="event.stopPropagation();">
+                <a href="{% url 'repairs:zapchast_toggle' item.pk %}" class="toggle-box" title="Olib kelingan"><span></span></a>
+              </td>
+              <td>
+                {% if item.repair_order %}
+                <a href="{% url 'repairs:order_detail' item.repair_order.pk %}" class="text-decoration-none model-strong">{% if item.phone_model %}{{ item.phone_model }}{% else %}{{ item.repair_order.phone_model }}{% endif %}</a>
+                {% else %}
+                <span class="model-strong">{{ item.phone_model|default:"—" }}</span>
+                {% endif %}
+              </td>
+              <td>{{ item.name }}</td>
+              <td class="text-center">{{ item.quantity }}</td>
+              <td class="muted">{{ item.created_at|date:"d.m.Y H:i" }}</td>
+              <td class="actions no-row-click" onclick="event.stopPropagation();">
+                <a href="{% url 'repairs:zapchast_toggle' item.pk %}" class="btn-icon me-1" title="Olindi"><i class="bi bi-check-lg"></i></a>
+                <a href="{% url 'repairs:zapchast_edit' item.pk %}" class="btn-icon me-1" title="Tahrirlash"><i class="bi bi-pencil"></i></a>
+                <a href="{% url 'repairs:zapchast_delete' item.pk %}" class="btn-icon" title="O'chirish"><i class="bi bi-trash"></i></a>
+              </td>
+            </tr>
+            {% endfor %}
+            {% endif %}
+
+            {% if done_items %}
+            <tr class="day-row">
+              <td colspan="7" class="p-0 pt-3 pb-1"><div class="day-pill"><span class="dot"></span><span>Olingan tovarlar</span></div></td>
+            </tr>
+            {% for item in done_items %}
+            <tr class="pill-row done-row">
+              <td class="col-check"></td>
+              <td class="col-toggle">
+                <a href="{% url 'repairs:zapchast_toggle' item.pk %}" class="toggle-box done" title="Bekor qilish"><i class="bi bi-check-lg"></i></a>
+              </td>
+              <td>
+                {% if item.repair_order %}
+                <a href="{% url 'repairs:order_detail' item.repair_order.pk %}" class="text-decoration-none muted">{% if item.phone_model %}{{ item.phone_model }}{% else %}{{ item.repair_order.phone_model }}{% endif %}</a>
+                {% else %}
+                <span class="muted">{{ item.phone_model|default:"—" }}</span>
+                {% endif %}
+              </td>
+              <td class="muted">{{ item.name }}</td>
+              <td class="text-center muted">{{ item.quantity }}</td>
+              <td class="muted">{% if item.done_at %}{{ item.done_at|date:"d.m.Y H:i" }}{% else %}{{ item.created_at|date:"d.m.Y H:i" }}{% endif %}</td>
+              <td class="actions">
+                <a href="{% url 'repairs:zapchast_toggle' item.pk %}" class="btn-icon me-1" title="Bekor qilish"><i class="bi bi-x-lg"></i></a>
+                <a href="{% url 'repairs:zapchast_edit' item.pk %}" class="btn-icon me-1" title="Tahrirlash"><i class="bi bi-pencil"></i></a>
+                <a href="{% url 'repairs:zapchast_delete' item.pk %}" class="btn-icon me-1" title="O'chirish"><i class="bi bi-trash"></i></a>
+                <form method="post" action="{% url 'repairs:zapchast_tugatish' %}" class="d-inline">
+                  {% csrf_token %}
+                  <input type="hidden" name="ids" value="{{ item.pk }}">
+                  <button type="submit" class="btn btn-warning btn-sm" style="border-radius:10px;" title="Istoriyaga"><i class="bi bi-archive"></i></button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- MOBILE CARDS -->
+    <div class="mobile-cards">
+      {% if not_done_items %}
+      <div class="select-all-mob d-md-none mb-3">
+        <label class="d-flex align-items-center gap-2 mb-0" style="cursor:pointer; font-weight:800; color:#334155;">
+          <input type="checkbox" id="select-all-print-mob" class="form-check-input" style="width: 22px; height: 22px; cursor: pointer;" title="Hammasini tanlash">
+          <span>Barchasini belgilash</span>
+        </label>
+      </div>
+      <div class="day-pill"><span class="dot"></span><span>Olinmagan tovarlar</span></div>
+      {% for item in not_done_items %}
+      <div class="zap-item-card" {% if item.repair_order %}data-href="{% url 'repairs:order_detail' item.repair_order.pk %}"{% endif %}>
+        <div class="card-top">
+          <div class="card-model">{% if item.phone_model %}{{ item.phone_model }}{% elif item.repair_order %}{{ item.repair_order.phone_model }}{% else %}—{% endif %}</div>
+          <div class="card-time muted">{{ item.created_at|date:"H:i" }}</div>
+        </div>
+        <div class="card-name">{{ item.name }}</div>
+        <div class="card-grid">
+          <div><span class="label">Soni:</span> {{ item.quantity }}</div>
+          <div><span class="label">Sana:</span> {{ item.created_at|date:"d.m.Y" }}</div>
+        </div>
+        <div class="card-actions no-row-click">
+          <input type="checkbox" class="form-check-input print-select" data-id="{{ item.pk }}" id="mob-cb-{{ item.pk }}" style="width:22px;height:22px;cursor:pointer;">
+          <a href="{% url 'repairs:zapchast_toggle' item.pk %}" class="btn-icon" title="Olindi"><i class="bi bi-check-lg"></i></a>
+          <a href="{% url 'repairs:zapchast_edit' item.pk %}" class="btn-icon" title="Tahrirlash"><i class="bi bi-pencil"></i></a>
+          <a href="{% url 'repairs:zapchast_delete' item.pk %}" class="btn-icon" title="O'chirish"><i class="bi bi-trash"></i></a>
+        </div>
+      </div>
+      {% endfor %}
+      {% endif %}
+
+      {% if done_items %}
+      <div class="day-pill"><span class="dot"></span><span>Olingan tovarlar</span></div>
+      {% for item in done_items %}
+      <div class="zap-item-card done-card">
+        <div class="card-top">
+          <div class="card-model">{% if item.phone_model %}{{ item.phone_model }}{% elif item.repair_order %}{{ item.repair_order.phone_model }}{% else %}—{% endif %}</div>
+          <div class="card-time muted">{% if item.done_at %}{{ item.done_at|date:"H:i" }}{% else %}{{ item.created_at|date:"H:i" }}{% endif %}</div>
+        </div>
+        <div class="card-name">{{ item.name }}</div>
+        <div class="card-grid">
+          <div><span class="label">Soni:</span> {{ item.quantity }}</div>
+          <div><span class="label">Olindi:</span> {% if item.done_at %}{{ item.done_at|date:"d.m.Y" }}{% else %}—{% endif %}</div>
+        </div>
+        <div class="card-actions no-row-click">
+          <a href="{% url 'repairs:zapchast_toggle' item.pk %}" class="btn-icon" title="Bekor qilish"><i class="bi bi-x-lg"></i></a>
+          <a href="{% url 'repairs:zapchast_edit' item.pk %}" class="btn-icon" title="Tahrirlash"><i class="bi bi-pencil"></i></a>
+          <a href="{% url 'repairs:zapchast_delete' item.pk %}" class="btn-icon" title="O'chirish"><i class="bi bi-trash"></i></a>
+          <form method="post" action="{% url 'repairs:zapchast_tugatish' %}" class="d-inline">
+            {% csrf_token %}
+            <input type="hidden" name="ids" value="{{ item.pk }}">
+            <button type="submit" class="btn btn-warning btn-sm" style="border-radius:10px;"><i class="bi bi-archive"></i></button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+      {% endif %}
+    </div>
+
+    {% if page_obj %}{% include 'repairs/_pagination.html' %}{% endif %}
+
+  {% else %}
+    <div class="text-center py-5 px-4">
+      <i class="bi bi-inbox display-4 text-muted opacity-50"></i>
+      <p class="text-muted mt-3 mb-4">Zapchast ro'yxati bo'sh</p>
+      <p class="text-muted small mb-0">Yuqoridagi formadan zapchast qo'shing</p>
+    </div>
+  {% endif %}
 </div>
 
 <script>
-document.querySelectorAll('.print-select').forEach(function(cb) {
-    cb.addEventListener('change', updatePrintBtn);
-});
-document.getElementById('select-all-print').addEventListener('change', function() {
-    document.querySelectorAll('.print-select').forEach(function(cb) {
-        cb.checked = this.checked;
-    }.bind(this));
-    updatePrintBtn();
-});
-function updatePrintBtn() {
-    var n = document.querySelectorAll('.print-select:checked').length;
+document.addEventListener("DOMContentLoaded", function() {
+  function updatePrintBtn() {
+    var all = document.querySelectorAll('.print-select');
+    var checked = document.querySelectorAll('.print-select:checked');
+    var n = checked.length;
     document.getElementById('btn-print').disabled = n === 0;
     document.getElementById('btn-rasm').disabled = n === 0;
     document.getElementById('btn-olindi').disabled = n === 0;
-}
-document.getElementById('btn-rasm').addEventListener('click', function() {
-    var ids = [];
-    document.querySelectorAll('.print-select:checked').forEach(function(cb) {
-        ids.push(cb.dataset.id);
-    });
-    if (ids.length) {
-        var url = '{% url "repairs:zapchast_image" %}?ids=' + ids.join(',');
-        window.open(url, 'zapchast_rasm', 'width=500,height=600');
-    }
-});
-document.getElementById('btn-print').addEventListener('click', function() {
-    var ids = [];
-    document.querySelectorAll('.print-select:checked').forEach(function(cb) {
-        ids.push(cb.dataset.id);
-    });
-    if (ids.length) {
-        var url = '{% url "repairs:zapchast_print" %}?ids=' + ids.join(',') + '&auto=1';
-        window.open(url, 'zapchast_print', 'width=450,height=600');
-    }
-});
+    var allChecked = all.length > 0 && n === all.length;
+    var selAll = document.getElementById('select-all-print');
+    if (selAll) selAll.checked = allChecked;
+    var selMob = document.getElementById('select-all-print-mob');
+    if (selMob) selMob.checked = allChecked;
+  }
 
-document.getElementById('btn-olindi').addEventListener('click', function() {
-    var ids = [];
-    document.querySelectorAll('.print-select:checked').forEach(function(cb) {
-        ids.push(cb.dataset.id);
+  document.querySelectorAll('.print-select').forEach(function(cb) {
+    cb.addEventListener('change', updatePrintBtn);
+  });
+  function setAllPrintSelect(checked) {
+    document.querySelectorAll('.print-select').forEach(function(cb) { cb.checked = checked; });
+    var selAll = document.getElementById('select-all-print');
+    if (selAll) selAll.checked = checked;
+    var selMob = document.getElementById('select-all-print-mob');
+    if (selMob) selMob.checked = checked;
+    updatePrintBtn();
+  }
+  var selectAll = document.getElementById('select-all-print');
+  if (selectAll) {
+    selectAll.addEventListener('change', function() {
+      setAllPrintSelect(this.checked);
     });
+  }
+  var selectAllMob = document.getElementById('select-all-print-mob');
+  if (selectAllMob) {
+    selectAllMob.addEventListener('change', function() {
+      setAllPrintSelect(this.checked);
+    });
+  }
+
+  document.getElementById('btn-rasm').addEventListener('click', function() {
+    var ids = [];
+    document.querySelectorAll('.print-select:checked').forEach(function(cb) { ids.push(cb.dataset.id); });
     if (ids.length) {
-        var form = document.createElement('form');
-        form.method = 'POST';
-        form.action = '{% url "repairs:zapchast_mark_done" %}';
-        var csrf = document.createElement('input');
-        csrf.type = 'hidden';
-        csrf.name = 'csrfmiddlewaretoken';
-        csrf.value = document.querySelector('[name=csrfmiddlewaretoken]').value;
-        form.appendChild(csrf);
-        var input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = 'ids';
-        input.value = ids.join(',');
-        form.appendChild(input);
-        document.body.appendChild(form);
-        form.submit();
+      window.open('{% url "repairs:zapchast_image" %}?ids=' + ids.join(','), 'zapchast_rasm', 'width=500,height=600');
     }
+  });
+  document.getElementById('btn-print').addEventListener('click', function() {
+    var ids = [];
+    document.querySelectorAll('.print-select:checked').forEach(function(cb) { ids.push(cb.dataset.id); });
+    if (ids.length) {
+      window.open('{% url "repairs:zapchast_print" %}?ids=' + ids.join(',') + '&auto=1', 'zapchast_print', 'width=450,height=600');
+    }
+  });
+  document.getElementById('btn-olindi').addEventListener('click', function() {
+    var ids = [];
+    document.querySelectorAll('.print-select:checked').forEach(function(cb) { ids.push(cb.dataset.id); });
+    if (ids.length) {
+      var form = document.createElement('form');
+      form.method = 'POST';
+      form.action = '{% url "repairs:zapchast_mark_done" %}';
+      var csrf = document.createElement('input');
+      csrf.type = 'hidden';
+      csrf.name = 'csrfmiddlewaretoken';
+      csrf.value = document.querySelector('[name=csrfmiddlewaretoken]').value;
+      form.appendChild(csrf);
+      var input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = 'ids';
+      input.value = ids.join(',');
+      form.appendChild(input);
+      document.body.appendChild(form);
+      form.submit();
+    }
+  });
+
+  // Row click -> order detail (desktop)
+  document.querySelectorAll('.pill-row[data-href]').forEach(function(row) {
+    row.addEventListener('click', function(e) {
+      if (!e.target.closest('.no-row-click') && this.dataset.href) {
+        window.location.href = this.dataset.href;
+      }
+    });
+  });
+  // Card click -> order detail (mobile)
+  document.querySelectorAll('.zap-item-card[data-href]').forEach(function(card) {
+    card.addEventListener('click', function(e) {
+      if (!e.target.closest('.no-row-click') && this.dataset.href) {
+        window.location.href = this.dataset.href;
+      }
+    });
+  });
 });
 </script>
 {% endblock %}
