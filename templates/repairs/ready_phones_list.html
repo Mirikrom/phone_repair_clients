@@ -5,179 +5,481 @@
 
 {% block extra_css %}
 <style>
-.ready-row:hover { background-color: #ecfdf5 !important; }
-@media (max-width: 767px) {
-    .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-    .table { min-width: 600px; }
+:root{
+  --bg:#f6f7fb;
+  --row:#eaf2ff;
+  --rowHover:#3f66ff;
+  --text:#0f172a;
+  --muted:#6b7280;
+  --white:#fff;
+  --line: rgba(148,163,184,.28);
+}
+
+body{ background: var(--bg); }
+
+/* width */
+.container{ max-width: 1400px !important; }
+@media (min-width: 1600px){ .container{ max-width: 1600px !important; } }
+
+.orders-shell{
+  background:#fff;
+  border-radius: 18px;
+  padding: 16px;
+  box-shadow: 0 14px 40px rgba(2,6,23,.08);
+}
+
+/* Search bar */
+.search-bar .input-group{
+  border-radius: 14px;
+  overflow:hidden;
+  background:#fff;
+  box-shadow: 0 10px 24px rgba(2,6,23,.08);
+  border: 1px solid rgba(148,163,184,.25);
+}
+.search-bar .input-group-text{ background:transparent; border:0; color:var(--muted); }
+.search-bar .form-control{ border:0; background:transparent; }
+.search-bar .form-control:focus{ box-shadow:none; }
+
+/* empty pill */
+.empty-pill{
+  display:inline-block;
+  padding:3px 10px;
+  font-size:.75rem;
+  font-weight:800;
+  border-radius:999px;
+  background:rgba(148,163,184,.18);
+  color:#64748b;
+}
+.pill-row:hover .empty-pill{
+  background:rgba(255,255,255,.25);
+  color:rgba(255,255,255,.9);
+}
+
+/* ===== DESKTOP TABLE ===== */
+.desktop-table{ display:block; }
+.mobile-cards{ display:none; }
+
+.pill-table{
+  width:100%;
+  border-collapse: separate;
+  border-spacing: 0 8px;
+}
+.pill-table td, .pill-table th{ border:0 !important; }
+
+.pill-table thead th{
+  background:#fff;
+  padding:8px 10px 10px;
+  font-size:.82rem;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.06em;
+  border-bottom:1px solid var(--line) !important;
+  white-space:nowrap;
+  color:#7a8696;
+}
+
+.pill-row{
+  cursor:pointer;
+}
+.pill-row td{
+  background:var(--row);
+  padding:10px 10px;
+  font-size:.92rem;
+  font-weight:800;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  transition:.18s ease;
+  color:var(--text);
+}
+.pill-row td:first-child{
+  border-top-left-radius:18px;
+  border-bottom-left-radius:18px;
+}
+.pill-row td:last-child{
+  border-top-right-radius:18px;
+  border-bottom-right-radius:18px;
+}
+.pill-row:hover td{
+  background:var(--rowHover);
+  color:#fff;
+  box-shadow:0 18px 34px rgba(63,102,255,.22);
+}
+
+.money{ font-weight:1000; font-variant-numeric: tabular-nums; }
+.muted{ color:var(--muted); }
+.pill-row:hover .muted{ color: rgba(255,255,255,.86) !important; }
+
+/* actions */
+.actions{ text-align:right; width: 220px; }
+
+/* Primary action button */
+.btn-pill{
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-weight: 900;
+  border: 2px solid rgba(63,102,255,.35);
+  background: #ffffff;
+  color: #1e293b;
+  box-shadow: 0 4px 10px rgba(63,102,255,.15);
+  transition: all .18s ease;
+}
+.btn-pill:hover{
+  background: #3f66ff;
+  color: #ffffff;
+  border-color: #3f66ff;
+  box-shadow: 0 10px 20px rgba(63,102,255,.35);
+  transform: translateY(-1px);
+}
+.btn-pill:active{
+  transform: scale(.97);
+  box-shadow: 0 4px 10px rgba(63,102,255,.25);
+}
+.pill-row:hover .btn-pill{
+  background: #ffffff;
+  color: #1e293b;
+}
+
+/* Icon buttons */
+.btn-icon{
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border: 2px solid rgba(63,102,255,.25);
+  background: #ffffff;
+  color: #1e293b;
+  box-shadow: 0 4px 10px rgba(63,102,255,.12);
+  transition: all .18s ease;
+}
+.btn-icon:hover{
+  background: #3f66ff;
+  color: #ffffff;
+  border-color: #3f66ff;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px rgba(63,102,255,.35);
+}
+.btn-icon:active{ transform: scale(.95); }
+.pill-row:hover .btn-icon{
+  background:#ffffff;
+  color:#1e293b;
+}
+
+/* ===== MOBILE CARDS ===== */
+@media (max-width: 991px){
+  .desktop-table{ display:none; }
+  .mobile-cards{ display:block; }
+  .orders-shell{ padding: 12px; }
+
+  .order-card{
+    background:var(--row);
+    border-radius:18px;
+    padding:14px;
+    margin-bottom:10px;
+    box-shadow:0 10px 20px rgba(0,0,0,.06);
+    transition:.15s ease;
+    cursor:pointer;
+  }
+  .order-card:hover{
+    background:var(--rowHover);
+    color:#fff;
+  }
+  .order-card:hover .muted{ color: rgba(255,255,255,.86); }
+  .order-card:hover .empty-pill{
+    background:rgba(255,255,255,.25);
+    color:rgba(255,255,255,.9);
+  }
+  .order-card:hover .btn-icon,
+  .order-card:hover .btn-pill{
+    background: rgba(255,255,255,.18);
+    color:#fff;
+    border-color: rgba(255,255,255,.35);
+  }
+
+  .card-top{
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    font-weight:1000;
+    margin-bottom:6px;
+  }
+  .card-model{ font-size:1.02rem; line-height:1.2; font-weight:1000; }
+  .card-time{ font-variant-numeric: tabular-nums; white-space:nowrap; }
+
+  .card-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:6px 10px;
+    font-size:.9rem;
+  }
+  .label{ color:#64748b; font-weight:900; margin-right:6px; }
+  .order-card:hover .label{ color: rgba(255,255,255,.86); }
+
+  .card-actions{
+    display:flex;
+    justify-content:flex-end;
+    gap:10px;
+    margin-top:10px;
+  }
 }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-    <div>
-        <h2 class="mb-1 fw-bold" style="color: #1e293b;"><i class="bi bi-check-circle-fill text-success me-2"></i>Tayyor bo'lgan telefonlar</h2>
-        <p class="text-muted mb-0 small">Olib ketish kutilayotgan telefonlar — {% if page_obj %}{{ page_obj.paginator.count }}{% else %}{{ ready_orders|length }}{% endif %} ta</p>
-    </div>
-    <a href="{% url 'repairs:order_list' %}" class="btn btn-outline-primary px-4 py-2">
-        <i class="bi bi-arrow-left me-2"></i> Buyurtmalar
-    </a>
+  <div>
+    <h2 class="mb-1 fw-bold" style="color:#1e293b;">
+      <i class="bi bi-check-circle-fill text-primary me-2"></i>Tayyor bo'lgan telefonlar
+    </h2>
+    <p class="text-muted mb-0 small">
+      Olib ketish kutilayotgan telefonlar —
+      {% if page_obj %}{{ page_obj.paginator.count }}{% else %}{{ ready_orders|length }}{% endif %} ta
+    </p>
+  </div>
+  <a href="{% url 'repairs:order_list' %}" class="btn btn-outline-primary px-4 py-2" style="border-radius:14px;">
+    <i class="bi bi-arrow-left me-2"></i> Buyurtmalar
+  </a>
 </div>
 
 <form method="get" class="mb-3 search-bar js-live-search">
-    <div class="input-group">
-        <span class="input-group-text"><i class="bi bi-search"></i></span>
-        <input type="text" name="q" value="{{ q|default:'' }}" class="form-control js-live-search-input" placeholder="Model yoki nomer bo'yicha qidirish">
-        <button class="btn btn-outline-primary d-none d-md-inline-flex" type="submit">Qidirish</button>
-        {% if q %}
-        <a class="btn btn-outline-secondary" href="{% url 'repairs:ready_phones_list' %}">Tozalash</a>
-        {% endif %}
-    </div>
+  <div class="input-group">
+    <span class="input-group-text"><i class="bi bi-search"></i></span>
+    <input type="text" name="q" value="{{ q|default:'' }}" class="form-control js-live-search-input"
+           placeholder="Model yoki nomer bo'yicha qidirish">
+    <button class="btn btn-outline-primary d-none d-md-inline-flex" type="submit">Qidirish</button>
+    {% if q %}
+      <a class="btn btn-outline-secondary" href="{% url 'repairs:ready_phones_list' %}">Tozalash</a>
+    {% endif %}
+  </div>
 </form>
 
-<div class="card border-0">
-    <div class="card-header py-3" style="background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); border-radius: 16px 16px 0 0;">
-        <h6 class="mb-0 fw-bold" style="color: #065f46;"><i class="bi bi-phone me-2"></i>Olib ketish kutilmoqda</h6>
+<div class="orders-shell">
+  {% if ready_orders %}
+
+    <!-- DESKTOP -->
+    <div class="desktop-table">
+      <div class="table-responsive">
+        <table class="pill-table">
+          <thead>
+            <tr>
+              <th style="width:60px;">#</th>
+              <th>Model</th>
+              <th style="width:160px;">Nomer</th>
+              <th style="width:140px;">Narxi</th>
+              <th style="width:140px;">Zaklad</th>
+              <th style="width:180px;">Mijozdan olish</th>
+              <th style="width:170px;">Olib qolingan</th>
+              <th style="width:170px;">Tuzaldi</th>
+              <th class="actions">Amallar</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {% for order in ready_orders %}
+              <tr class="pill-row" data-href="{% url 'repairs:order_detail' order.pk %}">
+                <td class="muted">{{ forloop.counter }}</td>
+
+                <td>
+                  <div style="font-weight:1000;">{{ order.phone_model }}</div>
+                  {% if order.client_name %}
+                    <div class="muted small"><i class="bi bi-person me-1"></i>{{ order.client_name }}</div>
+                  {% endif %}
+                </td>
+
+                <td>{{ order.client_phone|phone_without_prefix }}</td>
+
+                <td class="money">
+                  {% if order.repair_cost %}{{ order.repair_cost|intcomma_uz }}{% else %}<span class="empty-pill">—</span>{% endif %}
+                </td>
+
+                <td class="money">
+                  {% if order.deposit_amount %}{{ order.deposit_amount|intcomma_uz }}{% else %}<span class="empty-pill">—</span>{% endif %}
+                </td>
+
+                <td class="money">
+                  {% if order.remaining_to_pay is not None %}
+                    {{ order.remaining_to_pay|intcomma_uz }}
+                  {% else %}
+                    <span class="empty-pill">—</span>
+                  {% endif %}
+                </td>
+
+                <td class="muted">{{ order.created_at|date:"d.m.Y H:i" }}</td>
+
+                <td class="muted">
+                  {% if order.ready_at %}{{ order.ready_at|date:"d.m.Y H:i" }}{% else %}<span class="empty-pill">—</span>{% endif %}
+                </td>
+
+                <td class="actions no-row-click" onclick="event.stopPropagation();">
+                  <button type="button"
+                          class="btn-pill me-2"
+                          data-bs-toggle="modal"
+                          data-bs-target="#completeModal{{ order.pk }}">
+                    <i class="bi bi-check-lg me-1"></i> Olib ketildi
+                  </button>
+
+                  <a href="{% url 'repairs:order_return_to_progress' order.pk %}"
+                    class="btn-icon me-1 js-confirm no-row-click"
+                    data-confirm="Buyurtmani ta'mirlanmoqda ro'yxatiga qaytaramizmi?"
+                    title="Buyurtmalarga qaytarish">
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                </a>
+
+                  <a href="{% url 'repairs:order_delete' order.pk %}?next=repairs:ready_phones_list"
+                     class="btn-icon"
+                     title="O'chirish"
+                     onclick="event.stopPropagation();">
+                    <i class="bi bi-trash"></i>
+                  </a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     </div>
-    <div class="card-body p-0">
-        {% if ready_orders %}
-        <div class="table-responsive">
-            <table class="table table-hover mb-0 align-middle">
-                <thead style="background: #f0fdf4;">
-                    <tr class="border-bottom">
-                        <th class="py-3 px-3">#</th>
-                        <th class="py-3 px-3">Model</th>
-                        <th class="py-3 px-3">Nomer</th>
-                        <th class="py-3 px-3">Narxi</th>
-                        <th class="py-3 px-3">Zaklad</th>
-                        <th class="py-3 px-3">Mijozdan olish kerak</th>
-                        <th class="py-3 px-3">Olib qolingan</th>
-                        <th class="py-3 px-3">Tuzaldi</th>
-                        <th class="py-3 px-3 text-end">Amallar</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for order in ready_orders %}
-                    <tr class="ready-row border-bottom" data-href="{% url 'repairs:order_detail' order.pk %}" style="cursor: pointer;">
-                        <td class="py-3 px-3 text-muted">{{ forloop.counter }}</td>
-                        <td class="py-3 px-3">
-                            <strong>{{ order.phone_model }}</strong>
-                            {% if order.client_name %}
-                            <div class="small text-muted mt-1"><i class="bi bi-person me-1"></i>{{ order.client_name }}</div>
-                            {% endif %}
-                        </td>
-                        <td class="py-3 px-3">{{ order.client_phone|phone_without_prefix }}</td>
-                        <td class="py-3 px-3">{% if order.repair_cost %}{{ order.repair_cost|intcomma_uz }} so'm{% else %}—{% endif %}</td>
-                        <td class="py-3 px-3">{% if order.deposit_amount %}{{ order.deposit_amount|intcomma_uz }} so'm{% else %}—{% endif %}</td>
-                        <td class="py-3 px-3">
-                            {% if order.remaining_to_pay is not None %}
-                            <span class="fw-bold" style="color: #b45309;">{{ order.remaining_to_pay|intcomma_uz }} so'm</span>
-                            {% else %}—{% endif %}
-                        </td>
-                        <td class="py-3 px-3 small">{{ order.created_at|date:"d.m.Y H:i" }}</td>
-                        <td class="py-3 px-3 small">{% if order.ready_at %}{{ order.ready_at|date:"d.m.Y H:i" }}{% else %}—{% endif %}</td>
-                        <td class="no-row-click py-3 px-3 text-end" onclick="event.stopPropagation();">
-                            <div class="d-flex align-items-center justify-content-end gap-1 flex-nowrap">
-                                <button type="button" class="btn btn-sm btn-success rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#completeModal{{ order.pk }}" title="Olib ketildi">
-                                    <i class="bi bi-check-lg me-1"></i> Olib ketildi
-                                </button>
-                                <a href="{% url 'repairs:order_return_to_progress' order.pk %}" class="btn btn-sm btn-outline-secondary d-flex align-items-center justify-content-center rounded-circle p-2" style="width: 2rem; height: 2rem;" title="Buyurtmalarga orqaga qaytarish" onclick="return confirm('Buyurtmani ta\'mirlanmoqda ro\'yxatiga qaytaramizmi?');">
-                                    <i class="bi bi-arrow-counterclockwise"></i>
-                                </a>
-                                <a href="{% url 'repairs:order_delete' order.pk %}?next=repairs:ready_phones_list" class="btn btn-sm btn-outline-danger d-flex align-items-center justify-content-center rounded-circle p-2" style="width: 2rem; height: 2rem;" title="O'chirish">
-                                    <i class="bi bi-trash"></i>
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+
+    <!-- MOBILE -->
+    <div class="mobile-cards">
+      {% for order in ready_orders %}
+        <div class="order-card" data-href="{% url 'repairs:order_detail' order.pk %}">
+          <div class="card-top">
+            <div class="card-model">{{ order.phone_model }}</div>
+            <div class="card-time">
+              {% if order.ready_at %}{{ order.ready_at|date:"H:i" }}{% else %}{{ order.created_at|date:"H:i" }}{% endif %}
+            </div>
+          </div>
+
+          <div class="muted" style="font-weight:900;">
+            {{ order.client_phone|phone_without_prefix }}
+            {% if order.client_name %} · {{ order.client_name }}{% endif %}
+          </div>
+
+          <div class="card-grid mt-2">
+            <div><span class="label">Narxi:</span>
+              {% if order.repair_cost %}<span class="money">{{ order.repair_cost|intcomma_uz }}</span>{% else %}<span class="empty-pill">—</span>{% endif %}
+            </div>
+            <div><span class="label">Zaklad:</span>
+              {% if order.deposit_amount %}<span class="money">{{ order.deposit_amount|intcomma_uz }}</span>{% else %}<span class="empty-pill">—</span>{% endif %}
+            </div>
+            <div><span class="label">Qolgan:</span>
+              {% if order.remaining_to_pay is not None %}<span class="money">{{ order.remaining_to_pay|intcomma_uz }}</span>{% else %}<span class="empty-pill">—</span>{% endif %}
+            </div>
+            <div><span class="label">Tuzaldi:</span>
+              {% if order.ready_at %}{{ order.ready_at|date:"d.m.Y" }}{% else %}<span class="empty-pill">—</span>{% endif %}
+            </div>
+          </div>
+
+          <div class="card-actions no-row-click">
+            <button type="button"
+                    class="btn-pill"
+                    data-bs-toggle="modal"
+                    data-bs-target="#completeModal{{ order.pk }}"
+                    onclick="event.stopPropagation();">
+              <i class="bi bi-check-lg me-1"></i> Olib ketildi
+            </button>
+
+            <a href="{% url 'repairs:order_return_to_progress' order.pk %}"
+                class="btn-icon js-confirm no-row-click"
+                data-confirm="Buyurtmani ta'mirlanmoqda ro'yxatiga qaytaramizmi?"
+                title="Qaytarish">
+            <i class="bi bi-arrow-counterclockwise"></i>
+            </a>
+
+            <a href="{% url 'repairs:order_delete' order.pk %}?next=repairs:ready_phones_list"
+               class="btn-icon"
+               title="O'chirish"
+               onclick="event.stopPropagation();">
+              <i class="bi bi-trash"></i>
+            </a>
+          </div>
         </div>
-        {% else %}
-        <div class="text-center py-5 px-4">
-            <i class="bi bi-check-circle display-4 text-success opacity-50"></i>
-            <p class="text-muted mt-3 mb-0">Tayyor telefonlar yo'q</p>
-            <p class="text-muted small">Ta'mirni tugatgach, telefonlar shu yerga qo'shiladi</p>
-        </div>
-        {% endif %}
-        {% if page_obj %}{% include 'repairs/_pagination.html' %}{% endif %}
+      {% endfor %}
     </div>
+
+    {% if page_obj %}{% include 'repairs/_pagination.html' %}{% endif %}
+
+  {% else %}
+    <div class="text-center py-5 px-4">
+      <i class="bi bi-check-circle display-4 text-primary opacity-50"></i>
+      <p class="text-muted mt-3 mb-0">Tayyor telefonlar yo'q</p>
+      <p class="text-muted small">Ta'mirni tugatgach, telefonlar shu yerga qo'shiladi</p>
+    </div>
+  {% endif %}
 </div>
 
+{# ===== Modals (sening eski kod) ===== #}
 {% for order in ready_orders %}
 <div class="modal fade" id="completeModal{{ order.pk }}" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
-        <div class="modal-content">
-            <div class="modal-header bg-success text-white">
-                <h5 class="modal-title"><i class="bi bi-check-circle me-2"></i>Olib ketildi</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title"><i class="bi bi-check-circle me-2"></i>Olib ketildi</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p class="mb-3"><strong>{{ order.phone_model }}</strong> — {{ order.client_phone|phone_without_prefix }}</p>
+        <form method="post" action="{% url 'repairs:order_mark_completed' order.pk %}" class="complete-form">
+          {% csrf_token %}
+          <div class="form-check mb-2">
+            <input type="checkbox" name="has_debt" id="has_debt{{ order.pk }}" class="form-check-input debt-checkbox">
+            <label class="form-check-label" for="has_debt{{ order.pk }}">Qarz</label>
+          </div>
+          <div id="debt_fields{{ order.pk }}" class="debt-fields mb-3" style="display: none;">
+            <div class="mb-2">
+              <label class="form-label">Qarz to'lanish muddati</label>
+              <input type="date" name="debt_deadline" class="form-control debt-date">
             </div>
-            <div class="modal-body">
-                <p class="mb-3"><strong>{{ order.phone_model }}</strong> — {{ order.client_phone|phone_without_prefix }}</p>
-                <form method="post" action="{% url 'repairs:order_mark_completed' order.pk %}" class="complete-form">
-                    {% csrf_token %}
-                    <div class="form-check mb-2">
-                        <input type="checkbox" name="has_debt" id="has_debt{{ order.pk }}" class="form-check-input debt-checkbox">
-                        <label class="form-check-label" for="has_debt{{ order.pk }}">Qarz</label>
-                    </div>
-                    <div id="debt_fields{{ order.pk }}" class="debt-fields mb-3" style="display: none;">
-                        <div class="mb-2">
-                            <label class="form-label">Qarz to'lanish muddati</label>
-                            <input type="date" name="debt_deadline" class="form-control debt-date">
-                        </div>
-                        <div class="mb-2">
-                            <label class="form-label">Qarz haqida eslatma</label>
-                            <textarea name="handover_notes" class="form-control" rows="2" placeholder="Qarz haqida eslatma..."></textarea>
-                        </div>
-                    </div>
-                    <button type="submit" class="btn btn-success w-100">
-                        <i class="bi bi-check-lg me-2"></i> Olib ketildi
-                    </button>
-                </form>
+            <div class="mb-2">
+              <label class="form-label">Qarz haqida eslatma</label>
+              <textarea name="handover_notes" class="form-control" rows="2" placeholder="Qarz haqida eslatma..."></textarea>
             </div>
-        </div>
+          </div>
+          <button type="submit" class="btn btn-primary w-100">
+            <i class="bi bi-check-lg me-2"></i> Olib ketildi
+          </button>
+        </form>
+      </div>
     </div>
+  </div>
 </div>
 {% endfor %}
 
 <script>
-document.querySelectorAll('.ready-row').forEach(row => {
-    row.addEventListener('click', function(e) {
-        if (!e.target.closest('.no-row-click')) {
-            window.location.href = this.dataset.href;
-        }
+    document.addEventListener("DOMContentLoaded", function () {
+    
+      // 1) Confirm bo'lgan linklar
+      document.querySelectorAll('.js-confirm').forEach(el => {
+        el.addEventListener('click', function(e){
+          e.stopPropagation();
+          const msg = this.dataset.confirm || "Davom etamizmi?";
+          if (!confirm(msg)) {
+            e.preventDefault();
+          }
+        });
+      });
+    
+      // 2) Row click (desktop)
+      document.querySelectorAll('.pill-row').forEach(row => {
+        row.addEventListener('click', function(e) {
+          if (e.target.closest('.no-row-click')) return;
+          const url = this.dataset.href;
+          if (url) window.location.href = url;
+        });
+      });
+    
+      // 3) Card click (mobile)
+      document.querySelectorAll('.order-card').forEach(card => {
+        card.addEventListener('click', function(e) {
+          if (e.target.closest('.no-row-click')) return;
+          const url = this.dataset.href;
+          if (url) window.location.href = url;
+        });
+      });
+    
     });
-});
-document.querySelectorAll('.complete-form').forEach(function(form) {
-    form.addEventListener('submit', function(e) {
-        var cb = form.querySelector('.debt-checkbox');
-        if (cb && cb.checked) {
-            var dateInput = form.querySelector('.debt-date');
-            if (dateInput && !dateInput.value) {
-                e.preventDefault();
-                alert('Qarz tanlanganida to\'lash muddatini kiriting!');
-                dateInput.focus();
-                return false;
-            }
-        }
-    });
-});
-document.querySelectorAll('.debt-checkbox').forEach(function(cb) {
-    cb.addEventListener('change', function() {
-        var id = this.id.replace('has_debt', '');
-        var fields = document.getElementById('debt_fields' + id);
-        if (fields) {
-            fields.style.display = this.checked ? 'block' : 'none';
-            if (this.checked) {
-                var dateInput = fields.querySelector('.debt-date');
-                if (dateInput && !dateInput.value) {
-                    var today = new Date().toISOString().split('T')[0];
-                    dateInput.setAttribute('min', today);
-                }
-            }
-        }
-    });
-});
-</script>
+    </script>
+    
 {% endblock %}

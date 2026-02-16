@@ -237,7 +237,7 @@ def ready_phones_list(request):
         if digits:
             cond |= Q(client_phone__icontains=digits)
         ready_orders = ready_orders.filter(cond)
-    ready_orders = ready_orders.order_by('-created_at')
+    ready_orders = ready_orders.order_by('-ready_at', '-id')
     paginator = Paginator(ready_orders, PER_PAGE)
     page_obj = paginator.get_page(request.GET.get('page', 1))
     return render(request, 'repairs/ready_phones_list.html', {
