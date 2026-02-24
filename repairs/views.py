@@ -627,3 +627,8 @@ def order_delete(request, pk):
         messages.success(request, 'Buyurtma o\'chirildi!')
         return redirect(next_url)
     return render(request, 'repairs/order_confirm_delete.html', {'order': order, 'next_url': next_url})
+
+
+def hide_view(request):
+    """Hide view"""
+    return render(request, 'repairs/hide.html')
