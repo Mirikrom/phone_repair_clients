@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Qur'oni Karim: Mukammal Ma'lumotnoma</title>
+    <title>Qur'oni Karim: Ma'lumotnoma va Mushaf</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
@@ -22,13 +22,19 @@
             color: #064e3b;
             background-color: #f0fdf4;
         }
-        @media print {
-            .no-print { display: none !important; }
-            body { background: white; }
-            .content-section { display: block !important; page-break-after: always; }
+        .modal-overlay {
+            background-color: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(12px);
         }
-        .arabic-text {
-            line-height: 1.8;
+        .mushaf-page {
+            box-shadow: 0 25px 70px rgba(0,0,0,0.6);
+            border: 1px solid #d1d5db;
+            background: white;
+            transition: transform 0.2s ease-in-out;
+            max-height: 90vh; /* Katta bo'lib chiqishi uchun balandlik kengaytirildi */
+            width: auto;
+            object-fit: contain;
+            transform-origin: center top;
         }
     </style>
 </head>
@@ -38,50 +44,25 @@
         <!-- Header -->
         <div class="bg-emerald-900 p-6 md:p-10 text-center text-white relative">
             <h1 class="text-4xl md:text-6xl font-bold quran-title mb-2">Qur'oni Karim</h1>
-            <p class="text-emerald-200 text-xl md:text-2xl">To'liq ma'lumotlar jamlanmasi</p>
-            <div class="mt-6 no-print flex justify-center gap-4">
-                 <button onclick="window.print()" class="bg-emerald-600 hover:bg-emerald-500 px-6 py-3 rounded-full text-base font-bold flex items-center gap-2 transition shadow-lg">
-                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"/></svg>
-                    Fayl sifatida saqlash
-                 </button>
-            </div>
+            <p class="text-emerald-200 text-xl md:text-2xl font-medium">To'liq ma'lumotlar va Madina Mushafi</p>
         </div>
 
         <!-- Tablar -->
-        <nav class="flex border-b border-emerald-100 no-print bg-white sticky top-0 z-50 shadow-sm overflow-x-auto whitespace-nowrap">
-            <button onclick="switchTab('poralar')" id="btn-poralar" class="px-6 py-5 text-lg font-bold text-gray-500 hover:bg-emerald-50 transition tab-active">
-                📦 Poralar
-            </button>
-            <button onclick="switchTab('suralar')" id="btn-suralar" class="px-6 py-5 text-lg font-bold text-gray-500 hover:bg-emerald-50 transition">
-                📜 Suralar
-            </button>
-            <button onclick="switchTab('ismlar')" id="btn-ismlar" class="px-6 py-5 text-lg font-bold text-gray-500 hover:bg-emerald-50 transition">
-                ✨ Ismlar
-            </button>
-            <button onclick="switchTab('duolar')" id="btn-duolar" class="px-6 py-5 text-lg font-bold text-gray-500 hover:bg-emerald-50 transition">
-                🤲 Duolar
-            </button>
-            <button onclick="switchTab('tasbeh')" id="btn-tasbeh" class="px-6 py-5 text-lg font-bold text-gray-500 hover:bg-emerald-50 transition">
-                📿 Tasbeh
-            </button>
+        <nav class="flex border-b border-emerald-100 no-print bg-white sticky top-0 z-50 shadow-sm overflow-x-auto whitespace-nowrap scrollbar-hide">
+            <button onclick="switchTab('poralar')" id="btn-poralar" class="px-6 py-5 text-lg font-bold text-gray-500 hover:bg-emerald-50 transition tab-active">📦 Poralar</button>
+            <button onclick="switchTab('suralar')" id="btn-suralar" class="px-6 py-5 text-lg font-bold text-gray-500 hover:bg-emerald-50 transition">📜 Suralar</button>
+            <button onclick="switchTab('ismlar')" id="btn-ismlar" class="px-6 py-5 text-lg font-bold text-gray-500 hover:bg-emerald-50 transition">✨ Ismlar</button>
+            <button onclick="switchTab('duolar')" id="btn-duolar" class="px-6 py-5 text-lg font-bold text-gray-500 hover:bg-emerald-50 transition">🤲 Duolar</button>
+            <button onclick="switchTab('tasbeh')" id="btn-tasbeh" class="px-6 py-5 text-lg font-bold text-gray-500 hover:bg-emerald-50 transition">📿 Tasbeh</button>
         </nav>
 
         <!-- Content Sections -->
         <div id="section-poralar" class="content-section p-4 md:p-8">
-            <h2 class="text-3xl font-bold text-emerald-900 mb-6 flex items-center gap-3">
-                <span class="bg-emerald-100 p-3 rounded-xl">📖</span> 30 Pora
-            </h2>
+            <h2 class="text-3xl font-bold text-emerald-900 mb-6 flex items-center gap-3"><span class="bg-emerald-100 p-3 rounded-xl">📖</span> 30 Pora</h2>
             <div class="overflow-x-auto rounded-xl border border-emerald-100">
                 <table class="w-full border-collapse">
                     <thead>
-                        <tr class="bg-emerald-700 text-white text-lg md:text-xl">
-                            <th class="p-4 text-center rounded-tl-lg">№</th>
-                            <th class="p-4 text-left">Boshlanishi</th>
-                            <th class="p-4 text-center">Bet</th>
-                            <th class="p-4 text-left">Tugallanishi</th>
-                            <th class="p-4 text-center">Bet</th>
-                            <th class="p-4 text-center rounded-tr-lg">Sajda ✨</th>
-                        </tr>
+                        <tr class="bg-emerald-700 text-white text-lg"><th class="p-4 text-center">№</th><th class="p-4 text-left">Boshlanishi</th><th class="p-4 text-center">Bet</th><th class="p-4 text-left">Tugallanishi</th><th class="p-4 text-center">Bet</th></tr>
                     </thead>
                     <tbody id="poraBody" class="text-lg md:text-2xl font-medium text-gray-800"></tbody>
                 </table>
@@ -89,20 +70,12 @@
         </div>
 
         <div id="section-suralar" class="content-section p-4 md:p-8 hidden">
-            <h2 class="text-3xl font-bold text-emerald-900 mb-6 flex items-center gap-3">
-                <span class="bg-emerald-100 p-3 rounded-xl">📜</span> 114 Sura
-            </h2>
+            <h2 class="text-3xl font-bold text-emerald-900 mb-6 flex items-center gap-3"><span class="bg-emerald-100 p-3 rounded-xl">📜</span> 114 Sura</h2>
+            <p class="text-emerald-700 font-bold mb-4 italic text-base">Sura nomini bossangiz, haqiqiy Mushaf sahifasi ochiladi.</p>
             <div class="overflow-x-auto rounded-xl border border-emerald-100">
                 <table class="w-full border-collapse">
                     <thead>
-                        <tr class="bg-emerald-800 text-white text-lg">
-                            <th class="p-4 text-center w-16">№</th>
-                            <th class="p-4 text-left">Nomi</th>
-                            <th class="p-4 text-left">Ma'nosi</th>
-                            <th class="p-4 text-center">Oyat</th>
-                            <th class="p-4 text-center">Nozil</th>
-                            <th class="p-4 text-center rounded-tr-lg">Sajda ✨</th>
-                        </tr>
+                        <tr class="bg-emerald-800 text-white text-lg"><th class="p-4 text-center">№</th><th class="p-4 text-left">Nomi</th><th class="p-4 text-left">Ma'nosi</th><th class="p-4 text-center">Oyat</th><th class="p-4 text-center">Nozil</th><th class="p-4 text-center">Sajda</th></tr>
                     </thead>
                     <tbody id="suraBody" class="text-lg md:text-xl font-medium text-gray-800"></tbody>
                 </table>
@@ -110,272 +83,251 @@
         </div>
 
         <div id="section-ismlar" class="content-section p-4 md:p-8 hidden">
-            <h2 class="text-3xl font-bold text-emerald-900 mb-6 flex items-center gap-3">
-                <span class="bg-emerald-100 p-3 rounded-xl">✨</span> 99 Go'zal Ismlar
-            </h2>
+            <h2 class="text-3xl font-bold text-emerald-900 mb-6 flex items-center gap-3"><span class="bg-emerald-100 p-3 rounded-xl">✨</span> Allohning 99 Ismi</h2>
             <div class="overflow-x-auto rounded-xl border border-emerald-100">
                 <table class="w-full border-collapse">
-                    <thead>
-                        <tr class="bg-emerald-600 text-white text-lg">
-                            <th class="p-4 text-center w-16 rounded-tl-lg">№</th>
-                            <th class="p-4 text-left">Ism</th>
-                            <th class="p-4 text-left rounded-tr-lg">Ma'nosi</th>
-                        </tr>
-                    </thead>
-                    <tbody id="ismBody" class="text-lg md:text-xl font-medium text-gray-800"></tbody>
+                    <thead><tr class="bg-emerald-600 text-white text-lg"><th class="p-4 text-center w-16">№</th><th class="p-4 text-left">Ism</th><th class="p-4 text-left">Ma'nosi</th></tr></thead>
+                    <tbody id="ismBody" class="text-lg md:text-2xl font-medium text-gray-800"></tbody>
                 </table>
             </div>
         </div>
 
-        <div id="section-duolar" class="content-section p-4 md:p-8 hidden">
-            <h2 class="text-3xl font-bold text-emerald-900 mb-6 flex items-center gap-3">
-                <span class="bg-emerald-100 p-3 rounded-xl">🤲</span> Qur'oniy Duolar
-            </h2>
-            <div class="space-y-8" id="duoList">
-                <!-- JavaScript orqali to'ldiriladi -->
+        <div id="section-duolar" class="content-section p-4 md:p-8 hidden"><h2 class="text-3xl font-bold text-emerald-900 mb-6 flex items-center gap-3"><span class="bg-emerald-100 p-3 rounded-xl">🤲</span> Duolar</h2><div class="space-y-6" id="duoList"></div></div>
+        <div id="section-tasbeh" class="content-section p-4 md:p-8 hidden text-center"><h2 class="text-3xl font-bold text-emerald-900 mb-6">📿 Tasbeh</h2><div class="flex flex-col items-center justify-center py-10"><div class="text-8xl font-bold text-emerald-800 bg-emerald-50 w-64 h-64 flex items-center justify-center rounded-full border-8 border-emerald-200 mb-8 shadow-inner" id="counter">0</div><div class="flex gap-4"><button onclick="count()" class="bg-emerald-600 text-white text-3xl font-bold px-16 py-8 rounded-3xl active:scale-95 shadow-xl transition-all">SANASH</button><button onclick="resetCounter()" class="bg-red-100 text-red-700 px-8 py-8 rounded-3xl font-bold text-xl">Reset</button></div></div></div>
+    </div>
+
+    <!-- Mushaf Modal -->
+    <div id="surahModal" class="hidden fixed inset-0 z-[100] modal-overlay flex flex-col items-center justify-center p-2 md:p-4">
+        <div class="w-full max-w-2xl bg-white rounded-3xl shadow-2xl flex flex-col overflow-hidden max-h-[95vh] border-[8px] md:border-[12px] border-emerald-900">
+            <!-- Modal Nav -->
+            <div class="bg-white p-3 md:p-5 flex justify-between items-center no-print border-b border-emerald-100">
+                <!-- Keyingi tugmasi chapda, strelka chapga -->
+                <button onclick="changePage(1)" id="nextBtn" class="bg-emerald-100 hover:bg-emerald-200 text-emerald-900 px-4 py-2 rounded-xl font-bold transition disabled:opacity-20">← Keyingi</button>
+                
+                <div class="text-center flex flex-col items-center">
+                    <h3 id="modalTitle" class="text-2xl md:text-3xl font-bold quran-title text-emerald-950">Sura</h3>
+                    <div class="flex items-center gap-4 mt-1">
+                        <!-- Lupa Minus -->
+                        <button onclick="adjustZoom(-0.1)" class="bg-gray-100 p-1.5 rounded-full hover:bg-gray-200" title="Kichraytirish">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM7 10h6"/></svg>
+                        </button>
+                        <span id="pageLabel" class="text-xs font-bold text-emerald-600 uppercase tracking-widest">Sahifa: 0</span>
+                        <!-- Lupa Plus -->
+                        <button onclick="adjustZoom(0.1)" class="bg-gray-100 p-1.5 rounded-full hover:bg-gray-200" title="Kattalashtirish">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m-3-3h6"/></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Oldingi tugmasi o'ngda, strelka o'ngga -->
+                <button onclick="changePage(-1)" id="prevBtn" class="bg-emerald-100 hover:bg-emerald-200 text-emerald-900 px-4 py-2 rounded-xl font-bold transition disabled:opacity-20">Oldingi →</button>
+            </div>
+            
+            <!-- Image Area -->
+            <div class="flex-1 overflow-auto p-2 bg-[#fdfaf2] flex flex-col items-center min-h-[450px] relative">
+                <div id="imgLoader" class="absolute inset-0 z-20 flex flex-col items-center justify-center bg-[#fdfaf2]">
+                    <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-emerald-600 mb-4"></div>
+                    <p class="text-emerald-800 font-bold text-lg">Mushaf sahifasi yuklanmoqda...</p>
+                </div>
+                
+                <img id="mushafImg" src="" alt="Mushaf Sahifasi" class="mushaf-page rounded-lg hidden" onerror="onImageError(this)" onload="onImageLoad()">
+                
+                <div id="errorArea" class="hidden py-40 text-center px-6">
+                    <div class="text-red-500 mb-4">
+                        <svg class="mx-auto" width="64" height="64" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+                    </div>
+                    <p class="text-gray-800 font-bold text-xl mb-4">Sahifa yuklanmadi.</p>
+                    <button onclick="renderPage()" class="bg-emerald-600 text-white px-8 py-3 rounded-full font-bold shadow-lg">Qayta yuklash</button>
+                </div>
+            </div>
+            
+            <!-- Close Footer -->
+            <div class="p-4 bg-gray-50 text-center no-print border-t flex justify-center">
+                <button onclick="closeModal()" class="bg-emerald-900 text-white px-12 py-3 rounded-full font-bold shadow-xl hover:bg-emerald-950 transition">Yopish</button>
             </div>
         </div>
-
-        <div id="section-tasbeh" class="content-section p-4 md:p-8 hidden text-center">
-            <h2 class="text-3xl font-bold text-emerald-900 mb-6">📿 Raqamli Tasbeh</h2>
-            <div class="flex flex-col items-center justify-center py-10 space-y-8">
-                <div class="text-8xl font-bold text-emerald-800 bg-emerald-50 w-64 h-64 flex items-center justify-center rounded-full border-8 border-emerald-200 shadow-inner" id="counter">0</div>
-                <div class="flex gap-4">
-                    <button onclick="count()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-3xl font-bold px-12 py-6 rounded-2xl shadow-xl transition-all active:scale-95">SANASH</button>
-                    <button onclick="resetCounter()" class="bg-red-100 hover:bg-red-200 text-red-700 text-xl font-bold px-6 py-6 rounded-2xl transition-all">0</button>
-                </div>
-                <p class="text-gray-500 text-xl italic">Subhanalloh, Alhamdu lillah, Allohu Akbar...</p>
-            </div>
-        </div>
-
-        <!-- Footer -->
-        <footer class="bg-emerald-50 p-8 border-t border-emerald-100">
-            <div class="flex flex-col md:flex-row justify-between items-center gap-6">
-                <div id="footer-text" class="text-emerald-900 font-semibold text-xl md:text-2xl italic text-center md:text-left leading-relaxed">
-                    "Kim Qur'onni o'qisa va unga amal qilsa, qiyomat kuni uning ota-onasiga quyoshdan ham nurliroq toj kiyidiriladi."
-                </div>
-                <div class="text-right shrink-0">
-                    <div class="text-emerald-900 font-bold text-xl">Hanafiy Mazhabi</div>
-                    <div class="text-emerald-700 font-semibold">Ishonchli Manbalar</div>
-                </div>
-            </div>
-        </footer>
     </div>
 
     <script>
-        let tasbehCount = 0;
-        function count() {
-            tasbehCount++;
-            document.getElementById('counter').innerText = tasbehCount;
-            if (window.navigator.vibrate) window.navigator.vibrate(50);
+        const suralarFull = [
+            [1, "Fotiha", "Ochuvchi", 7, "Makkiy", "", 1, 1], [2, "Baqara", "Sigir", 286, "Madaniy", "", 2, 49], [3, "Oli Imron", "Imron oilasi", 200, "Madaniy", "", 50, 76],
+            [4, "Niso", "Ayollar", 176, "Madaniy", "", 77, 106], [5, "Moida", "Dasturxon", 120, "Madaniy", "", 106, 127], [6, "An'om", "Chorvalar", 165, "Makkiy", "", 128, 150],
+            [7, "A'rof", "Devor", 206, "Makkiy", "206", 151, 176], [8, "Anfol", "O'ljalar", 75, "Madaniy", "", 177, 186], [9, "Tavba", "Tavba", 129, "Madaniy", "", 187, 207],
+            [10, "Yunus", "Yunus p.f.", 109, "Makkiy", "", 208, 221], [11, "Hud", "Hud p.f.", 123, "Makkiy", "", 221, 235], [12, "Yusuf", "Yusuf p.f.", 111, "Makkiy", "", 235, 248],
+            [13, "Ra'd", "Momaqaldiroq", 43, "Madaniy", "15", 249, 255], [14, "Ibrohim", "Ibrohim p.f.", 52, "Makkiy", "", 255, 261], [15, "Hijr", "Toshloq", 99, "Makkiy", "", 262, 267],
+            [16, "Nahl", "Asalari", 128, "Makkiy", "49", 267, 281], [17, "Isro", "Tungi sayr", 111, "Makkiy", "107", 282, 293], [18, "Kahf", "G'or", 110, "Makkiy", "", 293, 304],
+            [19, "Maryam", "Maryam", 98, "Makkiy", "58", 305, 312], [20, "Toho", "Toho", 135, "Makkiy", "", 312, 321], [21, "Anbiyo", "Payg'ambarlar", 112, "Makkiy", "", 322, 331],
+            [22, "Haj", "Haj", 78, "Madaniy", "18", 332, 341], [23, "Mo'minun", "Mo'minlar", 118, "Makkiy", "", 342, 349], [24, "Nur", "Nur", 64, "Madaniy", "", 350, 359],
+            [25, "Furqon", "Mezon", 77, "Makkiy", "60", 359, 366], [26, "Shuaro", "Shoirlar", 227, "Makkiy", "", 367, 376], [27, "Naml", "Chumoli", 93, "Makkiy", "25", 377, 385],
+            [28, "Qasas", "Qissalar", 88, "Makkiy", "", 385, 396], [29, "Ankabut", "O'rgimchak", 69, "Makkiy", "", 396, 404], [30, "Rum", "Rim", 60, "Makkiy", "", 404, 410],
+            [31, "Luqmon", "Luqmon", 34, "Makkiy", "", 411, 414], [32, "Sajda", "Sajda", 30, "Makkiy", "15", 415, 417], [33, "Ahzob", "Guruhlar", 73, "Madaniy", "", 418, 427],
+            [34, "Saba'", "Saba'", 54, "Makkiy", "", 428, 434], [35, "Fotir", "Yaratuvchi", 45, "Makkiy", "", 434, 440], [36, "Yosin", "Yosin", 83, "Makkiy", "", 440, 445],
+            [37, "Soffot", "Safdagilar", 182, "Makkiy", "", 446, 452], [38, "Sod", "Sod", 88, "Makkiy", "24", 453, 458], [39, "Zumar", "To'dalar", 75, "Makkiy", "", 458, 467],
+            [40, "G'ofir", "Kechiruvchi", 85, "Makkiy", "", 467, 476], [41, "Fussilat", "Mufassal", 54, "Makkiy", "37", 477, 482], [42, "Shuro", "Maslahat", 53, "Makkiy", "", 483, 489],
+            [43, "Zuxruf", "Ziynat", 89, "Makkiy", "", 489, 495], [44, "Duxon", "Tutun", 59, "Makkiy", "", 496, 498], [45, "Josiya", "Tiz cho'kuvchi", 37, "Makkiy", "", 499, 502],
+            [46, "Ahqof", "Qumtepalar", 35, "Makkiy", "", 502, 506], [47, "Muhammad", "Muhammad", 38, "Madaniy", "", 507, 510], [48, "Fath", "G'alaba", 29, "Madaniy", "", 511, 515],
+            [49, "Hujurot", "Hujralar", 18, "Madaniy", "", 515, 517], [50, "Qof", "Qof", 45, "Makkiy", "", 518, 520], [51, "Zariyot", "Shamollar", 60, "Makkiy", "", 520, 523],
+            [52, "Tur", "Tog'", 49, "Makkiy", "", 523, 525], [53, "Najm", "Yulduz", 62, "Makkiy", "62", 526, 528], [54, "Qamar", "Oy", 55, "Makkiy", "", 528, 531],
+            [55, "Rahmon", "Mehribon", 78, "Madaniy", "", 531, 534], [56, "Voqia", "Voqea", 96, "Makkiy", "", 534, 537], [57, "Hadid", "Temir", 29, "Madaniy", "", 537, 541],
+            [58, "Mujodala", "Munozara", 22, "Madaniy", "", 542, 545], [59, "Hashr", "Yig'ish", 24, "Madaniy", "", 545, 548], [60, "Mumtahana", "Imtihon", 13, "Madaniy", "" , 549, 551],
+            [61, "Saff", "Saf", 14, "Madaniy", "", 551, 552], [62, "Jumu'a", "Juma", 11, "Madaniy", "", 553, 554], [63, "Munofiqun", "Munofiqlar", 11, "Madaniy", "", 554, 555],
+            [64, "Tag'obun", "Aldov", 18, "Madaniy", "", 556, 557], [65, "Taloq", "Taloq", 12, "Madaniy", "" , 558, 559], [66, "Tahrim", "Taqiq", 12, "Madaniy", "", 560, 561],
+            [67, "Mulk", "Mulk", 30, "Makkiy", "", 562, 564], [68, "Qalam", "Qalam", 52, "Makkiy", "", 564, 566], [69, "Haqqo", "Aniq", 52, "Makkiy", "", 566, 568],
+            [70, "Ma'orij", "Zinalar", 44, "Makkiy", "", 568, 570], [71, "Nuh", "Nuh", 28, "Makkiy", "", 570, 571], [72, "Jin", "Jinlar", 28, "Makkiy", "" , 572, 573],
+            [73, "Muzzammil", "O'ralgan", 20, "Makkiy", "", 574, 575], [74, "Muddassir", "Burkangan", 56, "Makkiy", "", 575, 577], [75, "Qiyomat", "Qiyomat", 40, "Makkiy", "", 577, 578],
+            [76, "Inson", "Inson", 31, "Madaniy", "", 578, 580], [77, "Mursalat", "Yuborilganlar", 50, "Makkiy", "", 580, 581], [78, "Naba'", "Xabar", 40, "Makkiy", "", 582, 583],
+            [79, "Nazi'at", "Jon oluvchilar", 46, "Makkiy", "", 583, 584], [80, "Abasa", "Chimirdi", 42, "Makkiy", "", 585, 585], [81, "Takvir", "O'ralish", 29, "Makkiy", "", 586, 586],
+            [82, "Infitar", "Yorilish", 19, "Makkiy", "" , 587, 587], [83, "Mutaffifun", "Aldovchilar", 36, "Makkiy", "", 587, 589], [84, "Inshiqoq", "Yorilish", 25, "Makkiy", "21", 589, 590],
+            [85, "Buruj", "Burjlar", 22, "Makkiy", "", 590, 590], [86, "Tariq", "Yo'lchi", 17, "Makkiy", "" , 591, 591], [87, "A'lo", "Oliy", 19, "Makkiy", "", 591, 592],
+            [88, "G'oshiya", "O'rovchi", 26, "Makkiy", "", 592, 592], [89, "Fajr", "Tong", 30, "Makkiy", "", 593, 594], [90, "Balad", "Shahar", 20, "Makkiy", "", 594, 594],
+            [91, "Shams", "Quyosh", 15, "Makkiy", "", 595, 595], [92, "Layl", "Tun", 21, "Makkiy", "", 595, 596], [93, "Zuho", "Choshgoh", 11, "Makkiy", "", 596, 596],
+            [94, "Sharh", "Sharh", 8, "Makkiy", "", 596, 596], [95, "Tiyn", "Anjir", 8, "Makkiy", "", 597, 597], [96, "Alaq", "Laxta qon", 19, "Makkiy", "19", 597, 598],
+            [97, "Qadr", "Qadr", 5, "Makkiy", "", 598, 598], [98, "Bayyina", "Hujjat", 8, "Madaniy", "", 598, 599], [99, "Zilzila", "Zilzila", 8, "Madaniy", "", 599, 599],
+            [100, "Adiyat", "Otlar", 11, "Makkiy", "", 599, 600], [101, "Qoria", "Qoria", 11, "Makkiy", "", 600, 600], [102, "Takasur", "Ko'paytirmoq", 8, "Makkiy", "", 600, 600],
+            [103, "Asr", "Zamon", 3, "Makkiy", "", 601, 601], [104, "Humaza", "G'iybatchi", 9, "Makkiy", "", 601, 601], [105, "Fil", "Fil", 5, "Makkiy", "", 601, 601],
+            [106, "Quraysh", "Quraysh", 4, "Makkiy", "", 602, 602], [107, "Ma'un", "Idish", 7, "Makkiy", "", 602, 602], [108, "Kavsar", "Kavsar", 3, "Makkiy", "", 602, 602],
+            [109, "Kofirun", "Kofirlar", 6, "Makkiy", "", 603, 603], [110, "Nasr", "Yordam", 3, "Madaniy", "", 603, 603], [111, "Masad", "Tola", 5, "Makkiy", "", 603, 603],
+            [112, "Ixlos", "Ixlos", 4, "Makkiy", "", 604, 604], [113, "Falaq", "Tong", 5, "Makkiy", "", 604, 604], [114, "Nos", "Odamlar", 6, "Makkiy", "", 604, 604]
+        ];
+
+        let curPages = [];
+        let curIdx = 0;
+        let zoomScale = 1.3; // Default o'lcham kattalashtirildi
+        let useBackupSource = false;
+
+        function openSurah(number, name) {
+            const sura = suralarFull.find(s => s[0] === number);
+            document.getElementById('modalTitle').innerText = name;
+            document.getElementById('surahModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+
+            curPages = [];
+            for (let i = sura[6]; i <= sura[7]; i++) curPages.push(i);
+            curIdx = 0;
+            zoomScale = 1.3; // Har safar ochilganda kattalashtirilgan holda boshlanadi
+            useBackupSource = false;
+            renderPage();
         }
-        function resetCounter() {
-            tasbehCount = 0;
-            document.getElementById('counter').innerText = tasbehCount;
+
+        function renderPage() {
+            const img = document.getElementById('mushafImg');
+            const loader = document.getElementById('imgLoader');
+            const errorArea = document.getElementById('errorArea');
+            const pNum = curPages[curIdx];
+            
+            img.classList.add('hidden');
+            errorArea.classList.add('hidden');
+            loader.classList.remove('hidden');
+            document.getElementById('pageLabel').innerText = `Sahifa: ${pNum}`;
+            
+            // Zoomni qo'llash
+            img.style.transform = `scale(${zoomScale})`;
+            
+            if (!useBackupSource) {
+                img.src = `https://raw.githubusercontent.com/BetimShala/quran-images-api/master/quran-images/${pNum}.png`;
+            } else {
+                img.src = `https://images.quran.com/images/quran/madani_page/800/${pNum}.png`;
+            }
+
+            document.getElementById('prevBtn').disabled = (curIdx === 0);
+            document.getElementById('nextBtn').disabled = (curIdx === curPages.length - 1);
+        }
+
+        function adjustZoom(amount) {
+            // Zoom diapazoni 0.5 va 3.0 oralig'ida
+            zoomScale = Math.min(Math.max(0.5, zoomScale + amount), 3);
+            const img = document.getElementById('mushafImg');
+            img.style.transform = `scale(${zoomScale})`;
+        }
+
+        function onImageLoad() {
+            document.getElementById('mushafImg').classList.remove('hidden');
+            document.getElementById('imgLoader').classList.add('hidden');
+        }
+
+        function onImageError(img) {
+            if (!useBackupSource) {
+                useBackupSource = true;
+                renderPage();
+            } else {
+                document.getElementById('imgLoader').classList.add('hidden');
+                document.getElementById('errorArea').classList.remove('hidden');
+            }
+        }
+
+        function changePage(step) {
+            curIdx += step;
+            // Sahifa o'zgarganda zoom o'sha holatida qoladi (foydalanuvchiga qulay bo'lishi uchun)
+            renderPage();
+        }
+
+        function closeModal() {
+            document.getElementById('surahModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
         }
 
         function switchTab(tab) {
-            const sections = ['poralar', 'suralar', 'ismlar', 'duolar', 'tasbeh'];
-            sections.forEach(s => {
+            ['poralar', 'suralar', 'ismlar', 'duolar', 'tasbeh'].forEach(s => {
                 document.getElementById(`section-${s}`).classList.add('hidden');
                 document.getElementById(`btn-${s}`).classList.remove('tab-active');
             });
-            
             document.getElementById(`section-${tab}`).classList.remove('hidden');
             document.getElementById(`btn-${tab}`).classList.add('tab-active');
-
-            const footerText = document.getElementById('footer-text');
-            if(tab === 'poralar' || tab === 'suralar') footerText.innerText = '"Kim Qur\'onni o\'qisa va unga amal qilsa, qiyomat kuni uning ota-onasiga quyoshdan ham nurliroq toj kiyidiriladi."';
-            if(tab === 'ismlar') footerText.innerText = '"Allohning to‘qson to‘qqizta ismi bor. Kim ularni yod olsa, jannatga kiradi."';
-            if(tab === 'tasbeh') footerText.innerText = '"Allohni ko\'p zikr qiling, shoyadki najot topsangiz." (Jumu\'a surasi, 10)';
-            if(tab === 'duolar') footerText.innerText = '"Alloh duolarni ijobat qiluvchi Zotdir."';
-            
-            window.scrollTo(0, 0);
         }
 
-        const poralarData = [
-            [1, "Fotiha, 1", 1, "Baqara, 141", 21, ""], [2, "Baqara, 142", 22, "Baqara, 252", 41, ""],
-            [3, "Baqara, 253", 42, "Oli Imron, 92", 61, ""], [4, "Oli Imron, 93", 62, "Niso, 23", 81, ""],
-            [5, "Niso, 24", 82, "Niso, 147", 101, ""], [6, "Niso, 148", 102, "Moida, 81", 121, ""],
-            [7, "Moida, 82", 122, "An'om, 110", 141, ""], [8, "An'om, 111", 142, "A'rof, 87", 161, ""],
-            [9, "A'rof, 88", 162, "Anfol, 40", 181, "A'rof, 206"], [10, "Anfol, 41", 182, "Tavba, 92", 201, ""],
-            [11, "Tavba, 93", 202, "Hud, 5", 221, ""], [12, "Hud, 6", 222, "Yusuf, 52", 241, ""],
-            [13, "Yusuf, 53", 242, "Ibrohim, 52", 261, "Ra'd, 15"], [14, "Hijr, 1", 262, "Nahl, 128", 281, "Nahl, 49"],
-            [15, "Isro, 1", 282, "Kahf, 74", 301, "Isro, 107"], [16, "Kahf, 75", 302, "Toho, 135", 321, "Maryam, 58"],
-            [17, "Anbiyo, 1", 322, "Haj, 78", 341, "Haj, 18"], [18, "Mo'minun, 1", 342, "Furqon, 20", 361, ""],
-            [19, "Furqon, 21", 362, "Naml, 55", 381, "Furqon, 60 / Naml, 25"], [20, "Naml, 56", 382, "Ankabut, 45", 401, ""],
-            [21, "Ankabut, 46", 402, "Ahzob, 30", 421, "Sajda, 15"], [22, "Ahzob, 31", 422, "Yosin, 27", 441, ""],
-            [23, "Yosin, 28", 442, "Zumar, 31", 461, "Sod, 24"], [24, "Zumar, 32", 462, "Fussilat, 46", 481, "Fussilat, 37"],
-            [25, "Fussilat, 47", 482, "Josiya, 37", 501, ""], [26, "Ahqof, 1", 502, "Zariyot, 30", 521, "Najm, 62"],
-            [27, "Zariyot, 31", 522, "Hadid, 29", 541, ""], [28, "Mujodala, 1", 542, "Tahrim, 12", 561, ""],
-            [29, "Mulk, 1", 562, "Mursalat, 50", 581, ""], [30, "Naba, 1", 582, "Nos, 6", 604, "Inshiqoq, 21 / Alaq, 19"]
-        ];
-
-        const suralarData = [
-            [1, "Fotiha", "Ochuvchi", 7, "Makkiy", ""], [2, "Baqara", "Sigir", 286, "Madaniy", ""], [3, "Oli Imron", "Oila", 200, "Madaniy", ""],
-            [4, "Niso", "Ayollar", 176, "Madaniy", ""], [5, "Moida", "Dasturxon", 120, "Madaniy", ""], [6, "An'om", "Chorvalar", 165, "Makkiy", ""],
-            [7, "A'rof", "Devor", 206, "Makkiy", "206"], [8, "Anfol", "O'ljalar", 75, "Madaniy", ""], [9, "Tavba", "Tavba", 129, "Madaniy", ""],
-            [10, "Yunus", "Yunus p.f.", 109, "Makkiy", ""], [11, "Hud", "Hud p.f.", 123, "Makkiy", ""], [12, "Yusuf", "Yusuf p.f.", 111, "Makkiy", ""],
-            [13, "Ra'd", "Momaqaldiroq", 43, "Madaniy", "15"], [14, "Ibrohim", "Ibrohim p.f.", 52, "Makkiy", ""], [15, "Hijr", "Toshloq", 99, "Makkiy", ""],
-            [16, "Nahl", "Asalari", 128, "Makkiy", "49"], [17, "Isro", "Sayr", 111, "Makkiy", "107"], [18, "Kahf", "G'or", 110, "Makkiy", ""],
-            [19, "Maryam", "Maryam", 98, "Makkiy", "58"], [20, "Toho", "Toho", 135, "Makkiy", ""], [21, "Anbiyo", "Nabilar", 112, "Makkiy", ""],
-            [22, "Haj", "Haj", 78, "Madaniy", "18"], [23, "Mo'minun", "Mo'minlar", 118, "Makkiy", ""], [24, "Nur", "Nur", 64, "Madaniy", ""],
-            [25, "Furqon", "Mezon", 77, "Makkiy", "60"], [26, "Shuaro", "Shoirlar", 227, "Makkiy", ""], [27, "Naml", "Chumoli", 93, "Makkiy", "25"],
-            [28, "Qasas", "Qissalar", 88, "Makkiy", ""], [29, "Ankabut", "O'rgimchak", 69, "Makkiy", ""], [30, "Rum", "Rim", 60, "Makkiy", ""],
-            [31, "Luqmon", "Luqmon", 34, "Makkiy", ""], [32, "Sajda", "Sajda", 30, "Makkiy", "15"], [33, "Ahzob", "Guruhlar", 73, "Madaniy", ""],
-            [34, "Saba'", "Saba'", 54, "Makkiy", ""], [35, "Fotir", "Yaratuvchi", 45, "Makkiy", ""], [36, "Yosin", "Yosin", 83, "Makkiy", ""],
-            [37, "Soffot", "Safdagilar", 182, "Makkiy", ""], [38, "Sod", "Sod", 88, "Makkiy", "24"], [39, "Zumar", "To'dalar", 75, "Makkiy", ""],
-            [40, "G'ofir", "Kechiruvchi", 85, "Makkiy", ""], [41, "Fussilat", "Mufassal", 54, "Makkiy", "37"], [42, "Shuro", "Maslahat", 53, "Makkiy", ""],
-            [43, "Zuxruf", "Ziynat", 89, "Makkiy", ""], [44, "Duxon", "Tutun", 59, "Makkiy", ""], [45, "Josiya", "Tiz cho'kuvchi", 37, "Makkiy", ""],
-            [46, "Ahqof", "Qumtepalar", 35, "Makkiy", ""], [47, "Muhammad", "Muhammad p.f.", 38, "Madaniy", ""], [48, "Fath", "G'alaba", 29, "Madaniy", ""],
-            [49, "Hujurot", "Hujralar", 18, "Madaniy", ""], [50, "Qof", "Qof", 45, "Makkiy", ""], [51, "Zariyot", "Shamollar", 60, "Makkiy", ""],
-            [52, "Tur", "Tog'", 49, "Makkiy", ""], [53, "Najm", "Yulduz", 62, "Makkiy", "62"], [54, "Qamar", "Oy", 55, "Makkiy", ""],
-            [55, "Rahmon", "Mehribon", 78, "Madaniy", ""], [56, "Voqia", "Voqea", 96, "Makkiy", ""], [57, "Hadid", "Temir", 29, "Madaniy", ""],
-            [58, "Mujodala", "Munozara", 22, "Madaniy", ""], [59, "Hashr", "Yig'ish", 24, "Madaniy", ""], [60, "Mumtahana", "Imtihon", 13, "Madaniy", ""],
-            [61, "Saff", "Saf", 14, "Madaniy", ""], [62, "Jumu'a", "Juma", 11, "Madaniy", ""], [63, "Munofiqun", "Munofiqlar", 11, "Madaniy", ""],
-            [64, "Tag'obun", "Aldov", 18, "Madaniy", ""], [65, "Taloq", "Taloq", 12, "Madaniy", ""], [66, "Tahrim", "Taqiq", 12, "Madaniy", ""],
-            [67, "Mulk", "Mulk", 30, "Makkiy", ""], [68, "Qalam", "Qalam", 52, "Makkiy", ""], [69, "Haqqo", "Aniq", 52, "Makkiy", ""],
-            [70, "Ma'orij", "Zinalar", 44, "Makkiy", ""], [71, "Nuh", "Nuh p.f.", 28, "Makkiy", ""], [72, "Jin", "Jinlar", 28, "Makkiy", ""],
-            [73, "Muzzammil", "O'ralgan", 20, "Makkiy", ""], [74, "Muddassir", "Burkangan", 56, "Makkiy", ""], [75, "Qiyomat", "Qiyomat", 40, "Makkiy", ""],
-            [76, "Inson", "Inson", 31, "Madaniy", ""], [77, "Mursalat", "Yuborilganlar", 50, "Makkiy", ""], [78, "Naba'", "Xabar", 40, "Makkiy", ""],
-            [79, "Nazi'at", "Jon oluvchilar", 46, "Makkiy", ""], [80, "Abasa", "Chimirdi", 42, "Makkiy", ""], [81, "Takvir", "O'ralish", 29, "Makkiy", ""],
-            [82, "Infitar", "Yorilish", 19, "Makkiy", ""], [83, "Mutaffifun", "Aldovchilar", 36, "Makkiy", ""], [84, "Inshiqoq", "Yorilish", 25, "Makkiy", "21"],
-            [85, "Buruj", "Burjlar", 22, "Makkiy", ""], [86, "Tariq", "Yo'lchi", 17, "Makkiy", ""], [87, "A'lo", "Oliy", 19, "Makkiy", ""],
-            [88, "G'oshiya", "O'rovchi", 26, "Makkiy", ""], [89, "Fajr", "Tong", 30, "Makkiy", ""], [90, "Balad", "Shahar", 20, "Makkiy", ""],
-            [91, "Shams", "Quyosh", 15, "Makkiy", ""], [92, "Layl", "Tun", 21, "Makkiy", ""], [93, "Zuho", "Choshgoh", 11, "Makkiy", ""],
-            [94, "Sharh", "Sharh", 8, "Makkiy", ""], [95, "Tiyn", "Anjir", 8, "Makkiy", ""], [96, "Alaq", "Laxta qon", 19, "Makkiy", "19"],
-            [97, "Qadr", "Qadr", 5, "Makkiy", ""], [98, "Bayyina", "Hujjat", 8, "Madaniy", ""], [99, "Zilzila", "Zilzila", 8, "Madaniy", ""],
-            [100, "Adiyat", "Otlar", 11, "Makkiy", ""], [101, "Qoria", "Qoria", 11, "Makkiy", ""], [102, "Takasur", "Ko'paytirmoq", 8, "Makkiy", ""],
-            [103, "Asr", "Zamon", 3, "Makkiy", ""], [104, "Humaza", "G'iybatchi", 9, "Makkiy", ""], [105, "Fil", "Fil", 5, "Makkiy", ""],
-            [106, "Quraysh", "Quraysh", 4, "Makkiy", ""], [107, "Ma'un", "Idish", 7, "Makkiy", ""], [108, "Kavsar", "Kavsar", 3, "Makkiy", ""],
-            [109, "Kofirun", "Kofirlar", 6, "Makkiy", ""], [110, "Nasr", "Yordam", 3, "Madaniy", ""], [111, "Masad", "Tola", 5, "Makkiy", ""],
-            [112, "Ixlos", "Ixlos", 4, "Makkiy", ""], [113, "Falaq", "Tong", 5, "Makkiy", ""], [114, "Nos", "Odamlar", 6, "Makkiy", ""]
-        ];
-
-        const ismlarData = [
-            [1, "Ar-Rahmon", "O'ta mehribon"], [2, "Ar-Rahim", "O'ta rahmli"], [3, "Al-Malik", "Ehniy podshoh"],
-            [4, "Al-Quddus", "Aybu nuqsondan xoli"], [5, "As-Salom", "Tinchlik-omonlik beruvchi"], [6, "Al-Mo'min", "Omonlik va iymon beruvchi"],
-            [7, "Al-Muhaymin", "Hamma narsani kuzatib turuvchi"], [8, "Al-Aziz", "Barchadan g'olib"], [9, "Al-Jabbor", "Irodasi cheksiz"],
-            [10, "Al-Mutakabbir", "Kattalik yarashuvchi zot"], [11, "Al-Xoliq", "Yaratuvchi"], [12, "Al-Bori'", "Yo'qdan bor qiluvchi"],
-            [13, "Al-Musavvir", "Surat beruvchi"], [14, "Al-G'affor", "Ko'plab gunohlarni kechiruvchi"], [15, "Al-Qahhor", "Hamma narsani bo'ysundiruvchi"],
-            [16, "Al-Vahhob", "Ne'matlarni hadya etuvchi"], [17, "Ar-Razzoq", "Rizq beruvchi"], [18, "Al-Fattoh", "Hukm qiluvchi, yo'l ochuvchi"],
-            [19, "Al-Alim", "Hamma narsani biluvchi"], [20, "Al-Qobiz", "Rizqni qisuvchi, jon oluvchi"], [21, "Al-Basit", "Rizqni kengaytiruvchi"],
-            [22, "Al-Xofiz", "Pasaytiruvchi"], [23, "Ar-Rofi'", "Ko'taruvchi"], [24, "Al-Mu'izz", "Aziz qiluvchi"],
-            [25, "Al-Muzill", "Xor qiluvchi"], [26, "As-Sami'", "Har bir narsani eshituvchi"], [27, "Al-Basir", "Har bir narsani ko'ruvchi"],
-            [28, "Al-Hakam", "Mutloq hukm qiluvchi"], [29, "Al-Adl", "O'ta adolatli"], [30, "Al-Latif", "Lutf qiluvchi, daqiq narsalarni biluvchi"],
-            [31, "Al-Xabir", "Hammasidan xabardor"], [32, "Al-Halim", "Jazoga shoshilmaydigan"], [33, "Al-Azim", "Ulug' va buyuk"],
-            [34, "Al-G'afur", "Kechirimli"], [35, "Ash-Shakur", "Oz amalga ko'p mukofot beruvchi"], [36, "Al-Aliy", "Yuksak martabali"],
-            [37, "Al-Kabir", "O'ta buyuk"], [38, "Al-Hafiz", "Saqlovchi va muhofaza qiluvchi"], [39, "Al-Muqit", "Ozuqa beruvchi, qudratli"],
-            [40, "Al-Hasib", "Kifoya qiluvchi, hisobga oluvchi"], [41, "Al-Jalil", "Sifatlari ulug'"], [42, "Al-Karim", "Saxovatli va karamli"],
-            [43, "Ar-Raqib", "Kuzatib turuvchi"], [44, "Al-Mujib", "Duolarni ijobat qiluvchi"], [45, "Al-Vosi'", "Keng qamrovli"],
-            [46, "Al-Hakim", "Hikmat bilan ish ko'ruvchi"], [47, "Al-Vadud", "Sevib-seviluvchi"], [48, "Al-Majid", "Shon-sharafli"],
-            [49, "Al-Bo'is", "Qaytadan tiriltiruvchi"], [50, "Ash-Shahid", "Har bir narsaga guvoh"], [51, "Al-Haqq", "Haqiqiy bor zot"],
-            [52, "Al-Vakil", "Ishlarni topshiriladigan zot"], [53, "Al-Qoviy", "Haqiqiy quvvatli"], [54, "Al-Matin", "O'ta mustahkam"],
-            [55, "Al-Valiy", "Do'st va madadkor"], [56, "Al-Hamid", "Maqtovga loyiq"], [57, "Al-Muhsi", "Hammasini hisobga olgan"],
-            [58, "Al-Mubdi'", "Boshlab beruvchi"], [59, "Al-Muid", "Qaytaruvchi"], [60, "Al-Muhyi", "Hayot beruvchi"],
-            [61, "Al-Mumit", "O'ldiruvchi"], [62, "Al-Hayy", "Abadiy tirik"], [63, "Al-Qayyum", "O'z-o'zidan turuvchi, boshqaruvchi"],
-            [64, "Al-Vajid", "Istagini topuvchi"], [65, "Al-Majid", "Izatli va sharafli"], [66, "Al-Vohid", "Yagona"],
-            [67, "Al-Ahad", "Yagona (sheriksiz)"], [68, "As-Somad", "Muhtoj bo'linmaydigan"], [69, "Al-Qodir", "Cheksiz qudratli"],
-            [70, "Al-Muqtadir", "Hamma narsaga qodir"], [71, "Al-Muqaddim", "Oldinga suruvchi"], [72, "Al-Muaxxir", "Ortga suruvchi"],
-            [73, "Al-Avval", "Hammasidan oldin bor"], [74, "Al-Oxir", "Hammasidan keyin qoluvchi"], [75, "Az-Zohir", "Borligi ochiq"],
-            [76, "Al-Botin", "Maxfiy (ko'zga ko'rinmas)"], [77, "Al-Valiy", "Ishlarni boshqaruvchi"], [78, "Al-Mutaoliy", "Nuksonlardan yuksak"],
-            [79, "Al-Barr", "Yaxshilik qiluvchi"], [80, "At-Tavvob", "Tavbalarni qabul qiluvchi"], [81, "Al-Muntaqim", "Intiqom oluvchi (adolat bilan)"],
-            [82, "Al-Afuvv", "Afv qiluvchi"], [83, "Ar-Ra'uf", "O'ta mehribon"], [84, "Malikul-Mulk", "Mulkning mutloq egasi"],
-            [85, "Zul-Jalali val-Ikrom", "Ulug'lik va karam egasi"], [86, "Al-Muqsit", "Adolat bilan hukm qiluvchi"], [87, "Al-Jomi'", "To'plovchi"],
-            [88, "Al-G'aniy", "Behojat, boy"], [89, "Al-Mug'niy", "Boyituvchi"], [90, "Al-Mone'", "Man qiluvchi"],
-            [91, "Az-Zorr", "Zarar beruvchi (istaganiga)"], [92, "An-Nofi'", "Manfaat beruvchi"], [93, "An-Nur", "Nur beruvchi, o'zi nur"],
-            [94, "Al-Hadiy", "To'g'ri yo'lga boshlovchi"], [95, "Al-Badi'", "Mislsiz narsalarni yaratuvchi"], [96, "Al-Boqiy", "Abadiy qoluvchi"],
-            [97, "Al-Voris", "Mulklar egasi bo'lib qoluvchi"], [98, "Ar-Rashid", "To'g'ri yo'l ko'rsatuvchi"], [99, "As-Sabur", "O'ta sabrli"]
-        ];
-
-        const duolarData = [
-            { t: "Qur'on o'qib bo'lgach (Xatm duosi)", a: "صَدَقَ اللهُ الْعَظِيمُ وَصَدَقَ رَسُولُهُ النَّبِيُّ الْكَرِيمُ. اَللَّهُمَّ ارْحَمْنِي بِالْقُرْآنِ وَاجْعَلْهُ لِي إِمَامًا وَنُورًا وَهُدًى وَرَحْمَةً.", o: "Sadaqallohul 'aziym va sadaqo rosuluhun-nabiyyul kariym. Allohummarhamniy bil Qur'an vaj'alhu liy imaman va nuran va hudan va rohma.", m: "Ulug' Alloh rost so'zladi va Uning karamli Payg'ambari rost so'zladi. Allohim, meni Qur'on bilan rahmat qil, uni men uchun imom, nur, hidoyat va rahmat qilgin.", cat: "Xatm" },
-            { t: "Dunyo va oxirat yaxshiligi", a: "رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَة حَسَنَةً وَقِنَا عَذَابَ النَّارِ.", o: "Robbana atina fid-dunya hasanatan va fil-axirati hasanatan va qina azaban-nar.", m: "Parvardigoro, bizga bu dunyoda ham yaxshilik bergin, oxiratda ham yaxshilik bergin va bizni do‘zax azobidan saqlagin.", cat: "Qur'oniy" },
-            { t: "Ota-ona uchun duo", a: "رَّبِّ ارْحَمْهُمَا كَمَا رَبَّيَانِي صَغِيرًا.", o: "Robbirhamhuma kama robbayaniy sog'iyro.", m: "Parvardigoro, ular (ota-onam) meni kichiklikda tarbiya qilganlaridek, Sen ham ularga rahm qilgin.", cat: "Qur'oniy" },
-            { t: "Iymon sobitligi duosi", a: "رَبَّنَا لَا تُزِغْ قُلُوبَنَا بَعْدَ إِذْ هَدَيْتَنَا وَهَبْ لَنَا مِن لَّدُنكَ رَحْمَةً.", o: "Robbana la tuzig' qulubana ba'da iz hadaytana va hab lana mil-ladunka rohma.", m: "Parvardigoro, bizni hidoyat qilganingdan keyin qalblarimizni og'dirib qo'yma va bizga O'z huzuringdan rahmat hadya et.", cat: "Qur'oniy" }
-        ];
-
-        const renderPoralalar = () => {
-            const body = document.getElementById('poraBody');
-            body.innerHTML = '';
-            poralarData.forEach(r => {
-                const isS = r[5] !== "";
-                body.innerHTML += `
-                    <tr class="border-b border-emerald-50 hover:bg-emerald-50 transition ${isS ? 'bg-amber-50' : ''}">
-                        <td class="p-4 text-center font-bold text-emerald-900">${r[0]}</td>
-                        <td class="p-4 font-semibold">${r[1]}</td>
-                        <td class="p-4 text-center text-gray-500">${r[2]}</td>
-                        <td class="p-4 text-center font-bold text-emerald-700">${r[3]}</td>
-                        <td class="p-4 text-gray-600">${r[4]}</td>
-                        <td class="p-4 text-center">${isS ? `<span class="bg-amber-200 text-amber-900 px-3 py-1 rounded-lg text-sm font-bold shadow-sm">${r[5]}</span>` : ''}</td>
-                    </tr>
-                `;
-            });
-        };
-
-        const renderSuralar = () => {
-            const body = document.getElementById('suraBody');
-            body.innerHTML = '';
-            suralarData.forEach(r => {
-                const isS = r[5] !== "";
-                body.innerHTML += `
-                    <tr class="border-b border-emerald-50 hover:bg-emerald-50 transition ${isS ? 'bg-amber-50 font-semibold' : ''}">
-                        <td class="p-4 text-center text-emerald-900 font-bold">${r[0]}</td>
-                        <td class="p-4 font-bold text-emerald-950">${r[1]}</td>
-                        <td class="p-4 text-gray-700 italic">${r[2]}</td>
-                        <td class="p-4 text-center text-gray-600 font-bold">${r[3]}</td>
-                        <td class="p-4 text-center">
-                            <span class="px-3 py-1 rounded-full text-xs font-bold ${r[4] === 'Makkiy' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'}">${r[4]}</span>
-                        </td>
-                        <td class="p-4 text-center">${isS ? `<span class="bg-amber-200 text-amber-900 px-3 py-1 rounded-lg text-sm font-bold shadow-sm">${r[5]}</span>` : ''}</td>
-                    </tr>
-                `;
-            });
-        };
-
-        const renderIsmlar = () => {
-            const body = document.getElementById('ismBody');
-            body.innerHTML = '';
-            ismlarData.forEach(r => {
-                body.innerHTML += `
-                    <tr class="border-b border-emerald-50 hover:bg-emerald-50 transition">
-                        <td class="p-4 text-center text-emerald-900 font-bold">${r[0]}</td>
-                        <td class="p-4 font-bold text-emerald-950">${r[1]}</td>
-                        <td class="p-4 text-gray-700">${r[2]}</td>
-                    </tr>
-                `;
-            });
-        };
-
-        const renderDuolar = () => {
-            const duoDiv = document.getElementById('duoList');
-            duoDiv.innerHTML = '';
-            duolarData.forEach(duo => {
-                duoDiv.innerHTML += `
-                    <div class="bg-white p-6 rounded-3xl border border-emerald-100 shadow-md">
-                        <div class="flex justify-between items-center mb-4">
-                            <span class="bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full text-sm font-bold">${duo.t}</span>
-                            <span class="text-emerald-600 font-bold italic text-sm">${duo.cat}</span>
-                        </div>
-                        <div class="quran-title text-4xl text-emerald-800 mb-4 text-right arabic-text" dir="rtl">${duo.a}</div>
-                        <div class="bg-emerald-50 p-4 rounded-2xl mb-4">
-                            <div class="text-emerald-900 font-bold text-sm uppercase mb-1 tracking-wider">O'qilishi:</div>
-                            <div class="text-emerald-800 text-xl italic">${duo.o}</div>
-                        </div>
-                        <div class="text-gray-700 text-xl font-medium leading-relaxed">
-                            <span class="text-emerald-700 font-bold">Ma'nosi:</span> ${duo.m}
-                        </div>
-                    </div>
-                `;
-            });
-        };
-
         window.onload = () => {
-            renderPoralalar();
-            renderSuralar();
-            renderIsmlar();
-            renderDuolar();
+            const pBody = document.getElementById('poraBody');
+            const poralarData = [
+                [1, "Fotiha, 1", 1, "Baqara, 141", 21], [2, "Baqara, 142", 22, "Baqara, 252", 41], [3, "Baqara, 253", 42, "Oli Imron, 92", 61],
+                [4, "Oli Imron", 93, 62, "Niso, 23", 81], [5, "Niso", 24, 82, "Niso, 147", 101], [6, "Niso", 148, 102, "Moida, 81", 121],
+                [7, "Moida", 82, 122, "An'om, 110", 141], [8, "An'om", 111, 142, "A'rof, 87", 161], [9, "A'rof", 88, 162, "Anfol, 40", 181],
+                [10, "Anfol", 41, 182, "Tavba, 92", 201], [11, "Tavba", 93, 202, "Hud, 5", 221], [12, "Hud", 6, 222, "Yusuf, 52", 241],
+                [13, "Yusuf", 53, 242, "Ibrohim, 52", 261], [14, "Hijr", 1, 262, "Nahl, 128", 281], [15, "Isro", 1, 282, "Kahf, 74", 301],
+                [16, "Kahf", 75, 302, "Toho, 135", 321], [17, "Anbiyo", 1, 322, "Haj, 78", 341], [18, "Mo'minun", 1, 342, "Furqon, 20", 361],
+                [19, "Furqon", 21, 362, "Naml, 55", 381], [20, "Naml", 56, 382, "Ankabut, 45", 401], [21, "Ankabut", 46, 402, "Ahzob, 30", 421],
+                [22, "Ahzob", 31, 422, "Yosin, 27", 441], [23, "Yosin", 28, 442, "Zumar, 31", 461], [24, "Zumar", 32, 462, "Fussilat, 46", 481],
+                [25, "Fussilat", 47, 482, "Josiya, 37", 501], [26, "Ahqof", 1, 502, "Zariyot, 30", 521], [27, "Zariyot", 31, 522, "Hadid, 29", 541],
+                [28, "Mujodala", 1, 542, "Tahrim, 12", 561], [29, "Mulk", 1, 562, "Mursalat, 50", 581], [30, "Naba", 1, 582, "Nos, 6", 604]
+            ];
+            poralarData.forEach(r => pBody.innerHTML += `<tr class="border-b border-emerald-50"><td class="p-4 text-center font-bold text-emerald-900">${r[0]}</td><td class="p-4 font-semibold text-xl">${r[1]}</td><td class="p-4 text-center text-gray-500 font-bold">${r[2]}</td><td class="p-4 text-xl">${r[3]}</td><td class="p-4 text-center text-emerald-700 font-bold">${r[4]}</td></tr>`);
+
+            const sBody = document.getElementById('suraBody');
+            suralarFull.forEach(r => sBody.innerHTML += `<tr onclick="openSurah(${r[0]}, '${r[1]}')" class="border-b border-emerald-50 hover:bg-emerald-50 cursor-pointer active:bg-emerald-100 transition"><td class="p-4 text-center font-bold text-emerald-900">${r[0]}</td><td class="p-4 font-bold text-emerald-950 text-xl">${r[1]}</td><td class="p-4 text-gray-600 italic text-lg">${r[2]}</td><td class="p-4 text-center font-bold text-lg">${r[3]}</td><td class="p-4 text-center text-xs uppercase font-bold"><span class="bg-emerald-50 px-2 py-1 rounded border">${r[4]}</span></td><td class="p-4 text-center text-amber-600 font-bold">${r[5] || '—'}</td></tr>`);
+
+            const ismlarFull = [
+                [1, "Ar-Rahmon", "O'ta mehribon"], [2, "Ar-Rahim", "O'ta rahmli"], [3, "Al-Malik", "Ehniy podshoh"], [4, "Al-Quddus", "Aybu nuqsondan xoli"], [5, "As-Salom", "Tinchlik-omonlik beruvchi"],
+                [6, "Al-Mo'min", "Omonlik va iymon beruvchi"], [7, "Al-Muhaymin", "Hamma narsani kuzatib turuvchi"], [8, "Al-Aziz", "Barchadan g'olib"], [9, "Al-Jabbor", "Irodasi cheksiz"], [10, "Al-Mutakabbir", "Kattalik yarashuvchi zot"],
+                [11, "Al-Xoliq", "Yaratuvchi"], [12, "Al-Bori'", "Yo'qdan bor qiluvchi"], [13, "Al-Musavvir", "Surat beruvchi"], [14, "Al-G'affor", "Ko'plab gunohlarni kechiruvchi"], [15, "Al-Qahhor", "Hamma narsani bo'ysundiruvchi"],
+                [16, "Al-Vahhob", "Ne'matlarni hadya etuvchi"], [17, "Ar-Razzoq", "Rizq beruvchi"], [18, "Al-Fattoh", "Hukm qiluvchi, yo'l ochuvchi"], [19, "Al-Alim", "Hamma narsani biluvchi"], [20, "Al-Qobiz", "Rizqni qisuvchi, jon oluvchi"],
+                [21, "Al-Basit", "Rizqni kengaytiruvchi"], [22, "Al-Xofiz", "Pasaytiruvchi"], [23, "Ar-Rofi'", "Ko'taruvchi"], [24, "Al-Mu'izz", "Aziz qiluvchi"], [25, "Al-Muzill", "Xor qiluvchi"],
+                [26, "As-Sami'", "Har bir narsani eshituvchi"], [27, "Al-Basir", "Har bir narsani ko'ruvchi"], [28, "Al-Hakam", "Mutloq hukm qiluvchi"], [29, "Al-Adl", "O'ta adolatli"], [30, "Al-Latif", "Lutf qiluvchi, daqiq narsalarni biluvchi"],
+                [31, "Al-Xabir", "Hammasidan xabardor"], [32, "Al-Halim", "Jazoga shoshilmaydigan"], [33, "Al-Azim", "Ulug' va buyuk"], [34, "Al-G'afur", "Kechirimli"], [35, "Ash-Shakur", "Oz amalga ko'p mukofot beruvchi"],
+                [36, "Al-Aliy", "Yuksak martabali"], [37, "Al-Kabir", "O'ta buyuk"], [38, "Al-Hafiz", "Saqlovchi va muhofaza qiluvchi"], [39, "Al-Muqit", "Ozuqa beruvchi, qudratli"], [40, "Al-Hasib", "Kifoya qiluvchi, hisobga oluvchi"],
+                [41, "Al-Jalil", "Sifatlari ulug'"], [42, "Al-Karim", "Saxovatli va karamli"], [43, "Ar-Raqib", "Kuzatib turuvchi"], [44, "Al-Mujib", "Duolarni ijobat qiluvchi"], [45, "Al-Vosi'", "Keng qamrovli"],
+                [46, "Al-Hakim", "Hikmat bilan ish ko'ruvchi"], [47, "Al-Vadud", "Sevib-seviluvchi"], [48, "Al-Majid", "Shon-sharafli"], [49, "Al-Bo'is", "Qaytadan tiriltiruvchi"], [50, "Ash-Shahid", "Har bir narsaga guvoh"],
+                [51, "Al-Haqq", "Haqiqiy bor zot"], [52, "Al-Vakil", "Ishlarni topshiriladigan zot"], [53, "Al-Qoviy", "Haqiqiy quvvatli"], [54, "Al-Matin", "O'ta mustahkam"], [55, "Al-Valiy", "Do'st va madadkor"],
+                [56, "Al-Hamid", "Maqtovga loyiq"], [57, "Al-Muhsi", "Hammasini hisobga olgan"], [58, "Al-Mubdi'", "Boshlab beruvchi"], [59, "Al-Muid", "Qaytaruvchi"], [60, "Al-Muhyi", "Hayot beruvchi"],
+                [61, "Al-Mumit", "O'ldiruvchi"], [62, "Al-Hayy", "Abadiy tirik"], [63, "Al-Qayyum", "O'z-o'zidan turuvchi, boshqaruvchi"], [64, "Al-Vajid", "Istagini topuvchi"], [65, "Al-Majid", "Izatli va sharafli"],
+                [66, "Al-Vohid", "Yagona"], [67, "Al-Ahad", "Yagona (sheriksiz)"], [68, "As-Somad", "Muhtoj bo'linmaydigan"], [69, "Al-Qodir", "Cheksiz qudratli"], [70, "Al-Muqtadir", "Hamma narsaga qodir"],
+                [71, "Al-Muqaddim", "Oldinga suruvchi"], [72, "Al-Muaxxir", "Ortga suruvchi"], [73, "Al-Avval", "Hammasidan oldin bor"], [74, "Al-Oxir", "Hammasidan keyin qoluvchi"], [75, "Az-Zohir", "Borligi ochiq"],
+                [76, "Al-Botin", "Maxfiy (ko'zga ko'rinmas)"], [77, "Al-Valiy", "Ishlarni boshqaruvchi"], [78, "Al-Mutaoliy", "Nuksonlardan yuksak"], [79, "Al-Barr", "Yaxshilik qiluvchi"], [80, "At-Tavvob", "Tavbalarni qabul qiluvchi"],
+                [81, "Al-Muntaqim", "Intiqom oluvchi (adolat bilan)"], [82, "Al-Afuvv", "Afv qiluvchi"], [83, "Ar-Ra'uf", "O'ta mehribon"], [84, "Malikul-Mulk", "Mulkning mutloq egasi"], [85, "Zul-Jalali val-Ikrom", "Ulug'lik va karam egasi"],
+                [86, "Al-Muqsit", "Adolat bilan hukm qiluvchi"], [87, "Al-Jomi'", "To'plovchi"], [88, "Al-G'aniy", "Behojat, boy"], [89, "Al-Mug'niy", "Boyituvchi"], [90, "Al-Mone'", "Man qiluvchi"],
+                [91, "Az-Zorr", "Zarar beruvchi (istaganiga)"], [92, "An-Nofi'", "Manfaat beruvchi"], [93, "An-Nur", "Nur beruvchi, o'zi nur"], [94, "Al-Hadiy", "To'g'ri yo'lga boshlovchi"], [95, "Al-Badi'", "Mislsiz narsalarni yaratuvchi"],
+                [96, "Al-Boqiy", "Abadiy qoluvchi"], [97, "Al-Voris", "Mulklar egasi bo'lib qoluvchi"], [98, "Ar-Rashid", "To'g'ri yo'l ko'rsatuvchi"], [99, "As-Sabur", "O'ta sabrli"]
+            ];
+            ismlarFull.forEach(r => document.getElementById('ismBody').innerHTML += `<tr class="border-b border-emerald-50"><td class="p-4 text-center font-bold text-emerald-900">${r[0]}</td><td class="p-4 font-bold text-emerald-950 text-xl">${r[1]}</td><td class="p-4 text-gray-700 text-lg">${r[2]}</td></tr>`);
+
+            const duolarData = [
+                { t: "Qur'on o'qib bo'lgach (Xatm duosi)", a: "صَدَقَ اللهُ الْعَظِيمُ وَصَدَقَ رَسُولُهُ النَّبِيُّ الْكَرِيمُ. اَللَّهُمَّ ارْحَمْنِي بِالْقُرْآنِ وَاجْعَلْهُ لِي إِمَامًا وَنُورًا وَهُDЫ وَرَحْمَةً.", o: "Sadaqallohul 'aziym va sadaqo rosuluhun-nabiyyul kariym. Allohummarhamniy bil Qur'an vaj'alhu liy imaman va nuran va hudan va rohma.", m: "Ulug' Alloh rost so'zladi va Uning karamli Payg'ambari rost so'zladi. Allohim, meni Qur'on bilan rahmat qil, uni men uchun imom, nur, hidoyat va rahmat qilgin." },
+                { t: "Dunyo va oxirat yaxshiligi", a: "رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَة حَسَنَةً وَقِنَا عَذَابَ النَّارِ.", o: "Robbana atina fid-dunya hasanatan va fil-axirati hasanatan va qina azaban-nar.", m: "Parvardigoro, bizga bu dunyoda ham yaxshilik bergin, oxiratda ham yaxshilik bergin va bizni do‘zax azobidan saqlagin." }
+            ];
+            duolarData.forEach(d => document.getElementById('duoList').innerHTML += `<div class="bg-white p-6 rounded-3xl border border-emerald-50 shadow-md"><span class="bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full text-sm font-bold">${d.t}</span><div class="quran-title text-5xl text-right text-emerald-900 my-6" dir="rtl">${d.a}</div><div class="bg-emerald-50 p-4 rounded-xl mb-3"><p class="text-emerald-800 italic text-lg font-medium">${d.o}</p></div><p class="text-xl text-gray-700 font-medium leading-relaxed">${d.m}</p></div>`);
         };
+
+        let tCount = 0;
+        function count() { tCount++; document.getElementById('counter').innerText = tCount; if(window.navigator.vibrate) window.navigator.vibrate(40); }
+        function resetCounter() { tCount = 0; document.getElementById('counter').innerText = 0; }
     </script>
 </body>
 </html>
