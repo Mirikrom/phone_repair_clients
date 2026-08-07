@@ -298,6 +298,26 @@ body{ background: var(--bg); }
   color: rgba(255,255,255,.85);
 }
 
+.phone-tel-link{
+  color: inherit;
+  text-decoration: none;
+  font-weight: 800;
+  border-bottom: 1px dashed rgba(63,102,255,.45);
+}
+.phone-tel-link:hover,
+.phone-tel-link:active{
+  color: #2563eb;
+  border-bottom-color: #2563eb;
+}
+.pill-row:hover .phone-tel-link{
+  color: #fff;
+  border-bottom-color: rgba(255,255,255,.7);
+}
+.order-card:hover .phone-tel-link{
+  color: #fff;
+  border-bottom-color: rgba(255,255,255,.7);
+}
+
 </style>
 {% endblock %}
 
@@ -370,7 +390,13 @@ body{ background: var(--bg); }
                 {% endif %}
               </td>
 
-              <td>{{ order.client_phone|phone_without_prefix }}</td>
+              <td class="no-row-click" onclick="event.stopPropagation();">
+                {% if order.client_phone %}
+                <a href="{{ order.client_phone|phone_tel_href }}" class="phone-tel-link">{{ order.client_phone|phone_without_prefix }}</a>
+                {% else %}
+                <span class="empty-pill">—</span>
+                {% endif %}
+              </td>
 
               <td>
                 {% if order.required_parts %}{{ order.required_parts }}{% else %}<span class="empty-pill">—</span>{% endif %}
@@ -428,8 +454,10 @@ body{ background: var(--bg); }
             <div class="card-time">{{ order.created_at|date:"H:i" }}</div>
           </div>
 
-          <div class="card-phone muted">
-            {{ order.client_phone|phone_without_prefix }}
+          <div class="card-phone muted no-row-click" onclick="event.stopPropagation();">
+            {% if order.client_phone %}
+            <a href="{{ order.client_phone|phone_tel_href }}" class="phone-tel-link">{{ order.client_phone|phone_without_prefix }}</a>
+            {% else %}—{% endif %}
             {% if order.client_name %} · {{ order.client_name }}{% endif %}
           </div>
 
