@@ -44,8 +44,18 @@ class RepairOrderForm(forms.ModelForm):
             'client_phone': forms.TextInput(attrs={'class': 'form-control'}),
             'required_parts': forms.TextInput(attrs={'class': 'form-control', 'autocomplete': 'off'}),
             'zapchast_olib_kelish_kerak': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'repair_cost': forms.NumberInput(attrs={'class': 'form-control'}),
-            'deposit_amount': forms.NumberInput(attrs={'class': 'form-control'}),
+            'repair_cost': forms.TextInput(attrs={
+                'class': 'form-control',
+                'inputmode': 'decimal',
+                'autocomplete': 'off',
+                'placeholder': '0',
+            }),
+            'deposit_amount': forms.TextInput(attrs={
+                'class': 'form-control',
+                'inputmode': 'decimal',
+                'autocomplete': 'off',
+                'placeholder': '0',
+            }),
             'screen_type': forms.RadioSelect(attrs={
                 'class': 'form-check-input'
             }),
@@ -60,17 +70,17 @@ class RepairOrderForm(forms.ModelForm):
             'remind_at': forms.DateTimeInput(attrs={'type': 'datetime-local', 'class': 'form-control'}),
         }
         labels = {
-            'phone_model': 'Telefon modeli *',
+            'phone_model': 'TELEFON MODELI',
             'client_name': 'Mijoz ismi',
-            'client_phone': 'Klent telefon raqami',
-            'required_parts': 'Qo\'yilish kerak bo\'lgan zapchast',
-            'zapchast_olib_kelish_kerak': 'Zapchast olib kelish kerak',
-            'repair_cost': 'Tuzalish narxi (so\'m)',
-            'deposit_amount': 'Zaklad summasi (so\'m)',
+            'client_phone': 'Nomer',
+            'required_parts': 'TELEFON MUAMMOSI',
+            'zapchast_olib_kelish_kerak': 'ZAPCHAST OLIB KELISH KERAK',
+            'repair_cost': 'TUZALISH NARXI (SO\'M)',
+            'deposit_amount': 'Zaklad (so\'m)',
             'screen_type': 'Ekran turi',
             'laminat': 'Laminat',
             'ready_deadline': 'Tayyor bo\'lish muddati',
             'ready_deadline_uncertain': 'Hali tuzattirishi aniq emas',
-            'notes': 'Qo\'shimcha eslatmalar',
+            'notes': 'Qo\'shimcha eslatma',
             'remind_at': 'Eslatish (sana/vaqt)',
         }
