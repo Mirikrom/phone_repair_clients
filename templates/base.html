@@ -301,6 +301,17 @@
   line-height: 1;
 }
 
+/* Raqam maydonlari: spinner yo‘q, scroll bilan o‘zgarmaydi */
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type=number] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
 
     </style>
     {% block extra_css %}{% endblock %}
@@ -647,6 +658,17 @@
     });
     </script>
     {% endif %}
+    <script>
+    (function() {
+        document.addEventListener('wheel', function(e) {
+            var el = document.activeElement;
+            if (!el || el.tagName !== 'INPUT') return;
+            if (el.type === 'number' || el.getAttribute('inputmode') === 'decimal' || el.getAttribute('inputmode') === 'numeric') {
+                e.preventDefault();
+            }
+        }, { passive: false });
+    })();
+    </script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>
