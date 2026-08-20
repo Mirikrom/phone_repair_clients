@@ -14,6 +14,23 @@ from .forms import RepairOrderForm
 PER_PAGE = 100
 
 
+def _order_text_search(q):
+    """Model/nomer qidiruvi.
+    Harf bo'lsa (masalan A32) — faqat model.
+    Faqat raqam/bo'shliq bo'lsa — model + telefon nomer.
+    """
+    q = (q or '').strip()
+    if not q:
+        return Q()
+    if any(ch.isalpha() for ch in q):
+        return Q(phone_model__icontains=q)
+    digits = ''.join(ch for ch in q if ch.isdigit())
+    cond = Q(phone_model__icontains=q)
+    if digits:
+        cond |= Q(client_phone__icontains=digits)
+    return cond
+
+
 def _parse_required_parts(required_parts_str):
     """Parse 'ekran x 2, batareya' -> [(name, qty), ...]"""
     result = []
@@ -205,22 +222,37 @@ def reminders_ack(request):
 def order_list(request):
     """Ta'mirlanayotgan buyurtmalar ro'yxati"""
     q = (request.GET.get('q') or '').strip()
-    in_progress_orders = RepairOrder.objects.filter(shop=request.shop, status='in_progress')
-    if q:
-        digits = ''.join(ch for ch in q if ch.isdigit())
-        cond = Q(phone_model__icontains=q)
-        if digits:
-            cond |= Q(client_phone__icontains=digits)
-        in_progress_orders = in_progress_orders.filter(cond)
-    in_progress_orders = in_progress_orders.order_by('-created_at')
-    paginator = Paginator(in_progress_orders, PER_PAGE)
-    page_number = request.GET.get('page', 1)
-    page_obj = paginator.get_page(page_number)
+    tab = request.GET.get('tab', 'bugungi')
+    if tab not in ('bugungi', 'barchasi'):
+        tab = 'bugungi'
+
     today = timezone.now().date()
     yesterday = today - timedelta(days=1)
+
+    in_progress_orders = RepairOrder.objects.filter(shop=request.shop, status='in_progress')
+    # Bugungi: faqat bugun; qidiruv bo'lsa — barcha buyurtmalar ichidan
+    if tab == 'bugungi' and not q:
+        in_progress_orders = in_progress_orders.filter(created_at__date=today)
+    if q:
+        in_progress_orders = in_progress_orders.filter(_order_text_search(q))
+    in_progress_orders = in_progress_orders.order_by('-created_at')
+
+    # Kun bo'yicha guruhlash: Barchasi yoki qidiruv natijasi
+    group_by_day = tab == 'barchasi' or bool(q)
+
+    page_obj = None
+    if tab == 'barchasi' or q:
+        paginator = Paginator(in_progress_orders, PER_PAGE)
+        page_obj = paginator.get_page(request.GET.get('page', 1))
+        orders = page_obj.object_list
+    else:
+        orders = in_progress_orders
+
     return render(request, 'repairs/order_list.html', {
-        'orders': page_obj.object_list,
+        'orders': orders,
         'page_obj': page_obj,
+        'tab': tab,
+        'group_by_day': group_by_day,
         'today': today,
         'yesterday': yesterday,
         'q': q,
@@ -232,11 +264,7 @@ def ready_phones_list(request):
     q = (request.GET.get('q') or '').strip()
     ready_orders = RepairOrder.objects.filter(shop=request.shop, status='ready')
     if q:
-        digits = ''.join(ch for ch in q if ch.isdigit())
-        cond = Q(phone_model__icontains=q)
-        if digits:
-            cond |= Q(client_phone__icontains=digits)
-        ready_orders = ready_orders.filter(cond)
+        ready_orders = ready_orders.filter(_order_text_search(q))
     ready_orders = ready_orders.order_by('-ready_at', '-id')
     paginator = Paginator(ready_orders, PER_PAGE)
     page_obj = paginator.get_page(request.GET.get('page', 1))
@@ -252,11 +280,7 @@ def debtors_list(request):
     q = (request.GET.get('q') or '').strip()
     debtors = RepairOrder.objects.filter(shop=request.shop, status='completed', has_debt=True)
     if q:
-        digits = ''.join(ch for ch in q if ch.isdigit())
-        cond = Q(phone_model__icontains=q)
-        if digits:
-            cond |= Q(client_phone__icontains=digits)
-        debtors = debtors.filter(cond)
+        debtors = debtors.filter(_order_text_search(q))
     debtors = debtors.order_by('-created_at')
     paginator = Paginator(debtors, PER_PAGE)
     page_obj = paginator.get_page(request.GET.get('page', 1))
@@ -301,11 +325,7 @@ def order_history(request):
     else:
         completed_orders = RepairOrder.objects.filter(shop=request.shop, status='completed')
         if q:
-            digits = ''.join(ch for ch in q if ch.isdigit())
-            cond = Q(phone_model__icontains=q)
-            if digits:
-                cond |= Q(client_phone__icontains=digits)
-            completed_orders = completed_orders.filter(cond)
+            completed_orders = completed_orders.filter(_order_text_search(q))
         completed_orders = completed_orders.order_by('-completed_at', '-created_at')
         paginator = Paginator(completed_orders, PER_PAGE)
         page_obj = paginator.get_page(request.GET.get('page', 1))

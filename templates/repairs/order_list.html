@@ -32,17 +32,106 @@ body{ background: var(--bg); }
   box-shadow: 0 14px 40px rgba(2,6,23,.08);
 }
 
-/* Search bar */
-.search-bar .input-group{
-  border-radius: 14px;
-  overflow:hidden;
-  background:#fff;
-  box-shadow: 0 10px 24px rgba(2,6,23,.08);
-  border: 1px solid rgba(148,163,184,.25);
+/* Search + tabs toolbar */
+.orders-toolbar{
+  background: #fff;
+  border-radius: 18px;
+  padding: 14px 16px 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 10px 28px rgba(2,6,23,.06);
+  border: 1px solid rgba(148,163,184,.18);
 }
-.search-bar .input-group-text{ background:transparent; border:0; color:var(--muted); }
-.search-bar .form-control{ border:0; background:transparent; }
-.search-bar .form-control:focus{ box-shadow:none; }
+.orders-tabs{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.orders-tab{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: .92rem;
+  text-decoration: none !important;
+  transition: all .18s ease;
+  border: 2px solid rgba(148,163,184,.28);
+  background: #f8fafc;
+  color: #475569;
+}
+.orders-tab:hover{
+  background: #eef2ff;
+  border-color: #94a3b8;
+  color: #1e293b;
+}
+.orders-tab.active{
+  background: var(--rowHover);
+  border-color: var(--rowHover);
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(63,102,255,.25);
+}
+.orders-search .orders-search-inner{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 16px;
+  min-height: 48px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+  border: 1px solid rgba(148,163,184,.28);
+  transition: border-color .2s, box-shadow .2s, background .2s;
+}
+.orders-search .orders-search-inner:focus-within{
+  background: #fff;
+  border-color: var(--rowHover);
+  box-shadow: 0 0 0 4px rgba(63,102,255,.12);
+}
+.orders-search .orders-search-inner > i{
+  color: #94a3b8;
+  font-size: 1.05rem;
+  flex-shrink: 0;
+}
+.orders-search .orders-search-inner:focus-within > i{
+  color: var(--rowHover);
+}
+.orders-search-input{
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  padding: 12px 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text);
+  outline: none;
+}
+.orders-search-input::placeholder{
+  color: #94a3b8;
+  font-weight: 500;
+}
+.orders-search-clear{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  background: rgba(148,163,184,.18);
+  color: #64748b;
+  text-decoration: none;
+  flex-shrink: 0;
+  transition: background .15s, color .15s;
+}
+.orders-search-clear:hover{
+  background: rgba(239,68,68,.12);
+  color: #dc2626;
+}
+@media (max-width: 575.98px){
+  .orders-tab{ flex: 1 1 auto; justify-content: center; padding: 10px 14px; }
+  .orders-toolbar{ padding: 12px 14px 14px; }
+}
 
 /* =========================
    DESKTOP TABLE (>= 992px)
@@ -327,24 +416,41 @@ body{ background: var(--bg); }
     <h2 class="mb-1 fw-bold" style="color:#1e293b;">
       <i class="bi bi-clipboard2-pulse text-primary me-2"></i>Buyurtmalar ro'yxati
     </h2>
-    <p class="text-muted mb-0 small">Barcha ta'mirlash buyurtmalari</p>
+    <p class="text-muted mb-0 small">
+      {% if tab == 'barchasi' %}Barcha ta'mirlash buyurtmalari{% else %}Bugungi ta'mirlash buyurtmalari{% endif %}
+    </p>
   </div>
   <a href="{% url 'repairs:order_create' %}" class="btn btn-primary px-4 py-2 shadow-sm" style="border-radius:14px;">
     <i class="bi bi-plus-lg me-2"></i> Yangi buyurtma
   </a>
 </div>
 
-<form method="get" class="mb-3 search-bar js-live-search">
-  <div class="input-group">
-    <span class="input-group-text"><i class="bi bi-search"></i></span>
-    <input type="text" name="q" value="{{ q|default:'' }}" class="form-control js-live-search-input"
-           placeholder="Model yoki nomer bo'yicha qidirish">
-    <button class="btn btn-outline-primary d-none d-md-inline-flex" type="submit">Qidirish</button>
-    {% if q %}
-      <a class="btn btn-outline-secondary" href="{% url 'repairs:order_list' %}">Tozalash</a>
-    {% endif %}
+<div class="orders-toolbar">
+  <div class="orders-tabs">
+    <a href="{% url 'repairs:order_list' %}?tab=bugungi"
+       class="orders-tab {% if tab == 'bugungi' %}active{% endif %}">
+      <i class="bi bi-calendar-day"></i> Bugungi
+    </a>
+    <a href="{% url 'repairs:order_list' %}?tab=barchasi"
+       class="orders-tab {% if tab == 'barchasi' %}active{% endif %}">
+      <i class="bi bi-list-ul"></i> Barchasi
+    </a>
   </div>
-</form>
+
+  <form method="get" class="orders-search js-live-search">
+    <input type="hidden" name="tab" value="{{ tab }}">
+    <div class="orders-search-inner">
+      <i class="bi bi-search"></i>
+      <input type="text" name="q" value="{{ q|default:'' }}" class="orders-search-input js-live-search-input"
+             placeholder="Model yoki nomer bo'yicha qidirish" autocomplete="off">
+      {% if q %}
+      <a class="orders-search-clear" href="{% url 'repairs:order_list' %}?tab={{ tab }}" title="Tozalash">
+        <i class="bi bi-x-lg"></i>
+      </a>
+      {% endif %}
+    </div>
+  </form>
+</div>
 
 <div class="orders-shell">
   {% if orders %}
@@ -369,6 +475,7 @@ body{ background: var(--bg); }
         <tbody>
           {% for order in orders %}
 
+            {% if group_by_day %}
             {% ifchanged order.created_at.date %}
               <tr class="day-row">
                 <td colspan="10">
@@ -379,6 +486,7 @@ body{ background: var(--bg); }
                 </td>
               </tr>
             {% endifchanged %}
+            {% endif %}
 
             <tr class="pill-row" data-href="{% url 'repairs:order_detail' order.pk %}">
               <td class="muted">{{ forloop.counter }}</td>
@@ -440,12 +548,14 @@ body{ background: var(--bg); }
     <div class="mobile-cards">
       {% for order in orders %}
 
+        {% if group_by_day %}
         {% ifchanged order.created_at.date %}
           <div class="day-pill">
             <span class="dot"></span>
             <span>{{ order.created_at|date:"d.m.Y" }}</span>
           </div>
         {% endifchanged %}
+        {% endif %}
 
         <div class="order-card"
              data-href="{% url 'repairs:order_detail' order.pk %}">
@@ -502,7 +612,9 @@ body{ background: var(--bg); }
   {% else %}
     <div class="text-center py-5 px-4">
       <i class="bi bi-inbox display-4 text-muted opacity-50"></i>
-      <p class="text-muted mt-3 mb-4">Ta'mirlanayotgan buyurtmalar yo'q</p>
+      <p class="text-muted mt-3 mb-4">
+        {% if q %}Qidiruv bo'yicha buyurtma topilmadi{% elif tab == 'barchasi' %}Ta'mirlanayotgan buyurtmalar yo'q{% else %}Bugungi buyurtmalar yo'q{% endif %}
+      </p>
       <a href="{% url 'repairs:order_create' %}" class="btn btn-primary px-4 py-2 shadow-sm" style="border-radius:14px;">
         <i class="bi bi-plus-lg me-2"></i> Yangi buyurtma qo'shing
       </a>
