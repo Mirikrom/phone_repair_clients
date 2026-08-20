@@ -301,6 +301,78 @@
   line-height: 1;
 }
 
+/* Navbar: sana va vaqt — o'rtada */
+.navbar-layout{
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.navbar-datetime{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1px;
+  padding: 6px 16px;
+  min-height: 44px;
+  border-radius: 14px;
+  background: rgba(255,255,255,.12);
+  border: 1px solid rgba(255,255,255,.2);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
+}
+.navbar-datetime--center{
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  pointer-events: none;
+}
+.navbar-actions{
+  margin-left: auto;
+  position: relative;
+  z-index: 3;
+}
+.navbar-datetime-date{
+  font-size: .72rem;
+  font-weight: 700;
+  color: rgba(255,255,255,.88);
+  letter-spacing: .02em;
+  white-space: nowrap;
+  text-align: center;
+}
+.navbar-datetime-time{
+  font-size: 1.08rem;
+  font-weight: 900;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .06em;
+  line-height: 1.1;
+  white-space: nowrap;
+  text-align: center;
+}
+@media (max-width: 991.98px){
+  .navbar-datetime--center{
+    position: static;
+    transform: none;
+    order: 10;
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+    pointer-events: auto;
+  }
+  .navbar-actions{
+    margin-left: auto;
+  }
+}
+@media (max-width: 420px){
+  .navbar-datetime-date{ font-size: .68rem; }
+  .navbar-datetime-time{ font-size: .98rem; }
+}
+
 /* Raqam maydonlari: spinner yo‘q, scroll bilan o‘zgarmaydi */
 input[type=number]::-webkit-outer-spin-button,
 input[type=number]::-webkit-inner-spin-button {
@@ -318,12 +390,16 @@ input[type=number] {
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container">
+        <div class="container navbar-layout">
             <a class="navbar-brand fw-bold text-white text-decoration-none" href="{% url 'repairs:order_list' %}">
                 <i class="bi bi-phone-fill"></i> NFix
             </a>
             {% if user_has_shop %}
-            <div class="d-flex align-items-center gap-2 ms-3">
+            <div class="navbar-datetime navbar-datetime--center" id="navbarDatetime" aria-live="polite">
+                <span class="navbar-datetime-date" id="navbarDatetimeDate"></span>
+                <span class="navbar-datetime-time" id="navbarDatetimeTime"></span>
+            </div>
+            <div class="d-flex align-items-center gap-2 navbar-actions">
                 <button type="button" class="btn btn-vizitka-nav" data-bs-toggle="modal" data-bs-target="#vizitkaModal" title="Vizitkani chop etish">
                     <i class="bi bi-printer-fill"></i>
                 </button>
@@ -465,6 +541,29 @@ input[type=number] {
     {% endif %}
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    (function() {
+        var weekdays = ['Yakshanba', 'Dushanba', 'Seshanba', 'Chorshanba', 'Payshanba', 'Juma', 'Shanba'];
+        function pad(n) { return n < 10 ? '0' + n : String(n); }
+
+        var dateEl = document.getElementById('navbarDatetimeDate');
+        var timeEl = document.getElementById('navbarDatetimeTime');
+        if (dateEl && timeEl) {
+            function tickNavbarClock() {
+                var d = new Date();
+                dateEl.textContent = pad(d.getDate()) + '.' + pad(d.getMonth() + 1) + '.' + d.getFullYear() + ', ' + weekdays[d.getDay()];
+                timeEl.textContent = pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
+            }
+            tickNavbarClock();
+            setInterval(tickNavbarClock, 1000);
+        }
+
+        var ordersWeekdayEl = document.getElementById('ordersTodayWeekday');
+        if (ordersWeekdayEl) {
+            ordersWeekdayEl.textContent = weekdays[new Date().getDay()];
+        }
+    })();
+    </script>
     <script>
     // Live search (yozishi bilan qidirish) - GET formalarni debounce bilan submit qiladi
     document.addEventListener('DOMContentLoaded', function() {

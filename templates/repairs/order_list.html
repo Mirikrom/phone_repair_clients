@@ -72,6 +72,32 @@ body{ background: var(--bg); }
   color: #fff;
   box-shadow: 0 8px 20px rgba(63,102,255,.25);
 }
+.orders-today-banner{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: rgba(63,102,255,.08);
+  border: 1px solid rgba(63,102,255,.18);
+  font-weight: 800;
+  color: #1e3a8a;
+}
+.orders-today-banner .dot{
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: #3f66ff;
+  box-shadow: 0 8px 18px rgba(63,102,255,.25);
+  flex-shrink: 0;
+}
+.orders-today-banner .weekday{
+  margin-left: auto;
+  font-size: .85rem;
+  font-weight: 700;
+  color: #3f66ff;
+}
 .orders-search .orders-search-inner{
   display: flex;
   align-items: center;
@@ -429,7 +455,8 @@ body{ background: var(--bg); }
   <div class="orders-tabs">
     <a href="{% url 'repairs:order_list' %}?tab=bugungi"
        class="orders-tab {% if tab == 'bugungi' %}active{% endif %}">
-      <i class="bi bi-calendar-day"></i> Bugungi
+      <i class="bi bi-calendar-day"></i>
+      <span>Bugungi</span>
     </a>
     <a href="{% url 'repairs:order_list' %}?tab=barchasi"
        class="orders-tab {% if tab == 'barchasi' %}active{% endif %}">
@@ -453,6 +480,14 @@ body{ background: var(--bg); }
 </div>
 
 <div class="orders-shell">
+  {% if tab == 'bugungi' and not q %}
+  <div class="orders-today-banner">
+    <span class="dot"></span>
+    <span>{{ today|date:"d.m.Y" }}</span>
+    <span class="weekday" id="ordersTodayWeekday"></span>
+  </div>
+  {% endif %}
+
   {% if orders %}
 
     <div class="desktop-table">
