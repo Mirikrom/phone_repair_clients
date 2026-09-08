@@ -3,77 +3,53 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=40mm">
     <title>Etiketka — {{ order.phone_model }}</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         html, body {
-            background: #e5e7eb;
-            font-family: Arial, Helvetica, sans-serif;
+            width: 40mm;
+            height: 30mm;
+            margin: 0;
+            padding: 0;
+            background: #fff;
             color: #000;
+            font-family: Arial, Helvetica, sans-serif;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
         }
 
-        /* Ekranda ko‘rinish */
-        .preview-wrap {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 24px;
-        }
-
-        /* Aniq 40×30 mm */
         .label {
             width: 40mm;
             height: 30mm;
-            background: #fff;
+            padding: 1.2mm 1.5mm 3mm 1.5mm;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 8px 24px rgba(0,0,0,.18);
-        }
-
-        .label-inner {
-            width: 40mm;
-            height: 30mm;
-            padding: 1mm 1.4mm 3.2mm 1.4mm;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            gap: 0.15mm;
+            background: #fff;
         }
 
         .line {
-            font-size: 2.4mm;
+            font-size: 9px;
             font-weight: 900;
-            line-height: 1.08;
+            line-height: 1.12;
             text-transform: uppercase;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            max-width: 100%;
+            margin: 0;
         }
 
-        .line.model {
-            font-size: 2.8mm;
-            font-weight: 900;
-        }
-
-        .line.money {
-            font-size: 2.1mm;
-            letter-spacing: -0.03em;
-        }
+        .line.model { font-size: 11px; }
+        .line.money { font-size: 8px; letter-spacing: -0.02em; }
 
         .label-time {
             position: absolute;
-            right: 1.2mm;
+            right: 1.4mm;
             bottom: 0.8mm;
-            font-size: 2mm;
+            font-size: 8px;
             font-weight: 800;
             line-height: 1;
-            white-space: nowrap;
-            text-transform: none;
         }
 
         .no-print {
@@ -95,20 +71,6 @@
         .btn-print { background: #2563eb; color: #fff; }
         .btn-close { background: #e2e8f0; color: #0f172a; }
 
-        .hint {
-            position: fixed;
-            left: 12px;
-            bottom: 12px;
-            background: #fff;
-            border-radius: 10px;
-            padding: 10px 14px;
-            font-size: 13px;
-            color: #334155;
-            box-shadow: 0 6px 18px rgba(0,0,0,.12);
-            max-width: 320px;
-            line-height: 1.35;
-        }
-
         @page {
             size: 40mm 30mm;
             margin: 0;
@@ -116,31 +78,16 @@
 
         @media print {
             html, body {
-                width: 40mm !important;
-                height: 30mm !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                background: #fff !important;
-                overflow: hidden !important;
+                width: 40mm;
+                height: 30mm;
+                margin: 0;
+                padding: 0;
+                background: #fff;
             }
-            .no-print,
-            .hint,
-            .preview-wrap { display: none !important; }
-
+            .no-print { display: none !important; }
             .label {
-                position: fixed !important;
-                left: 0 !important;
-                top: 0 !important;
-                width: 40mm !important;
-                height: 30mm !important;
-                margin: 0 !important;
-                box-shadow: none !important;
-                page-break-after: avoid;
-                page-break-inside: avoid;
-            }
-            .label-inner {
-                width: 40mm !important;
-                height: 30mm !important;
+                width: 40mm;
+                height: 30mm;
             }
         }
     </style>
@@ -150,33 +97,25 @@
         <button class="btn-print" type="button" onclick="window.print()">Pechat</button>
         <button class="btn-close" type="button" onclick="window.close()">Yopish</button>
     </div>
-    <div class="hint no-print">
-        Printerda qog‘oz o‘lchami: <b>40 × 30 mm</b><br>
-        XP-T361U · margin: 0
-    </div>
 
-    <div class="preview-wrap">
-        <div class="label">
-            <div class="label-inner">
-                <div class="line model">{{ order.phone_model }}</div>
-                {% if order.required_parts %}
-                <div class="line">{{ order.required_parts }}</div>
-                {% endif %}
-                {% if order.client_phone %}
-                <div class="line">{{ order.client_phone|phone_digits }}</div>
-                {% endif %}
-                {% if order.client_name %}
-                <div class="line">{{ order.client_name }}</div>
-                {% endif %}
-                {% if order.repair_cost %}
-                <div class="line money">Narxi:{{ order.repair_cost|money_dot_uz }}</div>
-                {% endif %}
-                {% if order.deposit_amount %}
-                <div class="line money">Berildi:{{ order.deposit_amount|money_dot_uz }}</div>
-                {% endif %}
-            </div>
-            <div class="label-time">{{ order.created_at|date:"H:i" }}</div>
-        </div>
+    <div class="label">
+        <div class="line model">{{ order.phone_model }}</div>
+        {% if order.required_parts %}
+        <div class="line">{{ order.required_parts }}</div>
+        {% endif %}
+        {% if order.client_phone %}
+        <div class="line">{{ order.client_phone|phone_digits }}</div>
+        {% endif %}
+        {% if order.client_name %}
+        <div class="line">{{ order.client_name }}</div>
+        {% endif %}
+        {% if order.repair_cost %}
+        <div class="line money">Narxi:{{ order.repair_cost|money_dot_uz }}</div>
+        {% endif %}
+        {% if order.deposit_amount %}
+        <div class="line money">Berildi:{{ order.deposit_amount|money_dot_uz }}</div>
+        {% endif %}
+        <div class="label-time">{{ order.created_at|date:"H:i" }}</div>
     </div>
 
     <script>
