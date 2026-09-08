@@ -31,6 +31,7 @@ urlpatterns = [
     path('add/', views.order_create, name='order_create'),
     path('<int:pk>/', views.order_detail, name='order_detail'),
     path('<int:pk>/print/', views.order_print, name='order_print'),
+    path('<int:pk>/etiketka/', views.order_label_print, name='order_label_print'),
     path('<int:pk>/edit/', views.order_edit, name='order_edit'),
     path('<int:pk>/delete/', views.order_delete, name='order_delete'),
     path('<int:pk>/tugatish/', views.order_mark_ready, name='order_mark_ready'),

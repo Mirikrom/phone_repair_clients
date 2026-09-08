@@ -41,3 +41,28 @@ def intcomma_uz(value):
         return f'{num:,}'
     except (ValueError, TypeError):
         return str(value)
+
+
+@register.filter
+def money_dot_uz(value):
+    """Raqamni nuqta bilan: 250000 -> 250.000 (etiketka uchun)"""
+    if value is None:
+        return ''
+    try:
+        num = int(float(value))
+        return f'{num:,}'.replace(',', '.')
+    except (ValueError, TypeError):
+        return str(value)
+
+
+@register.filter
+def phone_digits(value):
+    """Telefonni faqat raqam ko'rinishida (+998 siz): +998935319409 -> 935319409"""
+    if not value:
+        return ''
+    digits = ''.join(ch for ch in str(value) if ch.isdigit())
+    if digits.startswith('998') and len(digits) >= 12:
+        return digits[3:]
+    if digits.startswith('0') and len(digits) == 10:
+        return digits[1:]
+    return digits

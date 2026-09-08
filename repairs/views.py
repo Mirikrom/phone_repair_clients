@@ -452,6 +452,12 @@ def order_print(request, pk):
     return render(request, 'repairs/order_print.html', {'order': order})
 
 
+def order_label_print(request, pk):
+    """XP-T361U 40x30mm etiketka chop etish"""
+    order = get_object_or_404(RepairOrder, shop=request.shop, pk=pk)
+    return render(request, 'repairs/order_label_print.html', {'order': order})
+
+
 def vizitka_choice(request):
     """Vizitka yoki carta nomerini chop etish tanlovi"""
     return render(request, 'repairs/vizitka_choice.html')
