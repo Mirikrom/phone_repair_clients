@@ -39,13 +39,16 @@
 </head>
 <body>
     <div class="no-print">
-        <button type="button" id="btnAgentPrint" style="padding: 8px 16px; font-size: 14px; cursor: pointer; background: #16a34a; color: #fff; border: none; border-radius: 6px; font-weight: 700;">
+        <button type="button" id="btnLocalPrint" style="padding: 8px 16px; font-size: 14px; cursor: pointer; background: #2563eb; color: #fff; border: none; border-radius: 6px; font-weight: 700;">
+            Lokal pechat
+        </button>
+        <button type="button" id="btnAgentPrint" style="padding: 8px 16px; font-size: 14px; cursor: pointer; background: #16a34a; color: #fff; border: none; border-radius: 6px; font-weight: 700; margin-left: 8px;">
             Printerga yuborish (XP-80)
         </button>
         <button type="button" onclick="window.close()" style="padding: 8px 16px; font-size: 14px; cursor: pointer; background: #e2e8f0; color: #0f172a; border: none; border-radius: 6px; margin-left: 8px;">
             Yopish
         </button>
-        <div id="agentMsg" style="margin-top:10px;font-size:13px;color:#64748b;"></div>
+        <div id="agentMsg" style="margin-top:10px;font-size:13px;color:#64748b;">Avval ko‘rib chiqing. Agent ishlasa — yashil, agent buzilsa — Lokal pechat.</div>
     </div>
 
     <div class="carta">
@@ -56,8 +59,10 @@
     <script>
     (function () {
         var btn = document.getElementById('btnAgentPrint');
+        var btnLocal = document.getElementById('btnLocalPrint');
         var msg = document.getElementById('agentMsg');
         var csrf = '{{ csrf_token }}';
+        if (btnLocal) btnLocal.addEventListener('click', function () { window.print(); });
         btn.addEventListener('click', function () {
             btn.disabled = true;
             msg.textContent = 'Yuborilmoqda...';
