@@ -33,9 +33,41 @@ def _agent_token_ok(request):
         or os.environ.get('PRINT_AGENT_TOKEN', '')
     ).strip()
     if not expected:
-        return False
-    got = request.headers.get('X-Print-Token') or request.GET.get('token') or request.POST.get('token') or ''
-    return got == expected
+        return False, 'missing'  # serverda token sozlanmagan
+    got = (
+        request.headers.get('X-Print-Token')
+        or request.GET.get('token')
+        or request.POST.get('token')
+        or ''
+    ).strip()
+    if not got:
+        return False, 'empty'
+    if got != expected:
+        return False, 'mismatch'
+    return True, 'ok'
+
+
+def _agent_auth_response(request):
+    ok, reason = _agent_token_ok(request)
+    if ok:
+        return None
+    if reason == 'missing':
+        return JsonResponse({
+            'ok': False,
+            'error': 'Unauthorized',
+            'detail': 'Serverda PRINT_AGENT_TOKEN yo\'q. .env ga yozib docker compose up -d --force-recreate qiling.',
+        }, status=401)
+    if reason == 'empty':
+        return JsonResponse({
+            'ok': False,
+            'error': 'Unauthorized',
+            'detail': 'So\'rovda token yo\'q (X-Print-Token header).',
+        }, status=401)
+    return JsonResponse({
+        'ok': False,
+        'error': 'Unauthorized',
+        'detail': 'Token mos kelmadi. .env dagi PRINT_AGENT_TOKEN bilan bir xil yozing.',
+    }, status=401)
 
 
 def _serialize_print_job(job):
@@ -529,8 +561,9 @@ def label_print_queue(request, pk):
 @require_GET
 def print_agent_next(request):
     """PC agent: navbatdagi keyingi etiketkani olish"""
-    if not _agent_token_ok(request):
-        return JsonResponse({'ok': False, 'error': 'Unauthorized'}, status=401)
+    auth_err = _agent_auth_response(request)
+    if auth_err:
+        return auth_err
 
     now = timezone.now()
     # Uzoq "printing" qolib ketganlarni qayta pending qilish (5 daqiqa)
@@ -557,8 +590,9 @@ def print_agent_next(request):
 @csrf_exempt
 @require_POST
 def print_agent_done(request, pk):
-    if not _agent_token_ok(request):
-        return JsonResponse({'ok': False, 'error': 'Unauthorized'}, status=401)
+    auth_err = _agent_auth_response(request)
+    if auth_err:
+        return auth_err
     job = get_object_or_404(LabelPrintJob, pk=pk)
     job.status = 'done'
     job.finished_at = timezone.now()
@@ -570,8 +604,9 @@ def print_agent_done(request, pk):
 @csrf_exempt
 @require_POST
 def print_agent_fail(request, pk):
-    if not _agent_token_ok(request):
-        return JsonResponse({'ok': False, 'error': 'Unauthorized'}, status=401)
+    auth_err = _agent_auth_response(request)
+    if auth_err:
+        return auth_err
     job = get_object_or_404(LabelPrintJob, pk=pk)
     err = (request.POST.get('error') or request.GET.get('error') or '').strip()[:1000]
     job.status = 'failed'
