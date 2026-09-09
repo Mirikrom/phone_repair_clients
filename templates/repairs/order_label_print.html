@@ -10,21 +10,98 @@
 
         body {
             margin: 0;
-            padding: 16px;
+            min-height: 100vh;
             background: #e5e7eb;
             font-family: Arial, Helvetica, sans-serif;
             color: #000;
         }
 
-        .no-print {
+        /* Modal tanlov */
+        .mode-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            background: rgba(15, 23, 42, .55);
+        }
+        .mode-modal.hidden { display: none !important; }
+        .mode-card {
+            width: 100%;
+            max-width: 360px;
+            background: #fff;
+            border-radius: 18px;
+            padding: 20px 18px 16px;
+            box-shadow: 0 20px 50px rgba(0,0,0,.25);
+        }
+        .mode-card h1 {
+            font-size: 1.1rem;
+            font-weight: 900;
+            color: #0f172a;
+            margin-bottom: 4px;
+        }
+        .mode-card p {
+            font-size: .88rem;
+            color: #64748b;
+            margin-bottom: 16px;
+        }
+        .mode-btns {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .mode-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            min-height: 48px;
+            border: 0;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: transform .12s, box-shadow .12s;
+        }
+        .mode-btn:hover { transform: translateY(-1px); }
+        .mode-btn:active { transform: scale(.98); }
+        .mode-btn.oddiy {
+            background: #e2e8f0;
+            color: #0f172a;
+        }
+        .mode-btn.tuzalgan {
+            background: #16a34a;
+            color: #fff;
+            box-shadow: 0 8px 18px rgba(22,163,74,.28);
+        }
+        .mode-btn.tuzalmagan {
+            background: #dc2626;
+            color: #fff;
+            box-shadow: 0 8px 18px rgba(220,38,38,.28);
+        }
+        .mode-cancel {
+            margin-top: 12px;
+            width: 100%;
+            border: 0;
+            background: transparent;
+            color: #64748b;
+            font-weight: 700;
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        .toolbar {
             position: fixed;
             top: 12px;
             right: 12px;
-            z-index: 9999;
+            z-index: 20;
             display: flex;
             gap: 8px;
         }
-        .no-print button {
+        .toolbar.hidden { display: none !important; }
+        .toolbar button {
             padding: 8px 14px;
             font-size: 14px;
             cursor: pointer;
@@ -33,43 +110,70 @@
             font-weight: 700;
         }
         .btn-print { background: #2563eb; color: #fff; }
+        .btn-back { background: #e2e8f0; color: #0f172a; }
         .btn-close { background: #e2e8f0; color: #0f172a; }
 
-        /* Ekran: 40x30mm preview */
+        .preview-wrap {
+            display: none;
+            padding: 72px 16px 24px;
+            justify-content: center;
+        }
+        .preview-wrap.visible { display: flex; }
+
+        /* 40×30 mm etiketka */
         .label {
             width: 40mm;
             height: 30mm;
-            margin: 56px auto 0;
-            padding: 1.5mm 1.8mm 3.5mm;
+            padding: 1.2mm 1.5mm 1.2mm;
             background: #fff;
             color: #000 !important;
             position: relative;
             overflow: hidden;
             box-shadow: 0 8px 24px rgba(0,0,0,.15);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            gap: 0.15mm;
         }
 
         .line {
             color: #000 !important;
-            font-size: 10px;
+            font-size: 9px;
             font-weight: 900;
-            line-height: 1.15;
+            line-height: 1.1;
             text-transform: uppercase;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
-        .line.model { font-size: 12px; }
-        .line.info { font-size: 10px; }
-        .line.money { font-size: 9px; letter-spacing: -0.02em; }
+        .line.model { font-size: 11px; }
+        .line.info { font-size: 9px; }
+        .line.money { font-size: 8px; letter-spacing: -0.02em; }
+        .line.status {
+            font-size: 9px;
+            font-weight: 900;
+            letter-spacing: 0.02em;
+            margin-top: 0.2mm;
+        }
+        .line.dates {
+            font-size: 7px;
+            font-weight: 800;
+            text-transform: none;
+            letter-spacing: -0.03em;
+            margin-top: auto;
+            white-space: nowrap;
+        }
+        .line.dates .sep { margin: 0 0.5mm; font-weight: 700; }
 
         .label-time {
             position: absolute;
-            right: 1.5mm;
-            bottom: 1mm;
+            right: 1.3mm;
+            bottom: 0.8mm;
             color: #000 !important;
-            font-size: 9px;
+            font-size: 8px;
             font-weight: 800;
             line-height: 1;
+            text-transform: none;
         }
 
         @page {
@@ -87,9 +191,15 @@
                 overflow: hidden !important;
             }
 
-            .no-print { display: none !important; }
+            .mode-modal,
+            .toolbar { display: none !important; }
 
-            /* Faqat etiketka chop etilsin */
+            .preview-wrap {
+                display: block !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
             body * { visibility: hidden; }
             .label,
             .label * {
@@ -104,7 +214,7 @@
                 margin: 0 !important;
                 width: 40mm !important;
                 height: 30mm !important;
-                padding: 1.5mm 1.8mm 3.5mm !important;
+                padding: 1.2mm 1.5mm 1.2mm !important;
                 box-shadow: none !important;
                 background: #fff !important;
                 overflow: hidden !important;
@@ -115,35 +225,124 @@
     </style>
 </head>
 <body>
-    <div class="no-print">
-        <button class="btn-print" type="button" onclick="window.print()">Pechat</button>
-        <button class="btn-close" type="button" onclick="window.close()">Yopish</button>
+    <div class="mode-modal" id="modeModal">
+        <div class="mode-card">
+            <h1>Etiketka turi</h1>
+            <p>{{ order.phone_model }} — qanday chop etilsin?</p>
+            <div class="mode-btns">
+                <button type="button" class="mode-btn oddiy" data-mode="oddiy">Oddiy</button>
+                <button type="button" class="mode-btn tuzalgan" data-mode="tuzalgan">Tuzalgan</button>
+                <button type="button" class="mode-btn tuzalmagan" data-mode="tuzalmagan">Tuzalmagan</button>
+            </div>
+            <button type="button" class="mode-cancel" id="modeCancel">Yopish</button>
+        </div>
     </div>
 
-    <div class="label">
-        <div class="line model">{{ order.phone_model }}</div>
-        {% if order.required_parts %}
-        <div class="line info">{{ order.required_parts }}</div>
-        {% endif %}
-        {% if order.client_phone %}
-        <div class="line">{{ order.client_phone|phone_digits }}</div>
-        {% endif %}
-        {% if order.client_name %}
-        <div class="line">{{ order.client_name }}</div>
-        {% endif %}
-        {% if order.repair_cost %}
-        <div class="line money">Narxi:{{ order.repair_cost|money_dot_uz }}</div>
-        {% endif %}
-        {% if order.deposit_amount %}
-        <div class="line money">Berildi:{{ order.deposit_amount|money_dot_uz }}</div>
-        {% endif %}
-        <div class="label-time">{{ order.created_at|date:"H:i" }}</div>
+    <div class="toolbar hidden" id="toolbar">
+        <button type="button" class="btn-back" id="btnBack">Orqaga</button>
+        <button type="button" class="btn-print" id="btnPrint">Pechat</button>
+        <button type="button" class="btn-close" onclick="window.close()">Yopish</button>
+    </div>
+
+    <div class="preview-wrap" id="previewWrap">
+        <div class="label" id="label"></div>
     </div>
 
     <script>
-    window.addEventListener('load', function () {
-        setTimeout(function () { window.print(); }, 300);
-    });
+    (function () {
+        var order = {
+            model: "{{ order.phone_model|escapejs }}",
+            info: "{{ order.required_parts|default:''|escapejs }}",
+            phone: "{{ order.client_phone|phone_digits|escapejs }}",
+            name: "{{ order.client_name|default:''|escapejs }}",
+            cost: "{% if order.repair_cost %}{{ order.repair_cost|money_dot_uz }}{% endif %}",
+            deposit: "{% if order.deposit_amount %}{{ order.deposit_amount|money_dot_uz }}{% endif %}",
+            createdAt: "{{ order.created_at|date:'d.m.Y H:i' }}"
+        };
+
+        var modal = document.getElementById('modeModal');
+        var toolbar = document.getElementById('toolbar');
+        var preview = document.getElementById('previewWrap');
+        var label = document.getElementById('label');
+
+        function pad(n) { return n < 10 ? '0' + n : String(n); }
+        function formatNow(d) {
+            return pad(d.getDate()) + '.' + pad(d.getMonth() + 1) + '.' + String(d.getFullYear()).slice(-2)
+                + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+        }
+
+        function shortCreated() {
+            // 09.09.2026 10:33 -> 09.09.26 10:33
+            var parts = (order.createdAt || '').split(' ');
+            if (parts.length < 2) return order.createdAt;
+            var d = parts[0].split('.');
+            if (d.length === 3 && d[2].length === 4) {
+                return d[0] + '.' + d[1] + '.' + d[2].slice(-2) + ' ' + parts[1];
+            }
+            return order.createdAt;
+        }
+
+        function esc(s) {
+            return String(s || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        function buildLabel(mode) {
+            var html = '';
+            if (order.model) html += '<div class="line model">' + esc(order.model) + '</div>';
+            if (order.info) html += '<div class="line info">' + esc(order.info) + '</div>';
+            if (order.phone) html += '<div class="line">' + esc(order.phone) + '</div>';
+            if (order.name) html += '<div class="line">' + esc(order.name) + '</div>';
+            if (order.cost) html += '<div class="line money">Narxi:' + esc(order.cost) + '</div>';
+            if (order.deposit) html += '<div class="line money">Berildi:' + esc(order.deposit) + '</div>';
+
+            if (mode === 'tuzalgan') {
+                html += '<div class="line status">TUZALGAN</div>';
+                html += '<div class="line dates">' + esc(shortCreated())
+                    + '<span class="sep">→</span>' + esc(formatNow(new Date())) + '</div>';
+            } else if (mode === 'tuzalmagan') {
+                html += '<div class="line status">TUZALMAGAN</div>';
+                html += '<div class="line dates">' + esc(shortCreated())
+                    + '<span class="sep">→</span>' + esc(formatNow(new Date())) + '</div>';
+            } else {
+                html += '<div class="line dates">' + esc(order.createdAt) + '</div>';
+            }
+
+            label.innerHTML = html;
+        }
+
+        function showLabel(mode) {
+            buildLabel(mode);
+            modal.classList.add('hidden');
+            toolbar.classList.remove('hidden');
+            preview.classList.add('visible');
+            setTimeout(function () { window.print(); }, 250);
+        }
+
+        document.querySelectorAll('.mode-btn').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                showLabel(btn.getAttribute('data-mode'));
+            });
+        });
+
+        document.getElementById('modeCancel').addEventListener('click', function () {
+            window.close();
+        });
+
+        document.getElementById('btnBack').addEventListener('click', function () {
+            toolbar.classList.add('hidden');
+            preview.classList.remove('visible');
+            modal.classList.remove('hidden');
+            label.innerHTML = '';
+        });
+
+        document.getElementById('btnPrint').addEventListener('click', function () {
+            window.print();
+        });
+    })();
     </script>
 </body>
 </html>
