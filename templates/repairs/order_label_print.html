@@ -154,7 +154,44 @@
             font-weight: 900;
             letter-spacing: 0.02em;
             margin-top: 0.2mm;
+            display: flex;
+            align-items: center;
+            gap: 1.2mm;
         }
+        .line.status .strike {
+            text-decoration: line-through;
+            text-decoration-thickness: 1.5px;
+        }
+        /* Termal printer uchun CSS galochka / X */
+        .mark-ok {
+            display: inline-block;
+            width: 2.8mm;
+            height: 1.5mm;
+            border-left: 1.4px solid #000;
+            border-bottom: 1.4px solid #000;
+            transform: rotate(-45deg);
+            margin-bottom: 1mm;
+            flex-shrink: 0;
+        }
+        .mark-bad {
+            position: relative;
+            display: inline-block;
+            width: 3mm;
+            height: 3mm;
+            flex-shrink: 0;
+        }
+        .mark-bad::before,
+        .mark-bad::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            width: 1.4px;
+            height: 3mm;
+            background: #000;
+        }
+        .mark-bad::before { transform: translateX(-50%) rotate(45deg); }
+        .mark-bad::after { transform: translateX(-50%) rotate(-45deg); }
         .line.dates {
             font-size: 7px;
             font-weight: 800;
@@ -300,11 +337,11 @@
             if (order.deposit) html += '<div class="line money">Berildi:' + esc(order.deposit) + '</div>';
 
             if (mode === 'tuzalgan') {
-                html += '<div class="line status">TUZALGAN</div>';
+                html += '<div class="line status ok">TUZALGAN <span class="mark-ok" aria-hidden="true"></span></div>';
                 html += '<div class="line dates">' + esc(shortCreated())
                     + '<span class="sep">→</span>' + esc(formatNow(new Date())) + '</div>';
             } else if (mode === 'tuzalmagan') {
-                html += '<div class="line status">TUZALMAGAN</div>';
+                html += '<div class="line status bad"><span class="strike">TUZALMAGAN</span> <span class="mark-bad" aria-hidden="true"></span></div>';
                 html += '<div class="line dates">' + esc(shortCreated())
                     + '<span class="sep">→</span>' + esc(formatNow(new Date())) + '</div>';
             } else {
