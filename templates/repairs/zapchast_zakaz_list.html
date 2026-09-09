@@ -510,7 +510,7 @@ document.addEventListener("DOMContentLoaded", function() {
     var ids = [];
     document.querySelectorAll('.print-select:checked').forEach(function(cb) { ids.push(cb.dataset.id); });
     if (ids.length) {
-      window.open('{% url "repairs:zapchast_print" %}?ids=' + ids.join(',') + '&auto=1', 'zapchast_print', 'width=450,height=600');
+      window.open('{% url "repairs:zapchast_print" %}?ids=' + ids.join(','), 'zapchast_print', 'width=450,height=700');
     }
   });
   document.getElementById('btn-olindi').addEventListener('click', function() {

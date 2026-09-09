@@ -16,6 +16,9 @@ env/
 
 # Environment variables
 .env
+agent/config.json
+agent/.venv/
+agent/agent.log
 
 # macOS
 .DS_Store

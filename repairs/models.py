@@ -211,7 +211,17 @@ class ZapchastItem(models.Model):
 
 
 class LabelPrintJob(models.Model):
-    """Etiketka chop etish navbati — PC agent oladi. Mavjud buyurtmalar o'chmaydi."""
+    """Pechat navbati — PC agent oladi (etiketka T361U / chek XP-80)."""
+    KIND_CHOICES = [
+        ('label', 'Etiketka'),
+        ('vizitka', 'Vizitka'),
+        ('carta', 'Karta nomer'),
+        ('zapchast', 'Zapchast ro\'yxati'),
+    ]
+    PRINTER_CHOICES = [
+        ('label', 'Etiketka printer (T361U)'),
+        ('receipt', 'Chek printer (XP-80)'),
+    ]
     MODE_CHOICES = [
         ('oddiy', 'Oddiy'),
         ('tuzalgan', 'Tuzalgan'),
@@ -232,6 +242,8 @@ class LabelPrintJob(models.Model):
         blank=True,
         related_name='label_print_jobs',
     )
+    job_kind = models.CharField(max_length=20, choices=KIND_CHOICES, default='label', db_index=True)
+    printer_target = models.CharField(max_length=20, choices=PRINTER_CHOICES, default='label')
     mode = models.CharField(max_length=20, choices=MODE_CHOICES, default='oddiy')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', db_index=True)
 
@@ -244,6 +256,7 @@ class LabelPrintJob(models.Model):
     deposit_amount = models.CharField(max_length=40, blank=True)
     order_created_at = models.DateTimeField(null=True, blank=True)
     printed_at_client = models.DateTimeField(null=True, blank=True)
+    payload = models.TextField(blank=True, help_text='JSON (zapchast items va boshqalar)')
 
     error_message = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
@@ -252,8 +265,8 @@ class LabelPrintJob(models.Model):
 
     class Meta:
         ordering = ['created_at']
-        verbose_name = 'Etiketka pechat navbati'
-        verbose_name_plural = 'Etiketka pechat navbati'
+        verbose_name = 'Pechat navbati'
+        verbose_name_plural = 'Pechat navbati'
 
     def __str__(self):
-        return f"#{self.pk} {self.phone_model} ({self.mode}/{self.status})"
+        return f"#{self.pk} {self.job_kind}/{self.mode} ({self.status})"

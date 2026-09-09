@@ -88,8 +88,17 @@ def _agent_auth_response(request):
 
 
 def _serialize_print_job(job):
+    import json
+    payload = {}
+    if job.payload:
+        try:
+            payload = json.loads(job.payload)
+        except Exception:
+            payload = {}
     return {
         'id': job.pk,
+        'job_kind': getattr(job, 'job_kind', None) or 'label',
+        'printer_target': getattr(job, 'printer_target', None) or 'label',
         'mode': job.mode,
         'status': job.status,
         'phone_model': job.phone_model or '',
@@ -101,6 +110,7 @@ def _serialize_print_job(job):
         'order_created_at': job.order_created_at.isoformat() if job.order_created_at else None,
         'printed_at_client': job.printed_at_client.isoformat() if job.printed_at_client else None,
         'created_at': job.created_at.isoformat() if job.created_at else None,
+        'payload': payload,
     }
 
 
@@ -560,6 +570,8 @@ def label_print_queue(request, pk):
     job = LabelPrintJob.objects.create(
         shop=request.shop,
         repair_order=order,
+        job_kind='label',
+        printer_target='label',
         mode=mode,
         status='pending',
         phone_model=order.phone_model or '',
@@ -571,7 +583,74 @@ def label_print_queue(request, pk):
         order_created_at=order.created_at,
         printed_at_client=now,
     )
-    return JsonResponse({'ok': True, 'job_id': job.pk, 'mode': job.mode})
+    return JsonResponse({'ok': True, 'job_id': job.pk, 'mode': job.mode, 'job_kind': 'label'})
+
+
+@require_POST
+def receipt_print_queue(request):
+    """Vizitka / karta / zapchast — XP-80 (receipt) printer navbati"""
+    import json
+    kind = (request.POST.get('kind') or '').strip()
+    if kind not in ('vizitka', 'carta', 'zapchast'):
+        return JsonResponse({'ok': False, 'error': 'Noto\'g\'ri tur'}, status=400)
+
+    payload = {}
+    phone_model = ''
+    if kind == 'zapchast':
+        ids_raw = (request.POST.get('ids') or '').strip()
+        pk_list = []
+        for part in ids_raw.split(','):
+            part = part.strip()
+            if part.isdigit():
+                pk_list.append(int(part))
+        items = ZapchastItem.objects.filter(shop=request.shop, pk__in=pk_list, archived=False)
+        if not items.exists():
+            # ids bo'sh bo'lsa — barcha aktiv
+            if not pk_list:
+                items = ZapchastItem.objects.filter(shop=request.shop, archived=False)
+            else:
+                return JsonResponse({'ok': False, 'error': 'Zapchast tanlanmagan'}, status=400)
+        payload_items = []
+        for it in items:
+            pm = it.phone_model or (it.repair_order.phone_model if it.repair_order_id else '') or ''
+            payload_items.append({
+                'phone_model': pm,
+                'name': it.name or '',
+                'quantity': int(it.quantity or 1),
+            })
+        if not payload_items:
+            return JsonResponse({'ok': False, 'error': "Ro'yxat bo'sh"}, status=400)
+        payload = {'items': payload_items}
+        phone_model = f"Zapchast {len(payload_items)} ta"
+    elif kind == 'vizitka':
+        payload = {
+            'name': 'МИРКОМИЛ',
+            'phone': '90 328-33-13',
+            'telegram': '@NFIX_SERVICE',
+            'note': "Bizning telegram kanalga obuna bo‘lishni unutmang!",
+            'logo_url': request.build_absolute_uri('/static/img/nfix_logo.png'),
+            'qr_url': request.build_absolute_uri('/static/img/nfix_telegram_qr.png'),
+        }
+        phone_model = 'Vizitka'
+    else:  # carta
+        payload = {
+            'label': 'Karta Raqami',
+            'number': '5614682915889978',
+            'name': "Tojiboyev Ikrom Zafar o'g'li",
+        }
+        phone_model = 'Karta'
+
+    job = LabelPrintJob.objects.create(
+        shop=request.shop,
+        job_kind=kind,
+        printer_target='receipt',
+        mode='oddiy',
+        status='pending',
+        phone_model=phone_model,
+        printed_at_client=timezone.now(),
+        payload=json.dumps(payload, ensure_ascii=False),
+    )
+    return JsonResponse({'ok': True, 'job_id': job.pk, 'job_kind': kind, 'printer_target': 'receipt'})
 
 
 @csrf_exempt

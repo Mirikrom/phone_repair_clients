@@ -31,6 +31,7 @@ urlpatterns = [
     path('api/print-agent/next/', views.print_agent_next, name='print_agent_next'),
     path('api/print-agent/<int:pk>/done/', views.print_agent_done, name='print_agent_done'),
     path('api/print-agent/<int:pk>/fail/', views.print_agent_fail, name='print_agent_fail'),
+    path('api/print-queue/receipt/', views.receipt_print_queue, name='receipt_print_queue'),
     path('add/', views.order_create, name='order_create'),
     path('<int:pk>/', views.order_detail, name='order_detail'),
     path('<int:pk>/print/', views.order_print, name='order_print'),

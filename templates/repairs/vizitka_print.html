@@ -99,10 +99,15 @@
 <body>
 
   <div class="no-print">
-    <button onclick="window.print()"
-      style="padding:8px 16px;font-size:14px;cursor:pointer;background:#2563eb;color:#fff;border:none;border-radius:6px;">
-      🖨️ Pechat
+    <button type="button" id="btnAgentPrint"
+      style="padding:8px 16px;font-size:14px;cursor:pointer;background:#16a34a;color:#fff;border:none;border-radius:6px;font-weight:700;">
+      Printerga yuborish (XP-80)
     </button>
+    <button type="button" onclick="window.close()"
+      style="padding:8px 16px;font-size:14px;cursor:pointer;background:#e2e8f0;color:#0f172a;border:none;border-radius:6px;margin-left:8px;">
+      Yopish
+    </button>
+    <div id="agentMsg" style="margin-top:10px;font-size:13px;color:#64748b;"></div>
   </div>
 
   <div class="wrap">
@@ -135,17 +140,40 @@
   </div>
 
   <script>
-    if (window.location.search.includes('auto=1')) {
-      window.onload = function() {
-        window.print();
-        window.addEventListener('afterprint', function(){
-          window.close();
-        }, { once:true });
-        setTimeout(function(){
-          window.close();
-        }, 3000);
-      };
-    }
+  (function () {
+    var btn = document.getElementById('btnAgentPrint');
+    var msg = document.getElementById('agentMsg');
+    var csrf = '{{ csrf_token }}';
+    btn.addEventListener('click', function () {
+      btn.disabled = true;
+      msg.textContent = 'Yuborilmoqda...';
+      var body = new URLSearchParams();
+      body.set('kind', 'vizitka');
+      body.set('csrfmiddlewaretoken', csrf);
+      fetch('{% url "repairs:receipt_print_queue" %}', {
+        method: 'POST',
+        headers: { 'X-CSRFToken': csrf, 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: body.toString(),
+        credentials: 'same-origin'
+      })
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        if (j && j.ok) {
+          msg.style.color = '#15803d';
+          msg.textContent = 'Navbatga qo\'yildi #' + j.job_id + ' — XP-80 dan chiqadi';
+        } else {
+          btn.disabled = false;
+          msg.style.color = '#b91c1c';
+          msg.textContent = (j && j.error) || 'Xato';
+        }
+      })
+      .catch(function () {
+        btn.disabled = false;
+        msg.style.color = '#b91c1c';
+        msg.textContent = 'Tarmoq xatosi';
+      });
+    });
+  })();
   </script>
 
 </body>

@@ -28,7 +28,7 @@ class ZapchastItemAdmin(admin.ModelAdmin):
 
 @admin.register(LabelPrintJob)
 class LabelPrintJobAdmin(admin.ModelAdmin):
-    list_display = ['id', 'phone_model', 'mode', 'status', 'shop', 'created_at', 'finished_at']
-    list_filter = ['status', 'mode', 'shop']
+    list_display = ['id', 'job_kind', 'printer_target', 'phone_model', 'mode', 'status', 'shop', 'created_at', 'finished_at']
+    list_filter = ['status', 'job_kind', 'printer_target', 'mode', 'shop']
     search_fields = ['phone_model', 'client_phone', 'client_name']
     readonly_fields = ['created_at', 'started_at', 'finished_at']
