@@ -28,18 +28,21 @@ def _phone_label(value):
 
 
 def _agent_token_ok(request):
+    # Avvalo container .env (ishonchliroq); settings.py gitignore bo'lishi mumkin
     expected = (
-        getattr(settings, 'PRINT_AGENT_TOKEN', '')
-        or os.environ.get('PRINT_AGENT_TOKEN', '')
-    ).strip()
+        os.environ.get('PRINT_AGENT_TOKEN', '')
+        or getattr(settings, 'PRINT_AGENT_TOKEN', '')
+        or ''
+    ).strip().strip('"').strip("'")
     if not expected:
-        return False, 'missing'  # serverda token sozlanmagan
+        return False, 'missing'
     got = (
         request.headers.get('X-Print-Token')
+        or request.META.get('HTTP_X_PRINT_TOKEN')
         or request.GET.get('token')
         or request.POST.get('token')
         or ''
-    ).strip()
+    ).strip().strip('"').strip("'")
     if not got:
         return False, 'empty'
     if got != expected:
@@ -67,6 +70,20 @@ def _agent_auth_response(request):
         'ok': False,
         'error': 'Unauthorized',
         'detail': 'Token mos kelmadi. .env dagi PRINT_AGENT_TOKEN bilan bir xil yozing.',
+        'hint': {
+            'expected_len': len((
+                os.environ.get('PRINT_AGENT_TOKEN', '')
+                or getattr(settings, 'PRINT_AGENT_TOKEN', '')
+                or ''
+            ).strip()),
+            'got_len': len((
+                request.headers.get('X-Print-Token')
+                or request.META.get('HTTP_X_PRINT_TOKEN')
+                or request.GET.get('token')
+                or request.POST.get('token')
+                or ''
+            ).strip()),
+        },
     }, status=401)
 
 
