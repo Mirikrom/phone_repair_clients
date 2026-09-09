@@ -653,24 +653,37 @@ def receipt_print_queue(request):
     return JsonResponse({'ok': True, 'job_id': job.pk, 'job_kind': kind, 'printer_target': 'receipt'})
 
 
+PRINT_JOB_TTL = timedelta(seconds=5)
+
+
+def _expire_stale_print_jobs(now=None):
+    """5 soniyadan oshgan pending/printing joblarni bekor qilish — eski navbat keyin chiqmasin."""
+    now = now or timezone.now()
+    cutoff = now - PRINT_JOB_TTL
+    LabelPrintJob.objects.filter(
+        status__in=('pending', 'printing'),
+        created_at__lt=cutoff,
+    ).update(
+        status='failed',
+        finished_at=now,
+        error_message="Muddati o'tdi (5 soniya) — bekor qilindi",
+    )
+
+
 @csrf_exempt
 @require_GET
 def print_agent_next(request):
-    """PC agent: navbatdagi keyingi etiketkani olish"""
+    """PC agent: navbatdagi keyingi pechatni olish (faqat 5 soniyadan yangilari)"""
     auth_err = _agent_auth_response(request)
     if auth_err:
         return auth_err
 
     now = timezone.now()
-    # Uzoq "printing" qolib ketganlarni qayta pending qilish (5 daqiqa)
-    LabelPrintJob.objects.filter(
-        status='printing',
-        started_at__lt=now - timedelta(minutes=5),
-    ).update(status='pending', started_at=None, error_message='Timeout — qayta navbat')
+    _expire_stale_print_jobs(now)
 
     job = (
         LabelPrintJob.objects
-        .filter(status='pending')
+        .filter(status='pending', created_at__gte=now - PRINT_JOB_TTL)
         .order_by('created_at')
         .first()
     )
