@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import RepairOrder, Shop, ShopProfile, ZapchastItem
+from .models import RepairOrder, Shop, ShopProfile, ZapchastItem, LabelPrintJob
 
 
 @admin.register(Shop)
@@ -24,3 +24,11 @@ class RepairOrderAdmin(admin.ModelAdmin):
 class ZapchastItemAdmin(admin.ModelAdmin):
     list_display = ['name', 'phone_model', 'shop', 'quantity', 'is_done', 'archived', 'created_at']
     list_filter = ['shop', 'is_done', 'archived']
+
+
+@admin.register(LabelPrintJob)
+class LabelPrintJobAdmin(admin.ModelAdmin):
+    list_display = ['id', 'phone_model', 'mode', 'status', 'shop', 'created_at', 'finished_at']
+    list_filter = ['status', 'mode', 'shop']
+    search_fields = ['phone_model', 'client_phone', 'client_name']
+    readonly_fields = ['created_at', 'started_at', 'finished_at']

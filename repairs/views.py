@@ -1,4 +1,5 @@
 import re
+import os
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import login, logout, authenticate
@@ -7,11 +8,51 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 from django.http import JsonResponse, Http404
 from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST, require_GET
+from django.conf import settings
 from datetime import timedelta
-from .models import RepairOrder, ZapchastItem, Shop, ShopProfile
+from .models import RepairOrder, ZapchastItem, Shop, ShopProfile, LabelPrintJob
 from .forms import RepairOrderForm
+from .templatetags.repair_filters import money_dot_uz, phone_digits
 
 PER_PAGE = 100
+
+
+def _money_label(value):
+    return money_dot_uz(value) if value is not None and value != '' else ''
+
+
+def _phone_label(value):
+    return phone_digits(value) if value else ''
+
+
+def _agent_token_ok(request):
+    expected = (
+        getattr(settings, 'PRINT_AGENT_TOKEN', '')
+        or os.environ.get('PRINT_AGENT_TOKEN', '')
+    ).strip()
+    if not expected:
+        return False
+    got = request.headers.get('X-Print-Token') or request.GET.get('token') or request.POST.get('token') or ''
+    return got == expected
+
+
+def _serialize_print_job(job):
+    return {
+        'id': job.pk,
+        'mode': job.mode,
+        'status': job.status,
+        'phone_model': job.phone_model or '',
+        'required_parts': job.required_parts or '',
+        'client_phone': job.client_phone or '',
+        'client_name': job.client_name or '',
+        'repair_cost': job.repair_cost or '',
+        'deposit_amount': job.deposit_amount or '',
+        'order_created_at': job.order_created_at.isoformat() if job.order_created_at else None,
+        'printed_at_client': job.printed_at_client.isoformat() if job.printed_at_client else None,
+        'created_at': job.created_at.isoformat() if job.created_at else None,
+    }
 
 
 def _order_text_search(q):
@@ -453,9 +494,91 @@ def order_print(request, pk):
 
 
 def order_label_print(request, pk):
-    """XP-T361U 40x30mm etiketka chop etish"""
+    """XP-T361U 40x30mm etiketka — tur tanlash va server navbatiga yuborish"""
     order = get_object_or_404(RepairOrder, shop=request.shop, pk=pk)
     return render(request, 'repairs/order_label_print.html', {'order': order})
+
+
+@require_POST
+def label_print_queue(request, pk):
+    """Brauzerdan etiketka pechatini server navbatiga qo'yish"""
+    order = get_object_or_404(RepairOrder, shop=request.shop, pk=pk)
+    mode = (request.POST.get('mode') or 'oddiy').strip()
+    if mode not in ('oddiy', 'tuzalgan', 'tuzalmagan'):
+        return JsonResponse({'ok': False, 'error': 'Noto\'g\'ri rejim'}, status=400)
+
+    now = timezone.now()
+    job = LabelPrintJob.objects.create(
+        shop=request.shop,
+        repair_order=order,
+        mode=mode,
+        status='pending',
+        phone_model=order.phone_model or '',
+        required_parts=order.required_parts or '',
+        client_phone=_phone_label(order.client_phone),
+        client_name=order.client_name or '',
+        repair_cost=_money_label(order.repair_cost),
+        deposit_amount=_money_label(order.deposit_amount),
+        order_created_at=order.created_at,
+        printed_at_client=now,
+    )
+    return JsonResponse({'ok': True, 'job_id': job.pk, 'mode': job.mode})
+
+
+@csrf_exempt
+@require_GET
+def print_agent_next(request):
+    """PC agent: navbatdagi keyingi etiketkani olish"""
+    if not _agent_token_ok(request):
+        return JsonResponse({'ok': False, 'error': 'Unauthorized'}, status=401)
+
+    now = timezone.now()
+    # Uzoq "printing" qolib ketganlarni qayta pending qilish (5 daqiqa)
+    LabelPrintJob.objects.filter(
+        status='printing',
+        started_at__lt=now - timedelta(minutes=5),
+    ).update(status='pending', started_at=None, error_message='Timeout — qayta navbat')
+
+    job = (
+        LabelPrintJob.objects
+        .filter(status='pending')
+        .order_by('created_at')
+        .first()
+    )
+    if not job:
+        return JsonResponse({'ok': True, 'job': None})
+
+    job.status = 'printing'
+    job.started_at = now
+    job.save(update_fields=['status', 'started_at'])
+    return JsonResponse({'ok': True, 'job': _serialize_print_job(job)})
+
+
+@csrf_exempt
+@require_POST
+def print_agent_done(request, pk):
+    if not _agent_token_ok(request):
+        return JsonResponse({'ok': False, 'error': 'Unauthorized'}, status=401)
+    job = get_object_or_404(LabelPrintJob, pk=pk)
+    job.status = 'done'
+    job.finished_at = timezone.now()
+    job.error_message = ''
+    job.save(update_fields=['status', 'finished_at', 'error_message'])
+    return JsonResponse({'ok': True})
+
+
+@csrf_exempt
+@require_POST
+def print_agent_fail(request, pk):
+    if not _agent_token_ok(request):
+        return JsonResponse({'ok': False, 'error': 'Unauthorized'}, status=401)
+    job = get_object_or_404(LabelPrintJob, pk=pk)
+    err = (request.POST.get('error') or request.GET.get('error') or '').strip()[:1000]
+    job.status = 'failed'
+    job.finished_at = timezone.now()
+    job.error_message = err or 'Unknown error'
+    job.save(update_fields=['status', 'finished_at', 'error_message'])
+    return JsonResponse({'ok': True})
 
 
 def vizitka_choice(request):

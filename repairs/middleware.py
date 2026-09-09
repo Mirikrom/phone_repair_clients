@@ -11,6 +11,10 @@ class ShopMiddleware:
         if request.path.startswith('/admin/') or request.path.startswith('/static/') or request.path.startswith('/media/'):
             return self.get_response(request)
 
+        # PC pechat agent API — token bilan, login shart emas
+        if request.path.startswith('/api/print-agent/'):
+            return self.get_response(request)
+
         if request.path in ('/', '/register/', '/logout/'):
             return self.get_response(request)
 

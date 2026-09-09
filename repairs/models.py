@@ -208,3 +208,52 @@ class ZapchastItem(models.Model):
     
     def __str__(self):
         return self.name
+
+
+class LabelPrintJob(models.Model):
+    """Etiketka chop etish navbati — PC agent oladi. Mavjud buyurtmalar o'chmaydi."""
+    MODE_CHOICES = [
+        ('oddiy', 'Oddiy'),
+        ('tuzalgan', 'Tuzalgan'),
+        ('tuzalmagan', 'Tuzalmagan'),
+    ]
+    STATUS_CHOICES = [
+        ('pending', 'Kutilmoqda'),
+        ('printing', 'Chop etilmoqda'),
+        ('done', 'Chop etildi'),
+        ('failed', 'Xato'),
+    ]
+
+    shop = models.ForeignKey(Shop, on_delete=models.CASCADE, related_name='label_print_jobs')
+    repair_order = models.ForeignKey(
+        RepairOrder,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='label_print_jobs',
+    )
+    mode = models.CharField(max_length=20, choices=MODE_CHOICES, default='oddiy')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', db_index=True)
+
+    # Snapshot — buyurtma o'zgarsa ham etiketka to'g'ri chiqadi
+    phone_model = models.CharField(max_length=200, blank=True)
+    required_parts = models.CharField(max_length=300, blank=True)
+    client_phone = models.CharField(max_length=20, blank=True)
+    client_name = models.CharField(max_length=200, blank=True)
+    repair_cost = models.CharField(max_length=40, blank=True)
+    deposit_amount = models.CharField(max_length=40, blank=True)
+    order_created_at = models.DateTimeField(null=True, blank=True)
+    printed_at_client = models.DateTimeField(null=True, blank=True)
+
+    error_message = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    started_at = models.DateTimeField(null=True, blank=True)
+    finished_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['created_at']
+        verbose_name = 'Etiketka pechat navbati'
+        verbose_name_plural = 'Etiketka pechat navbati'
+
+    def __str__(self):
+        return f"#{self.pk} {self.phone_model} ({self.mode}/{self.status})"
