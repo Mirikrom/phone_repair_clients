@@ -244,7 +244,7 @@ body{ background: var(--bg); }
 .muted{ color: var(--muted); }
 
 /* actions */
-.actions{ text-align:right; width: 200px; white-space: nowrap; }
+.actions{ text-align:right; width: 240px; white-space: nowrap; }
 .btn-icon{
   width: 38px;
   height: 38px;
@@ -270,6 +270,33 @@ body{ background: var(--bg); }
   background:#ffffff;
   color:#1d4ed8;
   border-color:#3b82f6;
+}
+
+/* Pechat belgisiga qarab qator rangi */
+.pill-row.print-mark-tuzalgan td{
+  background: #bbf7d0;
+}
+.pill-row.print-mark-tuzalmagan td{
+  background: #fecaca;
+}
+.pill-row.print-mark-tuzalgan:hover td{
+  background: #16a34a;
+  color: #fff;
+  box-shadow: 0 18px 34px rgba(22,163,74,.28);
+}
+.pill-row.print-mark-tuzalmagan:hover td{
+  background: #dc2626;
+  color: #fff;
+  box-shadow: 0 18px 34px rgba(220,38,38,.28);
+}
+.btn-icon.btn-clear-mark{
+  border-color: #94a3b8;
+  color: #475569;
+}
+.btn-icon.btn-clear-mark:hover{
+  background: #64748b;
+  border-color: #64748b;
+  color: #fff;
 }
 
 /* columns (kuchli min-width bermaymiz) */
@@ -349,6 +376,20 @@ body{ background: var(--bg); }
   .order-card:hover .btn-icon{
     background: rgba(255,255,255,.18);
     color:#fff;
+  }
+  .order-card.print-mark-tuzalgan{
+    background: #bbf7d0;
+  }
+  .order-card.print-mark-tuzalmagan{
+    background: #fecaca;
+  }
+  .order-card.print-mark-tuzalgan:hover{
+    background: #16a34a;
+    color: #fff;
+  }
+  .order-card.print-mark-tuzalmagan:hover{
+    background: #dc2626;
+    color: #fff;
   }
 
   .card-top{
@@ -524,7 +565,7 @@ body{ background: var(--bg); }
             {% endifchanged %}
             {% endif %}
 
-            <tr class="pill-row" data-href="{% url 'repairs:order_detail' order.pk %}">
+            <tr class="pill-row{% if order.label_print_mark == 'tuzalgan' %} print-mark-tuzalgan{% elif order.label_print_mark == 'tuzalmagan' %} print-mark-tuzalmagan{% endif %}" data-href="{% url 'repairs:order_detail' order.pk %}">
               <td class="muted">{{ forloop.counter }}</td>
 
               <td>
@@ -574,6 +615,15 @@ body{ background: var(--bg); }
                 <a href="{% url 'repairs:order_edit' order.pk %}" class="btn-icon" title="Tahrirlash">
                   <i class="bi bi-pencil"></i>
                 </a>
+                {% if order.label_print_mark %}
+                <form method="post" action="{% url 'repairs:order_set_label_print_mark' order.pk %}" style="display:inline;">
+                  {% csrf_token %}
+                  <input type="hidden" name="mode" value="oddiy">
+                  <button type="submit" class="btn-icon btn-clear-mark" title="Pechat rangini olib tashlash">
+                    <i class="bi bi-eraser"></i>
+                  </button>
+                </form>
+                {% endif %}
                 <a href="{% url 'repairs:order_delete' order.pk %}" class="btn-icon" title="O'chirish">
                   <i class="bi bi-trash"></i>
                 </a>
@@ -599,7 +649,7 @@ body{ background: var(--bg); }
         {% endifchanged %}
         {% endif %}
 
-        <div class="order-card"
+        <div class="order-card{% if order.label_print_mark == 'tuzalgan' %} print-mark-tuzalgan{% elif order.label_print_mark == 'tuzalmagan' %} print-mark-tuzalmagan{% endif %}"
              data-href="{% url 'repairs:order_detail' order.pk %}">
           <div class="card-top">
             <div class="card-model">{{ order.phone_model }}</div>
@@ -648,6 +698,17 @@ body{ background: var(--bg); }
                onclick="event.stopPropagation();">
               <i class="bi bi-pencil"></i>
             </a>
+            {% if order.label_print_mark %}
+            <form method="post" action="{% url 'repairs:order_set_label_print_mark' order.pk %}" style="display:inline;"
+                  onclick="event.stopPropagation();">
+              {% csrf_token %}
+              <input type="hidden" name="mode" value="oddiy">
+              <button type="submit" class="btn-icon btn-clear-mark" title="Pechat rangini olib tashlash"
+                      onclick="event.stopPropagation();">
+                <i class="bi bi-eraser"></i>
+              </button>
+            </form>
+            {% endif %}
             <a href="{% url 'repairs:order_delete' order.pk %}" class="btn-icon" title="O'chirish"
                onclick="event.stopPropagation();">
               <i class="bi bi-trash"></i>

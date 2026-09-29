@@ -593,12 +593,20 @@ def custom_label_queue(request):
 @require_POST
 def label_print_queue(request, pk):
     """Brauzerdan etiketka pechatini server navbatiga qo'yish"""
+    import json
     order = get_object_or_404(RepairOrder, shop=request.shop, pk=pk)
     mode = (request.POST.get('mode') or 'oddiy').strip()
     if mode not in ('oddiy', 'tuzalgan', 'tuzalmagan'):
         return JsonResponse({'ok': False, 'error': 'Noto\'g\'ri rejim'}, status=400)
 
+    lines = []
+    for i in range(1, 13):
+        val = (request.POST.get(f'line{i}') or '').strip()
+        if val:
+            lines.append(val[:120])
+
     now = timezone.now()
+    payload = {'lines': lines} if lines else {}
     job = LabelPrintJob.objects.create(
         shop=request.shop,
         repair_order=order,
@@ -606,16 +614,37 @@ def label_print_queue(request, pk):
         printer_target='label',
         mode=mode,
         status='pending',
-        phone_model=order.phone_model or '',
-        required_parts=order.required_parts or '',
-        client_phone=_phone_label(order.client_phone),
-        client_name=order.client_name or '',
-        repair_cost=_money_label(order.repair_cost),
-        deposit_amount=_money_label(order.deposit_amount),
+        phone_model=(lines[0] if lines else order.phone_model) or '',
+        required_parts=('' if lines else (order.required_parts or '')),
+        client_phone=('' if lines else _phone_label(order.client_phone)),
+        client_name=('' if lines else (order.client_name or '')),
+        repair_cost=('' if lines else _money_label(order.repair_cost)),
+        deposit_amount=('' if lines else _money_label(order.deposit_amount)),
         order_created_at=order.created_at,
         printed_at_client=now,
+        payload=json.dumps(payload, ensure_ascii=False) if payload else '',
     )
-    return JsonResponse({'ok': True, 'job_id': job.pk, 'mode': job.mode, 'job_kind': 'label'})
+    # Ro'yxat rangi: tuzalgan=yashil, tuzalmagan=qizil, oddiy=odatiy
+    order.label_print_mark = mode if mode in ('tuzalgan', 'tuzalmagan') else ''
+    order.save(update_fields=['label_print_mark'])
+    return JsonResponse({'ok': True, 'job_id': job.pk, 'mode': job.mode, 'job_kind': 'label', 'label_print_mark': order.label_print_mark})
+
+
+@require_POST
+def order_set_label_print_mark(request, pk):
+    """Lokal pechat yoki rangni tozalash — label_print_mark"""
+    order = get_object_or_404(RepairOrder, shop=request.shop, pk=pk)
+    mode = (request.POST.get('mode') or '').strip()
+    if mode not in ('', 'oddiy', 'tuzalgan', 'tuzalmagan'):
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'ok': False, 'error': "Noto'g'ri rejim"}, status=400)
+        messages.error(request, "Noto'g'ri rejim")
+        return redirect('repairs:order_list')
+    order.label_print_mark = mode if mode in ('tuzalgan', 'tuzalmagan') else ''
+    order.save(update_fields=['label_print_mark'])
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({'ok': True, 'label_print_mark': order.label_print_mark})
+    return redirect('repairs:order_list')
 
 
 @require_POST

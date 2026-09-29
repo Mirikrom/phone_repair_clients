@@ -29,16 +29,61 @@
         .result-card.visible { display: flex; }
         .mode-card, .result-inner {
             width: 100%;
-            max-width: 380px;
+            max-width: 400px;
             background: #fff;
             border-radius: 18px;
             padding: 20px 18px 16px;
             box-shadow: 0 20px 50px rgba(0,0,0,.25);
+            max-height: calc(100vh - 32px);
+            overflow-y: auto;
         }
         .mode-card h1, .result-inner h2 { font-size: 1.1rem; font-weight: 900; margin-bottom: 4px; }
-        .mode-card p, .result-inner p { font-size: .88rem; color: #64748b; margin-bottom: 16px; line-height: 1.4; }
+        .mode-card p, .result-inner p { font-size: .88rem; color: #64748b; margin-bottom: 14px; line-height: 1.4; }
         .result-inner.ok h2 { color: #15803d; }
         .result-inner.err h2 { color: #b91c1c; }
+        .lines-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+        .line-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        .line-row input {
+            flex: 1;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: .95rem;
+            font-weight: 700;
+        }
+        .line-row input:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37,99,235,.15);
+        }
+        .line-row .btn-remove {
+            width: 38px;
+            height: 38px;
+            border: 0;
+            border-radius: 10px;
+            background: #fee2e2;
+            color: #b91c1c;
+            font-size: 1.2rem;
+            font-weight: 900;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .btn-add {
+            width: 100%;
+            min-height: 42px;
+            border: 1.5px dashed #94a3b8;
+            border-radius: 10px;
+            background: #f8fafc;
+            color: #334155;
+            font-weight: 800;
+            cursor: pointer;
+            margin-bottom: 12px;
+        }
+        .btn-add:hover { background: #e2e8f0; }
         .mode-btns { display: flex; flex-direction: column; gap: 10px; }
         .mode-btn, .action-btn {
             display: flex;
@@ -53,6 +98,7 @@
             cursor: pointer;
         }
         .mode-btn:disabled, .action-btn:disabled { opacity: .6; cursor: wait; }
+        .mode-btn.next { background: #2563eb; color: #fff; }
         .mode-btn.oddiy { background: #e2e8f0; color: #0f172a; }
         .mode-btn.tuzalgan { background: #16a34a; color: #fff; }
         .mode-btn.tuzalmagan { background: #dc2626; color: #fff; }
@@ -87,14 +133,7 @@
             flex-direction: column;
             gap: 10px;
         }
-        .hint {
-            font-size: .82rem;
-            color: #64748b;
-            text-align: center;
-            max-width: 360px;
-        }
 
-        /* Preview + local print: 40x30 */
         .label {
             width: 40mm;
             height: 30mm;
@@ -193,7 +232,18 @@
     </style>
 </head>
 <body>
-    <div class="mode-modal" id="modeModal">
+    <div class="mode-modal" id="linesModal">
+        <div class="mode-card">
+            <h1>Etiketka matni</h1>
+            <p>To‘ldirilgan qatorlar. Kerak bo‘lsa o‘zgartiring yoki yangi qator qo‘shing.</p>
+            <div class="lines-list" id="linesList"></div>
+            <button type="button" class="btn-add" id="btnAddLine">+ Qator qo‘shish</button>
+            <button type="button" class="mode-btn next" id="btnLinesNext">Davom etish</button>
+            <button type="button" class="mode-cancel" id="linesCancel">Yopish</button>
+        </div>
+    </div>
+
+    <div class="mode-modal hidden" id="modeModal">
         <div class="mode-card">
             <h1>Etiketka turi</h1>
             <p>{{ order.phone_model }}</p>
@@ -202,7 +252,7 @@
                 <button type="button" class="mode-btn tuzalgan" data-mode="tuzalgan">Tuzalgan</button>
                 <button type="button" class="mode-btn tuzalmagan" data-mode="tuzalmagan">Tuzalmagan</button>
             </div>
-            <button type="button" class="mode-cancel" id="modeCancel">Yopish</button>
+            <button type="button" class="mode-cancel" id="modeBack">Orqaga</button>
         </div>
     </div>
 
@@ -215,8 +265,6 @@
             <button type="button" class="action-btn back" id="btnBack">Orqaga</button>
         </div>
     </div>
-
-    <!-- print uchun label previewWrap ichida -->
 
     <div class="result-card" id="resultCard">
         <div class="result-inner" id="resultInner">
@@ -238,10 +286,14 @@
             createdAt: "{{ order.created_at|date:'d.m.Y H:i' }}"
         };
         var queueUrl = "{% url 'repairs:label_print_queue' order.pk %}";
+        var markUrl = "{% url 'repairs:order_set_label_print_mark' order.pk %}";
         var csrfToken = "{{ csrf_token }}";
         var selectedMode = 'oddiy';
-        var modal = document.getElementById('modeModal');
+        var MAX_LINES = 12;
+        var linesModal = document.getElementById('linesModal');
+        var modeModal = document.getElementById('modeModal');
         var preview = document.getElementById('previewWrap');
+        var linesList = document.getElementById('linesList');
         var label = document.getElementById('label');
         var resultCard = document.getElementById('resultCard');
         var resultInner = document.getElementById('resultInner');
@@ -268,14 +320,55 @@
                 .replace(/&/g, '&amp;').replace(/</g, '&lt;')
                 .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
         }
+        function defaultLines() {
+            var lines = [];
+            if (order.model) lines.push(order.model);
+            if (order.info) lines.push(order.info);
+            if (order.phone) lines.push(order.phone);
+            if (order.name) lines.push(order.name);
+            if (order.cost) lines.push('Narxi:' + order.cost);
+            if (order.deposit) lines.push('Berildi:' + order.deposit);
+            return lines;
+        }
+        function addLineRow(value) {
+            if (linesList.children.length >= MAX_LINES) return;
+            var row = document.createElement('div');
+            row.className = 'line-row';
+            var input = document.createElement('input');
+            input.type = 'text';
+            input.maxLength = 120;
+            input.value = value || '';
+            input.placeholder = 'Matn...';
+            var remove = document.createElement('button');
+            remove.type = 'button';
+            remove.className = 'btn-remove';
+            remove.title = "O'chirish";
+            remove.textContent = '×';
+            remove.addEventListener('click', function () {
+                row.remove();
+            });
+            row.appendChild(input);
+            row.appendChild(remove);
+            linesList.appendChild(row);
+            if (!value) input.focus();
+        }
+        function getLines() {
+            var lines = [];
+            linesList.querySelectorAll('input').forEach(function (inp) {
+                var v = (inp.value || '').trim();
+                if (v) lines.push(v);
+            });
+            return lines;
+        }
         function buildLabel(mode) {
+            var lines = getLines();
             var html = '';
-            if (order.model) html += '<div class="line model">' + esc(order.model) + '</div>';
-            if (order.info) html += '<div class="line info">' + esc(order.info) + '</div>';
-            if (order.phone) html += '<div class="line">' + esc(order.phone) + '</div>';
-            if (order.name) html += '<div class="line">' + esc(order.name) + '</div>';
-            if (order.cost) html += '<div class="line money">Narxi:' + esc(order.cost) + '</div>';
-            if (order.deposit) html += '<div class="line money">Berildi:' + esc(order.deposit) + '</div>';
+            lines.forEach(function (t, idx) {
+                var cls = 'line';
+                if (idx === 0) cls += ' model';
+                if (/^Narxi:|^Berildi:/i.test(t)) cls += ' money';
+                html += '<div class="' + cls + '">' + esc(t) + '</div>';
+            });
             if (mode === 'tuzalgan') {
                 html += '<div class="line status ok">TUZALGAN <span class="mark-ok"></span></div>';
                 html += '<div class="line dates">' + esc(shortCreated()) + ' → ' + esc(formatNow(new Date())) + '</div>';
@@ -290,7 +383,8 @@
         function showPreview(mode) {
             selectedMode = mode;
             buildLabel(mode);
-            modal.classList.add('hidden');
+            modeModal.classList.add('hidden');
+            linesModal.classList.add('hidden');
             preview.classList.remove('hidden');
         }
         function showResult(ok, title, text) {
@@ -299,15 +393,40 @@
             resultText.textContent = text;
             resultCard.classList.add('visible');
             preview.classList.add('hidden');
-            modal.classList.add('hidden');
+            modeModal.classList.add('hidden');
+            linesModal.classList.add('hidden');
+        }
+        function setPrintMark(mode) {
+            var body = new URLSearchParams();
+            body.set('mode', mode);
+            body.set('csrfmiddlewaretoken', csrfToken);
+            return fetch(markUrl, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: body.toString(),
+                credentials: 'same-origin'
+            }).catch(function () {});
         }
         function queuePrint() {
             if (busy) return;
+            var lines = getLines();
+            if (!lines.length) {
+                alert("Kamida 1 ta qator to'ldiring");
+                return;
+            }
             busy = true;
             document.getElementById('btnAgent').disabled = true;
             var body = new URLSearchParams();
             body.set('mode', selectedMode);
             body.set('csrfmiddlewaretoken', csrfToken);
+            lines.forEach(function (t, i) {
+                body.set('line' + (i + 1), t);
+            });
+            body.set('lines_count', String(lines.length));
             fetch(queueUrl, {
                 method: 'POST',
                 headers: { 'X-CSRFToken': csrfToken, 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -319,7 +438,7 @@
                 busy = false;
                 document.getElementById('btnAgent').disabled = false;
                 if (res.ok && res.j && res.j.ok) {
-                    showResult(true, 'Navbatga qo\'yildi', 'Agent orqali T361U ga yuborildi. #' + res.j.job_id);
+                    goBackList();
                 } else {
                     showResult(false, 'Xato', (res.j && res.j.error) || 'Yuborib bo\'lmadi');
                 }
@@ -330,29 +449,61 @@
                 showResult(false, 'Xato', 'Tarmoq xatosi');
             });
         }
+        function goBackList() {
+            window.location.href = "{% url 'repairs:order_list' %}";
+        }
+        function afterPrintGoHome() {
+            // pechat dialog yopilgach asosiy ekranga
+            var done = false;
+            function go() {
+                if (done) return;
+                done = true;
+                goBackList();
+            }
+            window.addEventListener('afterprint', go, { once: true });
+            setTimeout(go, 800);
+        }
 
-        document.querySelectorAll('.mode-btn').forEach(function (btn) {
+        defaultLines().forEach(function (t) { addLineRow(t); });
+        if (!linesList.children.length) addLineRow('');
+
+        document.getElementById('btnAddLine').addEventListener('click', function () {
+            if (linesList.children.length >= MAX_LINES) {
+                alert('Maksimum ' + MAX_LINES + ' qator');
+                return;
+            }
+            addLineRow('');
+        });
+        document.getElementById('btnLinesNext').addEventListener('click', function () {
+            if (!getLines().length) {
+                alert("Kamida 1 ta qator to'ldiring");
+                return;
+            }
+            linesModal.classList.add('hidden');
+            modeModal.classList.remove('hidden');
+        });
+        document.getElementById('linesCancel').addEventListener('click', goBackList);
+        document.getElementById('modeBack').addEventListener('click', function () {
+            modeModal.classList.add('hidden');
+            linesModal.classList.remove('hidden');
+        });
+        document.querySelectorAll('#modeModal .mode-btn[data-mode]').forEach(function (btn) {
             btn.addEventListener('click', function () {
                 showPreview(btn.getAttribute('data-mode'));
             });
         });
         document.getElementById('btnLocal').addEventListener('click', function () {
-            buildLabel(selectedMode); // vaqt yangilansin
+            buildLabel(selectedMode);
+            setPrintMark(selectedMode);
+            afterPrintGoHome();
             window.print();
         });
         document.getElementById('btnAgent').addEventListener('click', queuePrint);
         document.getElementById('btnBack').addEventListener('click', function () {
             preview.classList.add('hidden');
-            modal.classList.remove('hidden');
+            modeModal.classList.remove('hidden');
         });
-        document.getElementById('modeCancel').addEventListener('click', function () {
-            window.close();
-            window.location.href = "{% url 'repairs:order_list' %}";
-        });
-        document.getElementById('resultClose').addEventListener('click', function () {
-            window.close();
-            window.location.href = "{% url 'repairs:order_list' %}";
-        });
+        document.getElementById('resultClose').addEventListener('click', goBackList);
     })();
     </script>
 </body>

@@ -39,6 +39,7 @@ urlpatterns = [
     path('<int:pk>/print/', views.order_print, name='order_print'),
     path('<int:pk>/etiketka/', views.order_label_print, name='order_label_print'),
     path('<int:pk>/etiketka/queue/', views.label_print_queue, name='label_print_queue'),
+    path('<int:pk>/etiketka/mark/', views.order_set_label_print_mark, name='order_set_label_print_mark'),
     path('<int:pk>/edit/', views.order_edit, name='order_edit'),
     path('<int:pk>/delete/', views.order_delete, name='order_delete'),
     path('<int:pk>/tugatish/', views.order_mark_ready, name='order_mark_ready'),

@@ -123,6 +123,18 @@ class RepairOrder(models.Model):
         default='in_progress',
         verbose_name='Status'
     )
+    LABEL_PRINT_MARK_CHOICES = [
+        ('', 'Oddiy'),
+        ('tuzalgan', 'Tuzalgan'),
+        ('tuzalmagan', 'Tuzalmagan'),
+    ]
+    label_print_mark = models.CharField(
+        max_length=20,
+        choices=LABEL_PRINT_MARK_CHOICES,
+        blank=True,
+        default='',
+        verbose_name='Etiketka pechat belgisi (rang)',
+    )
     created_at = models.DateTimeField(
         auto_now_add=True,
         verbose_name='Kiritilgan vaqt'
