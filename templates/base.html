@@ -455,6 +455,11 @@ input[type=number] {
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link nav-menu-item {% if request.resolver_match.url_name in 'custom_label_print' %}active{% endif %}" href="{% url 'repairs:custom_label_print' %}" title="Sozlamalar / erkin etiketka">
+                            <i class="bi bi-gear"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link nav-menu-item text-white-50" href="{% url 'repairs:logout' %}" title="Chiqish">
                             <i class="bi bi-box-arrow-right"></i>
                         </a>

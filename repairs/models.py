@@ -214,6 +214,7 @@ class LabelPrintJob(models.Model):
     """Pechat navbati — PC agent oladi (etiketka T361U / chek XP-80)."""
     KIND_CHOICES = [
         ('label', 'Etiketka'),
+        ('custom', 'Erkin etiketka'),
         ('vizitka', 'Vizitka'),
         ('carta', 'Karta nomer'),
         ('zapchast', 'Zapchast ro\'yxati'),

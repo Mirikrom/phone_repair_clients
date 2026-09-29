@@ -558,6 +558,38 @@ def order_label_print(request, pk):
     return render(request, 'repairs/order_label_print.html', {'order': order})
 
 
+def custom_label_print(request):
+    """Sozlamalar — 7 ta erkin qator + etiketka pechat"""
+    return render(request, 'repairs/custom_label_print.html')
+
+
+@require_POST
+def custom_label_queue(request):
+    """Erkin etiketka — 7 qator + chop vaqti, T361U navbati"""
+    import json
+    lines = []
+    for i in range(1, 8):
+        val = (request.POST.get(f'line{i}') or '').strip()
+        if val:
+            lines.append(val[:120])
+    if not lines:
+        return JsonResponse({'ok': False, 'error': "Kamida 1 ta qator to'ldiring"}, status=400)
+
+    now = timezone.now()
+    job = LabelPrintJob.objects.create(
+        shop=request.shop,
+        repair_order=None,
+        job_kind='custom',
+        printer_target='label',
+        mode='oddiy',
+        status='pending',
+        phone_model=lines[0][:200],
+        printed_at_client=now,
+        payload=json.dumps({'lines': lines}, ensure_ascii=False),
+    )
+    return JsonResponse({'ok': True, 'job_id': job.pk, 'job_kind': 'custom'})
+
+
 @require_POST
 def label_print_queue(request, pk):
     """Brauzerdan etiketka pechatini server navbatiga qo'yish"""
@@ -756,7 +788,7 @@ def order_edit(request, pk):
             else:
                 order.zapchast_items.all().delete()
             messages.success(request, 'Buyurtma yangilandi!')
-            return redirect('repairs:order_list')
+            return redirect('repairs:order_detail', pk=order.pk)
         else:
             messages.error(request, 'Xatolik! Ma\'lumotlarni tekshiring.')
     else:
